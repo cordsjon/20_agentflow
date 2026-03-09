@@ -205,6 +205,153 @@ The orchestrator handles routing automatically once the agent is registered and 
 
 ---
 
+## Companion Tools
+
+agentflow is a set of markdown files and conventions. But two companion tools were built alongside it to make the loop tangible — a GUI remote control and a web-based pipeline dashboard. Both are open-source and can be adapted to any agentflow project.
+
+### Remote Control — Loop GUI Dashboard
+
+A native desktop GUI (WinForms/PowerShell) that exposes all 30+ loop functions without touching the terminal. Designed for the operator who wants to see what the agent is doing and intervene when needed.
+
+**Dual-mode UI:**
+
+```
+COMPACT MODE (~420×120 px, always-on-top)
++================================================================+
+|  [>] [||] [U] [AB] | Status | [BLD] [RST] [GL] [D] [X]       |
++----------------------------------------------------------------+
+|  > [4] US-019 Recipe validation              project v2.1      |
++----------------------------------------------------------------+
+|  Action: Medium finding in auth.py — review required           |
++================================================================+
+
+DASHBOARD MODE (~900×700 px)
++============================================================+
+|  RC-1.0  [Project v]  INBOX(3) BACKLOG(7) QUEUE(4)          |
++------------------------------------------------------------+
+|  PIPELINE (Kanban)                                           |
+|  +--------+ +--------+ +--------+ +--------+                |
+|  |Inbox(3)| |Ideate 2| |Refine 3| |Ready(2)|                |
++------------------------------------------------------------+
+|  QUEUE (TODO-Today)                [Greenlight] [Run]        |
+|  > Current: US-019 Recipe valid.    [2/7 done]               |
++------------------------------------------------------------+
+|  AUTOPILOT      | SERVER       | SESSION                     |
+|  [>Resume] [||] | :9001 UP     | Memory: 2h ago              |
+|  [Unattend 2h]  | v2.1.0       | Retro: [===7/10==]          |
++============================================================+
+```
+
+**Key capabilities:**
+- **Autopilot control** — Resume / Pause / Unattended timer (2h/4h/6h/8h)
+- **Queue view** — Live TODO-Today parsing, current task display, progress bar
+- **Server health** — TCP port check, build log streaming, git status (M/U counts)
+- **Multi-project switching** — Dropdown lists all governed projects, auto-detects active one
+- **Action bridge** — GUI writes commands to `.claude-action`, agent reads and executes. One-at-a-time queueing with stale detection (5 min timeout)
+- **Hotkeys** — `Win+Shift+T` toggle visibility, `Win+Shift+R` resume, `Win+Shift+P` pause, `Win+Shift+G` greenlight
+
+**Architecture — Single-Writer Rule:**
+
+The critical constraint: the agent is the only writer to pipeline markdown files (BACKLOG, TODO-Today, DONE-Today). The GUI communicates through a `.claude-action` file — a command channel that the agent polls and executes. This eliminates concurrent write hazards entirely.
+
+```
+┌──────────┐     .claude-action      ┌──────────┐
+│   GUI    │ ──── writes command ───→ │  Agent   │
+│ (Remote  │                          │ (Claude  │
+│  Control)│ ←── reads  result ────── │  Code)   │
+└──────────┘     .claude-action-log   └──────────┘
+                                           │
+                                    writes to .md files
+                                    (BACKLOG, TODO-Today, etc.)
+```
+
+**Tech stack:** PowerShell 5.1, WinForms (.NET Framework 4.7.2), no external dependencies. Runs on any Windows 10+ machine.
+
+**Phases:**
+1. Core Shell (compact mode, autopilot, queue, health) — **implemented**
+2. Pipeline Visibility (Kanban view, INBOX triage, staleness scanner)
+3. Outer Loop Controls (BACKLOG graduation, planning rounds, greenlight streaming)
+4. PO Intelligence (dependency trees, risk register, retro counter, BV scoring)
+
+---
+
+### Pipeline Dashboard — Web-Based Kanban
+
+A lightweight web dashboard that visualizes the entire agentflow pipeline as a 6-column Kanban board. Think "Jira for markdown files" — but local, instant, and zero-config.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Pipeline Dashboard          [Project Filter v]              │
+├─────────┬─────────┬─────────┬─────────┬─────────┬──────────┤
+│ INBOX   │IDEATION │REFINING │ READY   │ QUEUE   │  DONE    │
+│         │         │         │         │         │          │
+│ ┌─────┐ │ ┌─────┐ │ ┌─────┐ │ ┌─────┐ │ ┌─────┐ │ ┌──────┐│
+│ │ Raw │ │ │Idea │ │ │Spec │ │ │#1   │ │ │[x]  │ │ │14:32 ││
+│ │ bug │ │ │     │ │ │in   │ │ │Ready│ │ │Done │ │ │Done  ││
+│ │     │ │ │     │ │ │prog │ │ │     │ │ │     │ │ │      ││
+│ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │      ││
+│ └─────┘ │ └─────┘ │ └─────┘ │ └─────┘ │ └─────┘ │ └──────┘│
+│ ┌─────┐ │         │         │ ┌─────┐ │ ┌─────┐ │          │
+│ │Link │ │         │         │ │#2   │ │ │[ ]  │ │          │
+│ │     │ │         │         │ │Ready│ │ │Next │ │          │
+│ └─────┘ │         │         │ └─────┘ │ └─────┘ │          │
+├─────────┴─────────┴─────────┴─────────┴─────────┴──────────┤
+│  Promote →                                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key features:**
+- **6-column Kanban** — maps directly to pipeline stages: Inbox → Ideation → Refining → Ready → Queue → Done
+- **Auto-discovery** — scans a root directory for all projects containing pipeline markdown files
+- **Project filter** — scope the board to a single project or view all at once
+- **Epic accordion** — items grouped by epic prefix, collapse/expand state persisted in localStorage
+- **Promote button** — one-click promotion to the next pipeline stage (writes directly to `.md` files)
+- **Lane-aware command shortcuts** — each card shows the appropriate `/sc:` command for its stage, copies to clipboard on click
+- **Card details** — expand any card to see the full item body (spec links, AC, context)
+
+**Architecture:**
+- Pure Python backend (no framework dependency beyond stdlib, or lightweight Flask)
+- Vanilla HTML/CSS/JS frontend — no build system, no React/Vue
+- No database — reads/writes directly to `.md` files via regex + file I/O
+- No authentication — designed for single-user local environments
+
+**How it integrates with agentflow:**
+
+| Pipeline File | Dashboard Column | Interaction |
+|---------------|-----------------|-------------|
+| `INBOX.md` | Inbox | View + promote to BACKLOG |
+| `BACKLOG.md #Ideation` | Ideation | View + promote to Refining |
+| `BACKLOG.md #Refining` | Refining | View + promote to Ready |
+| `BACKLOG.md #Ready` | Ready | View + promote to Queue via `/workflow` |
+| `TODO-Today.md` | Queue | View current execution state |
+| `DONE-Today.md` | Done | View completed items with timestamps |
+
+**Start:**
+```bash
+python dashboard.py [--port 8500] [--root /path/to/projects]
+# Open http://localhost:8500
+```
+
+---
+
+### Choosing Between Them
+
+| Feature | Remote Control | Pipeline Dashboard |
+|---------|---------------|-------------------|
+| **Platform** | Windows (WinForms) | Any (web browser) |
+| **Best for** | Real-time operator control | Pipeline visibility + planning |
+| **Autopilot control** | Yes (resume/pause/unattended) | No |
+| **Server health** | Yes (TCP check, build log) | No |
+| **Kanban view** | Phase 2+ | Yes (6 columns) |
+| **Multi-project** | Yes (dropdown) | Yes (auto-discover) |
+| **Promote items** | Via action bridge (agent writes) | Direct file write |
+| **Always-on-top** | Yes (compact mode) | No |
+| **Zero dependencies** | PowerShell 5.1 + .NET | Python + browser |
+
+Use **both** together: Remote Control for moment-to-moment autopilot management, Pipeline Dashboard for planning rounds and backlog grooming.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
