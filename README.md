@@ -104,6 +104,8 @@ Plus 4 support process portfolios (GTM, SEO, Intel, Content) and an on-demand to
 
 4. **Adapt to your agent:** The loop is agent-agnostic. Replace skill names with your agent's equivalents, or use them as-is with Claude Code.
 
+5. **Try the demo:** Clone [**agentflow-demo**](https://github.com/cordsjon/agentflow-demo) — a minimal FastAPI app with pre-filled pipeline stages at every point. Run it, watch the loop, record it.
+
 ## Design Principles
 
 - **Queue-first:** Never implement during triage. Write the queue item first, then execute.
