@@ -118,7 +118,7 @@ Plus 4 support process portfolios (GTM, SEO, Intel, Content) and an on-demand to
 
 ## Origin Story
 
-agentflow started as a simple TODO list and a CLAUDE.md file in a solo developer's side project — an SVG asset generation platform built with FastAPI and Claude Code.
+agentflow started as a simple TODO list and a CLAUDE.md file in a solo developer's side project — a local-first content generation platform built with FastAPI and Claude Code.
 
 ### The Humble Beginning
 

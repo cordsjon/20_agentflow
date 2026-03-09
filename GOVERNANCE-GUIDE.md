@@ -303,7 +303,7 @@ USER INPUT (any message without /q prefix)
 │ @gemini  │ STUB     │ Google Sheets bridge           │ Research      │
 │          │          │ message bus HTTP API                │ Large-context │
 │          │          │ (2min polling)                 │ Spec review   │
-│          │          │                               │ SEO/Etsy      │
+│          │          │                               │ SEO/Market    │
 ├──────────┼──────────┼───────────────────────────────┼───────────────┤
 │ @chatgpt │ STUB     │ Google Sheets bridge           │ Copywriting   │
 │          │          │ Manual paste                   │ Marketing     │
@@ -474,24 +474,24 @@ Governance ──→ project-a/governance/     [synced]
 ### Example A: Bug Fix (fast track)
 
 ```
-User: "The font preview crashes when the font has no glyphs"
+User: "The item list crashes when the collection has no entries"
 
 1. TRIAGE
    ├── Classify: [bug]
    ├── Severity: blocks development → [hotfix]
    └── Write to TODO-Today.md (skips BACKLOG):
-       - [ ] **fix** Font preview crash on empty glyph set `@claude` `stall:0`
-         `/sc:implement "fix empty glyph crash" --focus backend`
-         _Context: font_detail.html, font_service.py -- confidence:1.0_
+       - [ ] **fix** Item list crash on empty collection `@claude` `stall:0`
+         `/sc:implement "fix empty collection crash" --focus backend`
+         _Context: list_detail.html, collection_service.py -- confidence:1.0_
 
 2. ROUTE
    ├── Only @claude is active → assign @claude, confidence: 1.0
-   └── Bug DOR-lite: root cause = missing guard, fix = 1 step, test = test_font_preview
+   └── Bug DOR-lite: root cause = missing guard, fix = 1 step, test = test_list_empty
 
 3. EXECUTE
-   ├── Read font_service.py
-   ├── Add guard: if not glyphs: return empty preview
-   ├── Write test_font_preview_empty.py
+   ├── Read collection_service.py
+   ├── Add guard: if not items: return empty list
+   ├── Write test_list_empty_collection.py
    └── Run greenlight
 
 4. CLEANUP SUB-LOOP
@@ -499,8 +499,8 @@ User: "The font preview crashes when the font has no glyphs"
    └── Continue
 
 5. COMMIT + DONE
-   ├── git commit -m "fix: guard against empty glyph set in font preview"
-   ├── queue done --task "Font preview crash on empty glyph set"
+   ├── git commit -m "fix: guard against empty collection in item list"
+   ├── queue done --task "Item list crash on empty collection"
    └── Update KNOWN_PATTERNS if pattern is reusable
 ```
 
@@ -539,14 +539,14 @@ User: "We need recipe categories to support 3-level nesting"
 ### Example C: Research Task (future multi-agent)
 
 ```
-User: "Research Etsy SEO trends for contrast card listings"
+User: "Research SEO trends for product listings on marketplaces"
 
 1. TRIAGE → BACKLOG.md#Ideation → [research]
 
 2. ROUTE (when @gemini is active)
    ├── Score @claude:  -2 (no web browsing match)
    ├── Score @gemini:   6 (research + SEO + trends + web)
-   ├── Score @chatgpt:  4 (Etsy + listings + web)
+   ├── Score @chatgpt:  4 (listings + marketplace + web)
    └── Route: @gemini, confidence: 0.75
 
 3. DISPATCH via message bus
@@ -748,7 +748,7 @@ Skills outside the dev loop are organized into **4 support processes**. Each has
 
 ### SP-4: Content Production Desk
 
-**Trigger:** Etsy listing creation, blog/docs needed, or content calendar milestone.
+**Trigger:** Product listing creation, blog/docs needed, or content calendar milestone.
 **Cadence:** Per-listing or weekly content batch.
 **Owner:** User-initiated.
 
@@ -756,7 +756,7 @@ Skills outside the dev loop are organized into **4 support processes**. Each has
 /content-creator               → SEO-optimized marketing content
 /content-research-writer       → research-backed articles with citations
 /viral-generator-builder       → shareable tool builders
-/shopify-development           → Shopify integration (if expanding beyond Etsy)
+/shopify-development           → Shopify/e-commerce integration
 ```
 
 **Workflow:**

@@ -120,7 +120,7 @@ User sends: "We need dark mode support"
    → Outputs requirements doc with scope, edge cases, themes
 
 2. /requirements-clarity
-   → Catches: "Does dark mode apply to exported SVGs or just UI?"
+   → Catches: "Does dark mode apply to exported assets or just UI?"
    → Clarifies: UI only, export uses explicit color schemes
 
 3. /sc:spec-panel requirements/SPEC_DARK_MODE.md --mode critique
