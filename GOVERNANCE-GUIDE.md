@@ -40,14 +40,14 @@
            ┌──────────┬──────────┬────────┴────────┬──────────┐
            │          │          │                  │          │
       ┌────┴────┐ ┌───┴───┐ ┌───┴────┐ ┌──────────┴┐ ┌──────┴───┐
-      │Project-A│ │Project-B│ │Project-C│ │Project-D │ │Project-E │
-      │  :9001  │ │  :7890  │ │         │ │          │ │          │
-      └─────────┘ └─────────┘ └─────────┘ └──────────┘ └──────────┘
+      │SVG-PAINT│ │Tether │ │Sidequest│ │Whitelabel │ │ Skills   │
+      │ :9001   │ │ :7890 │ │        │ │           │ │          │
+      └─────────┘ └───────┘ └────────┘ └───────────┘ └──────────┘
            │          │
-           │    Agent Message Bus
+           │    Tether Message Bus
            │    ┌─────┴─────────────────────┐
-           │    │      message-bus.db        │
-           │    │   (your message layer)     │
+           │    │         tether.db          │
+           │    │    (BLAKE3 · LC-B · MCP)   │
            │    └─────┬─────────────────────┘
            │          │
       ┌────┴──────────┼──────────────┐
@@ -61,7 +61,7 @@
 
 **Core principle:** Governance files are the single source of truth.
 Every project gets a `governance/` directory synced from the central repo.
-Agents communicate via a message bus. The orchestrator routes tasks to agents.
+Agents communicate via Tether. The orchestrator routes tasks to agents.
 
 ---
 
@@ -301,9 +301,9 @@ USER INPUT (any message without /q prefix)
 │          │          │                               │ Architecture  │
 ├──────────┼──────────┼───────────────────────────────┼───────────────┤
 │ @gemini  │ STUB     │ Google Sheets bridge           │ Research      │
-│          │          │ message bus HTTP API                │ Large-context │
+│          │          │ Tether HTTP API                │ Large-context │
 │          │          │ (2min polling)                 │ Spec review   │
-│          │          │                               │ SEO/Market    │
+│          │          │                               │ SEO/Etsy      │
 ├──────────┼──────────┼───────────────────────────────┼───────────────┤
 │ @chatgpt │ STUB     │ Google Sheets bridge           │ Copywriting   │
 │          │          │ Manual paste                   │ Marketing     │
@@ -420,11 +420,13 @@ D:\Temp\git\Governance\
 
 ### Tools
 
-**Pipeline Dashboard** — Markdown-native Kanban pipeline dashboard (e.g. temujira or similar).
+**[temujira](../temujira/)** — Markdown-native Kanban pipeline dashboard.
 
 ```
-Start:   python dashboard.py [--port 8500] [--root /path/to/projects]
+Repo:    D:\Temp\git\temujira\
+Start:   python D:\Temp\git\temujira\dashboard.py [--port 8500] [--root D:\Temp\git]
 Open:    http://localhost:8500
+Docs:    D:\Temp\git\temujira\README.md
 ```
 
 Features:
@@ -459,12 +461,14 @@ Features:
     └── DONE-2026-W{NN}.md  ← Weekly archives
 ```
 
-### Sync Status
+### Sync Status (as of 2026-03-05)
 
 ```
-Governance ──→ project-a/governance/     [synced]
-           ──→ project-b/governance/     [synced]
-           ──→ project-c/governance/     [synced]
+Governance ──→ SVG-PAINT/governance/     [synced]
+           ──→ Tether/governance/        [synced]
+           ──→ Sidequest/governance/     [synced]
+           ──→ Whitelabel/governance/    [synced - new]
+           ──→ Skills/governance/        [synced - new]
 ```
 
 ---
@@ -474,24 +478,24 @@ Governance ──→ project-a/governance/     [synced]
 ### Example A: Bug Fix (fast track)
 
 ```
-User: "The item list crashes when the collection has no entries"
+User: "The font preview crashes when the font has no glyphs"
 
 1. TRIAGE
    ├── Classify: [bug]
    ├── Severity: blocks development → [hotfix]
    └── Write to TODO-Today.md (skips BACKLOG):
-       - [ ] **fix** Item list crash on empty collection `@claude` `stall:0`
-         `/sc:implement "fix empty collection crash" --focus backend`
-         _Context: list_detail.html, collection_service.py -- confidence:1.0_
+       - [ ] **fix** Font preview crash on empty glyph set `@claude` `stall:0`
+         `/sc:implement "fix empty glyph crash" --focus backend`
+         _Context: font_detail.html, font_service.py -- confidence:1.0_
 
 2. ROUTE
    ├── Only @claude is active → assign @claude, confidence: 1.0
-   └── Bug DOR-lite: root cause = missing guard, fix = 1 step, test = test_list_empty
+   └── Bug DOR-lite: root cause = missing guard, fix = 1 step, test = test_font_preview
 
 3. EXECUTE
-   ├── Read collection_service.py
-   ├── Add guard: if not items: return empty list
-   ├── Write test_list_empty_collection.py
+   ├── Read font_service.py
+   ├── Add guard: if not glyphs: return empty preview
+   ├── Write test_font_preview_empty.py
    └── Run greenlight
 
 4. CLEANUP SUB-LOOP
@@ -499,8 +503,8 @@ User: "The item list crashes when the collection has no entries"
    └── Continue
 
 5. COMMIT + DONE
-   ├── git commit -m "fix: guard against empty collection in item list"
-   ├── queue done --task "Item list crash on empty collection"
+   ├── git commit -m "fix: guard against empty glyph set in font preview"
+   ├── queue done --task "Font preview crash on empty glyph set"
    └── Update KNOWN_PATTERNS if pattern is reusable
 ```
 
@@ -539,19 +543,19 @@ User: "We need recipe categories to support 3-level nesting"
 ### Example C: Research Task (future multi-agent)
 
 ```
-User: "Research SEO trends for product listings on marketplaces"
+User: "Research Etsy SEO trends for contrast card listings"
 
 1. TRIAGE → BACKLOG.md#Ideation → [research]
 
 2. ROUTE (when @gemini is active)
    ├── Score @claude:  -2 (no web browsing match)
    ├── Score @gemini:   6 (research + SEO + trends + web)
-   ├── Score @chatgpt:  4 (listings + marketplace + web)
+   ├── Score @chatgpt:  4 (Etsy + listings + web)
    └── Route: @gemini, confidence: 0.75
 
-3. DISPATCH via message bus
-   ├── send(to="gemini", subject="research-task", text="...")
-   └── Wait for send(to="orchestrator", subject="task-complete", ...)
+3. DISPATCH via Tether
+   ├── tether_send(to="gemini", subject="research-task", text="...")
+   └── Wait for tether_send(to="orchestrator", subject="task-complete", ...)
 
 4. VALIDATE result
    └── Human reviews Gemini's research output before it enters the pipeline
@@ -568,7 +572,7 @@ User: "Research SEO trends for product listings on marketplaces"
 | **BV Score** | Business Value score: Revenue (L/M/H) x User Reach (L/M/H) x Strategic Alignment (L/M/H). Max 9. Used for initiative prioritization. |
 | **Completion Cascade** | After a task completes, the orchestrator checks if it unblocks any `needs:` dependencies in BACKLOG and suggests queuing them. |
 | **Confidence** | Routing confidence score (0.0-1.0). How certain the orchestrator is about the agent assignment. <0.3 = unrouted. |
-| **Context Preloading** | The orchestrator assembles file refs, risk flags, message bus threads, and prior art into the `_Context:_` line before execution. |
+| **Context Preloading** | The orchestrator assembles file refs, risk flags, Tether threads, and prior art into the `_Context:_` line before execution. |
 | **Critical Path** | Items in BACKLOG locked in sequence. Cannot be deprioritized relative to each other. `/workflow` must respect this order. |
 | **Cleanup Sub-Loop** | Runs after every implementation, before every commit. Greenlight → fix Low → pause on Medium+. |
 | **DOD** | Definition of Done. Exit gate. Must pass before deployment. Code quality + architecture + committed + deployable + pipeline housekeeping. |
@@ -576,12 +580,12 @@ User: "Research SEO trends for product listings on marketplaces"
 | **DOR-lite** | Lightweight gate for bugs/hotfixes. Root cause + fix plan + regression test + constraints + estimate. |
 | **DONE-Today** | Completion log with timestamps. Auto-archives to `done/DONE-{YYYY}-W{WW}.md` at 200 lines. |
 | **Graduation** | Moving an item from one pipeline stage to the next. Each graduation has a gate command. |
-| **Greenlight** | Project-specific test/quality suite. Must be 100% green before any commit. Example: `python -m pytest tests/ --tb=short`. |
+| **Greenlight** | Project-specific test/quality suite. Must be 100% green before any commit. SVG-PAINT: `python -m app.cli.main greenlight --all`. |
 | **Hotfix** | A bug that actively blocks development. Fast-tracks from INBOX directly to TODO-Today (skips Ideation/Refining). Requires Bug DOR-lite. |
 | **INBOX** | Raw input queue. Anything the user sends (without `/q` prefix) lands here first. Triaged into BACKLOG. |
 | **Inner Loop** | Autopilot execution cycle: semaphore check → read task → route → DOR → execute → cleanup → commit → done → loop. |
 | **KNOWN_PATTERNS** | Anti-pattern registry. Must be consulted before writing new code. Re-introducing a known pattern is a quality regression. |
-
+| **LC-B** | Latent Canonical Binary. Tether's encoding format. 9 tags (NULL through OBJ_END). Never read with raw SQL. |
 | **Orchestrator** | Lightweight routing layer. A phase inside autopilot, not a daemon. Assigns `@agent`, detects stalls, cascades completions. See ORCHESTRATOR.md. |
 | **Outer Loop** | Human-driven queue lifecycle. User/planning populates TODO-Today via `/workflow`. |
 | **Planning Round** | Triggered when queue is near-empty, 5+ Ready items idle, critical path changed, or retro completed. Scans INBOX, checks staleness, reviews risks, updates priorities, runs `/workflow`. |
@@ -595,7 +599,7 @@ User: "Research SEO trends for product listings on marketplaces"
 | **Stall** | A task that isn't making progress. Detected by time (no file changes), error loops (3+ same error), or explicit `STALLED:` signal. Escalation: warn → action warning → pause. |
 | **Stall Counter** | `stall:N` tag on TODO-Today items. Incremented by supervisor on each check with no progress. Resets on any progress. |
 | **Supervisor** | `autopilot-supervisor.ps1`. Process-level watchdog: stall detection, health heartbeat, crash recovery, log rotation, resource guard, queue complete detection. |
-| **Message Bus** | LLM-to-LLM communication layer. Any message bus that supports agent-to-agent messaging (e.g. Tether, custom HTTP, pub/sub). |
+| **Tether** | LLM-to-LLM message bus. SQLite + BLAKE3 + LC-B. 13 MCP tools. HTTP API on port 7890. Google Sheets bridge for non-MCP agents. |
 | **TODO-Today** | Living execution queue. Flat checkbox list. First unchecked = next task. Format: checkbox + bold phase + `/sc:` command + context. |
 | **/q prefix** | Question-only signal. Messages starting with `/q` are answered conversationally — no triage, no queue items created. |
 | **/workflow** | Skill that converts Ready BACKLOG items into TODO-Today queue items. Respects `#N` priority and Critical Path order. |
@@ -748,7 +752,7 @@ Skills outside the dev loop are organized into **4 support processes**. Each has
 
 ### SP-4: Content Production Desk
 
-**Trigger:** Product listing creation, blog/docs needed, or content calendar milestone.
+**Trigger:** Etsy listing creation, blog/docs needed, or content calendar milestone.
 **Cadence:** Per-listing or weekly content batch.
 **Owner:** User-initiated.
 
@@ -756,7 +760,7 @@ Skills outside the dev loop are organized into **4 support processes**. Each has
 /content-creator               → SEO-optimized marketing content
 /content-research-writer       → research-backed articles with citations
 /viral-generator-builder       → shareable tool builders
-/shopify-development           → Shopify/e-commerce integration
+/shopify-development           → Shopify integration (if expanding beyond Etsy)
 ```
 
 **Workflow:**
