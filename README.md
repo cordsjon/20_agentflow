@@ -1,19 +1,36 @@
 # agentflow
 
-**AI-governed Scrumban loop for autonomous dev agents.**
+**AI-governed Scrumban loop for autonomous agents.**
 
-A governance framework that gives AI coding agents (Claude Code, Cursor, Codex, Devin, etc.) a structured execution loop with quality gates, dependency tracking, and autonomous task processing — while keeping humans in control.
+A governance framework that gives AI agents a structured execution loop with quality gates, dependency tracking, and autonomous task processing — while keeping humans in control.
+
+Built for software development with coding agents (Claude Code, Cursor, Codex, Devin, etc.), but the loop, pipeline, and quality gates are domain-agnostic. Any work that is **large enough to need a backlog, repetitive enough to benefit from automation, or complex enough to require quality checkpoints** fits the model.
+
+### Beyond code — real-world examples
+
+| Domain | What the loop governs |
+|--------|-----------------------|
+| **Software development** | Feature implementation, TDD cycles, PR review, deployment |
+| **Data visualization** | Programmatic poster/infographic generation — iterating layouts, data transforms, and print-ready export across dozens of revision cycles |
+| **Document production** | Large technical specs, compliance reports, or multi-chapter manuals — drafting, review gates, version control |
+| **Data pipelines** | ETL jobs, dataset curation, validation passes — each stage quality-gated before the next |
+| **Content campaigns** | Blog series, social assets, email sequences — editorial calendar as backlog, brand guidelines as quality gate |
+| **Research & analysis** | Literature reviews, competitive intelligence, market sizing — structured evidence collection with review checkpoints |
+| **Asset generation** | SVG libraries, icon sets, print templates — batch creation with contrast/accessibility checks before export |
+| **Spreadsheet engineering** | Programmatic Excel/Sheets builds — formula audits, data validation, visual QA before distribution |
+
+The pattern is always the same: **inbox → backlog → prioritized queue → bounded execution loop → quality gate → done.** The skills and gates change per domain, but the pipeline doesn't.
 
 ---
 
 ## What is this?
 
-Most AI coding agents run in one of two modes: fully manual (you prompt every step) or fully autonomous (YOLO). **agentflow** provides the middle ground — a Scrumban pipeline where:
+Most AI agents run in one of two modes: fully manual (you prompt every step) or fully autonomous (YOLO). **agentflow** provides the middle ground — a Scrumban pipeline where:
 
-- **Agents execute autonomously** within a bounded loop (pick task, implement, test, commit)
+- **Agents execute autonomously** within a bounded loop (pick task, execute, verify, commit)
 - **Quality gates halt execution** when issues exceed thresholds (no silent failures)
 - **Humans control the queue** (what gets built, in what order, with what priority)
-- **Skills plug into loop stages** (code review, TDD, security audit — each wired to a specific step)
+- **Skills plug into loop stages** (review, validation, audit — each wired to a specific step)
 
 ```
 INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Today
@@ -34,6 +51,7 @@ INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Toda
 | [AGENT_CAPABILITIES.md](AGENT_CAPABILITIES.md) | Agent capability matrix for task routing |
 | [KNOWN_PATTERNS.md](KNOWN_PATTERNS.md) | Anti-pattern catalog — consult before writing code |
 | [SKILLS.md](SKILLS.md) | Complete skill catalog — dependencies, chains, examples, portfolios |
+| [docs/ASSETS.md](docs/ASSETS.md) | Published PDF reference documents with versioning |
 
 ## The Loop (simplified)
 
