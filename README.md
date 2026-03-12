@@ -1,4 +1,17 @@
-# Shepherd / agentflow
+```
+  ┌──────────────────────────────────────────────────────────────┐
+  │                                                              │
+  │        __                                                    │
+  │       /  \   O        /)/)  /)/)  /)/)  /)/)  /)/)           │
+  │      /----\ /|\╭╮    ( ..) ( ..) ( ..) ( ..) ( ..)           │
+  │             / \││    INBOX IDEA  SPEC  QUEUE DONE            │
+  │               ╰╯       ·─────→─────→─────→─────→ ✓          │
+  │                                                              │
+  │               S H E P H E R D  /  agentflow                  │
+  │         Unified AI agent governance framework                │
+  │                                                              │
+  └──────────────────────────────────────────────────────────────┘
+```
 
 **Unified AI agent governance — pipeline, skills, expert panels, and persistence in one framework.**
 
