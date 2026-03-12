@@ -1,8 +1,15 @@
-# agentflow
+# Shepherd
 
-**AI-governed Scrumban loop for autonomous agents.**
+**Unified AI agent governance — pipeline, skills, expert panels, and persistence in one framework.**
 
-A governance framework that gives AI agents a structured execution loop with quality gates, dependency tracking, and autonomous task processing — while keeping humans in control.
+Shepherd merges four systems into a single product:
+
+- **AgentFlow's** Scrumban pipeline and 14-step quality-gated loop
+- **Superpowers'** execution skills (TDD, verification, code review, debugging)
+- **SuperClaude's** analysis skills and extensible expert panels
+- **Ralph Loop's** stop-hook persistence for session survival
+
+One install. One namespace (`/sh:`). 34 commands. Zero duplicates.
 
 Built for software development with coding agents (Claude Code, Cursor, Codex, Devin, etc.), but the loop, pipeline, and quality gates are domain-agnostic. Any work that is **large enough to need a backlog, repetitive enough to benefit from automation, or complex enough to require quality checkpoints** fits the model.
 
@@ -25,7 +32,7 @@ The pattern is always the same: **inbox → backlog → prioritized queue → bo
 
 ## What is this?
 
-Most AI agents run in one of two modes: fully manual (you prompt every step) or fully autonomous (YOLO). **agentflow** provides the middle ground — a Scrumban pipeline where:
+Most AI agents run in one of two modes: fully manual (you prompt every step) or fully autonomous (YOLO). **Shepherd** provides the middle ground — a Scrumban pipeline where:
 
 - **Agents execute autonomously** within a bounded loop (pick task, execute, verify, commit)
 - **Quality gates halt execution** when issues exceed thresholds (no silent failures)
@@ -51,6 +58,9 @@ INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Toda
 | [AGENT_CAPABILITIES.md](AGENT_CAPABILITIES.md) | Agent capability matrix for task routing |
 | [KNOWN_PATTERNS.md](KNOWN_PATTERNS.md) | Anti-pattern catalog — consult before writing code |
 | [SKILLS.md](SKILLS.md) | Complete skill catalog — dependencies, chains, examples, portfolios |
+| [experts/](experts/) | Extensible expert registry — panels, packs, individual expert files |
+| [ORIGIN.md](ORIGIN.md) | The genesis story — how four systems became one |
+| [docs/specs/](docs/specs/) | Design specifications and architecture documents |
 | [docs/ASSETS.md](docs/ASSETS.md) | Published PDF reference documents with versioning |
 
 ## The Loop (simplified)
@@ -88,29 +98,29 @@ INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Toda
 
 ## Skill Integration
 
-Skills (reusable prompt modules) plug into specific loop stages:
+All 34 skills use the `/sh:` namespace and plug into specific loop stages:
 
-| Loop Stage | Skills |
-|------------|--------|
-| Execute | `/test-driven-development` |
-| Verify | `/verification-before-completion` |
-| Review | `/requesting-code-review`, `/receiving-code-review` |
-| Cleanup | `/clean-code`, `/production-code-audit` |
-| Commit | `/commit-smart` |
-| Branch | `/finishing-a-development-branch` |
-| Context | `/session-handoff` |
-| Retro | `/kaizen` |
-| Refine | `/requirements-clarity` |
+| Loop Stage | Shepherd Skills |
+|------------|----------------|
+| Execute | `/sh:tdd`, `/sh:execute` |
+| Verify | `/sh:verify` |
+| Review | `/sh:review` |
+| Cleanup | `/sh:analyze` (FIPD taxonomy) |
+| Commit | `/sh:dod` |
+| Branch | `/sh:finish` |
+| Context | `/sh:handoff` |
+| Retro | `/sh:retro` |
 
-Plus 4 support process portfolios (GTM, SEO, Intel, Content) and an on-demand toolbox — see [GOVERNANCE-GUIDE.md](GOVERNANCE-GUIDE.md) §12.
+Plus on-demand skills: `/sh:debug`, `/sh:research`, `/sh:explain`, `/sh:estimate`, `/sh:test`, `/sh:document`, `/sh:troubleshoot`, `/sh:index-repo`, `/sh:select-tool`, `/sh:parallel`, `/sh:worktree`, `/sh:plan`.
 
+And expert panels: `/sh:spec-panel` (scoring gate ≥ 7.0), `/sh:business-panel` (advisory).
 ## Getting Started
 
 1. **Copy these files** into your project's `governance/` directory
 2. **Reference from your CLAUDE.md** (or equivalent agent instructions):
    ```markdown
    ## Governance
-   This project follows the agentflow loop.
+   This project follows the Shepherd loop.
    See governance/CLAUDE-LOOP.md for execution model.
    ```
 3. **Create your pipeline files:**
@@ -126,48 +136,43 @@ Plus 4 support process portfolios (GTM, SEO, Intel, Content) and an on-demand to
 
 ## Claude Code Skills
 
-agentflow ships as **10 installable Claude Code skills** in `.claude/skills/`. Copy the skill directories into any project to get the full Scrumban loop as slash commands.
+Shepherd ships as **34 installable Claude Code skills** in `.claude/skills/`. Copy the skill directories into any project to get the full governance framework as `/sh:` slash commands.
 
 ### Installation
 
 **Option A — Copy into your project:**
 ```bash
-cp -r agentflow/.claude/skills/agentflow-* your-project/.claude/skills/
+cp -r shepherd/.claude/skills/sh-* your-project/.claude/skills/
 ```
 
 **Option B — Personal skills (all projects):**
 ```bash
-cp -r agentflow/.claude/skills/agentflow-* ~/.claude/skills/
+cp -r shepherd/.claude/skills/sh-* ~/.claude/skills/
 ```
 
 **Option C — Git submodule:**
 ```bash
 cd your-project
-git submodule add https://github.com/cordsjon/agentflow .claude/skills/agentflow
+git submodule add https://github.com/cordsjon/agentflow .claude/skills/shepherd
 ```
 
 ### Available Skills
 
-| Skill | Command | Invocation | Description |
-|-------|---------|------------|-------------|
-| **Loop** | `/agentflow-loop` | Manual | 14-step inner loop execution |
-| **Autopilot** | `/agentflow-autopilot` | Manual | Start autonomous task processing |
-| **Kickoff** | `/agentflow-kickoff` | Manual | Daily session startup routine |
-| **Triage** | `/agentflow-triage` | Manual | Route INBOX items into pipeline |
-| **Workflow** | `/agentflow-workflow` | Manual | Populate TODO-Today from BACKLOG |
-| **DOR** | `/agentflow-dor` | Auto + Manual | Definition of Ready gate check |
-| **DOD** | `/agentflow-dod` | Auto + Manual | Definition of Done gate check |
-| **Retro** | `/agentflow-retro` | Manual | Retrospective (every 10 stories) |
-| **Orchestrator** | — | Auto (background) | Task routing and stall detection |
-| **FIPD** | — | Auto (background) | Finding classification taxonomy |
-
-**Manual** = you invoke with `/command`. **Auto** = Claude invokes when relevant. **Background** = loaded as context, not directly invoked.
+| Category | Commands | Description |
+|----------|----------|-------------|
+| **Pipeline** | `/sh:triage`, `/sh:brainstorm`, `/sh:spec-review`, `/sh:workflow`, `/sh:kickoff` | Inbox processing, ideation, spec quality, queue population, session startup |
+| **Loop** | `/sh:autopilot`, `/sh:loop`, `/sh:dor`, `/sh:dod`, `/sh:retro`, `/sh:handoff` | Autonomous execution, quality gates, retrospectives, session persistence |
+| **Implementation** | `/sh:plan`, `/sh:execute`, `/sh:tdd`, `/sh:verify`, `/sh:review`, `/sh:finish`, `/sh:worktree`, `/sh:parallel` | Planning, TDD, verification, code review, branch completion, parallel agents |
+| **Analysis** | `/sh:analyze`, `/sh:debug`, `/sh:troubleshoot`, `/sh:research`, `/sh:explain`, `/sh:estimate`, `/sh:test`, `/sh:document`, `/sh:index-repo`, `/sh:select-tool` | Code analysis, debugging, research, estimation, documentation |
+| **Expert Panels** | `/sh:spec-panel`, `/sh:business-panel` | Multi-expert review (spec gate ≥ 7.0, business advisory) |
+| **Persistence** | `/sh:ralph` | Ralph Loop stop-hook for session survival |
+| **Meta** | `/sh:cancel`, `/sh:help` | Cancel operations, command reference |
 
 ### Skill Structure
 
 Each skill follows this layout:
 ```
-agentflow-<name>/
+sh-<command>/
 ├── SKILL.md           # Frontmatter + instructions (loaded by Claude Code)
 └── reference.md       # Detailed docs (loaded on demand via markdown links)
 ```
@@ -198,43 +203,25 @@ Use the templates in [`templates/`](templates/) to bootstrap them.
 
 ## Origin Story
 
-agentflow started as a simple TODO list and a CLAUDE.md file in a solo developer's side project — a local-first content generation platform built with FastAPI and Claude Code.
+Shepherd didn't start as a product. It started as frustration — a solo developer's side project that evolved through five phases: from YOLO prompting, to checklists, to a structured loop, to a full Scrumban pipeline, to skill integration, and finally the merge of four independent systems (AgentFlow, Superpowers, SuperClaude, Ralph Loop) into one unified framework.
 
-### The Humble Beginning
-
-**Phase 0 — The "just ship it" era.**
-No process. Prompt Claude, get code, paste it, hope it works. Context lost between sessions. Same bugs reintroduced. Same anti-patterns rediscovered. The agent was powerful but amnesiac.
-
-**Phase 1 — The checklist.**
-A `TODO-Today.md` file. A simple `DONE-Today.md` to track what shipped. A `CLAUDE.md` with rules like "don't use bare except" and "always run tests before commit." Better, but still reactive — rules were added after each painful bug, not before.
-
-**Phase 2 — The loop.**
-The realization that autonomous agents need _structure_, not just instructions. The inner loop emerged: pick task → implement → test → commit → next. Then the semaphore (`.autopilot` file) — a kill switch for when the agent goes off track. Then the cleanup sub-loop — quality gates that halt execution on medium+ severity findings.
-
-**Phase 3 — The pipeline.**
-Work items need to mature before implementation. INBOX for raw dumps. BACKLOG with Ideation → Refining → Ready stages. Definition of Ready (DOR) as an entry gate. Definition of Done (DOD) as an exit gate. Graduation commands to move items through the pipeline with quality checks at each transition.
-
-**Phase 4 — The skills.**
-Repeatable prompt modules that plug into specific loop stages. Test-driven development at step 6. Verification at step 7. Code review at step 8. Each skill encapsulates expertise that would otherwise be lost between sessions. 60+ skills organized into dev loop, support processes, and an on-demand toolbox.
-
-**Phase 5 — The governance layer.**
-One project became many. The loop needed to be consistent across all of them. A central Governance repo with synced copies. An orchestrator for multi-agent routing. Known patterns that travel between projects. Retrospectives every 10 stories that feed improvements back into the system.
+**Read the full story:** [ORIGIN.md](ORIGIN.md)
 
 ### What We Learned
 
-1. **Agents don't need freedom — they need guardrails.** The more structure you give an autonomous agent, the better it performs. Not because it's dumb, but because structure prevents drift.
-
-2. **Memory is the hardest problem.** Context windows compress, sessions end, conversations get lost. Every mechanism in agentflow exists because forgetting was more expensive than remembering.
-
-3. **Quality gates must be automatic.** If a human has to remember to run tests, tests won't get run. If the loop runs tests automatically and halts on failure, quality is guaranteed.
-
-4. **Process scales, heroics don't.** A single developer with agentflow can sustain output that would normally require a small team — but only because the process catches what the human would miss.
+1. **Agents don't need freedom — they need guardrails.** The more structure you give an autonomous agent, the better it performs.
+2. **Memory is the hardest problem.** Every mechanism in Shepherd exists because forgetting was more expensive than remembering.
+3. **Quality gates must be automatic.** If the loop runs tests automatically and halts on failure, quality is guaranteed.
+4. **Process scales, heroics don't.** A single developer with Shepherd can sustain output that would normally require a small team.
+5. **The best system is the one you actually use.** Three excellent tools requiring three mental models lose to one good tool requiring one.
+6. **Skills are the unit of reuse.** Prompt modules that encapsulate expertise for a specific task.
+7. **Expert panels are surprisingly effective.** Simulating multiple engineering experts catches things a single-voice review misses.
 
 ---
 
 ## Expansion: Multi-Agent Communication
 
-agentflow was designed for a single agent (Claude Code), but the architecture supports multi-agent orchestration through a message bus layer.
+Shepherd was designed for a single agent (Claude Code), but the architecture supports multi-agent orchestration through a message bus layer.
 
 ### The Problem
 
@@ -281,7 +268,7 @@ The multi-agent architecture was developed alongside [**Tether**](https://github
 - **Google Sheets bridge** — enables non-MCP agents (Gemini, ChatGPT) to participate via AppScript + auto-refresh polling
 - **Thread model** — conversations grouped by topic with resolve/collapse lifecycle
 
-**How it fits agentflow:**
+**How it fits Shepherd:**
 
 ```
 ┌─────────────┐                          ┌─────────────┐
@@ -299,7 +286,7 @@ The multi-agent architecture was developed alongside [**Tether**](https://github
 
 The orchestrator dispatches tasks via `tether_send(to="@agent", subject="task-assignment")`. Agents report back via `tether_send(to="orchestrator", subject="task-complete")`. In single-agent mode (Claude only), Tether is not required — the loop runs entirely through local file annotation.
 
-**Tether is optional.** agentflow works without it. But if you want multi-agent communication with tamper-evident message history, thread management, and cross-platform transport, Tether is the reference implementation.
+**Tether is optional.** Shepherd works without it. But if you want multi-agent communication with tamper-evident message history, thread management, and cross-platform transport, Tether is the reference implementation.
 
 ### Building Your Own Multi-Agent Setup
 
@@ -321,7 +308,7 @@ The orchestrator handles routing automatically once the agent is registered and 
 
 ## Companion Tools
 
-agentflow is a set of markdown files and conventions. But two companion tools were built alongside it to make the loop tangible — a GUI remote control and a web-based pipeline dashboard. Both are open-source and can be adapted to any agentflow project.
+Shepherd is a set of markdown files and conventions. But two companion tools were built alongside it to make the loop tangible — a GUI remote control and a web-based pipeline dashboard. Both are open-source and can be adapted to any Shepherd project.
 
 ### Remote Control — Loop GUI Dashboard
 
@@ -393,7 +380,7 @@ The critical constraint: the agent is the only writer to pipeline markdown files
 
 ### Pipeline Dashboard — Web-Based Kanban
 
-A lightweight web dashboard that visualizes the entire agentflow pipeline as a 6-column Kanban board. Think "Jira for markdown files" — but local, instant, and zero-config.
+A lightweight web dashboard that visualizes the entire Shepherd pipeline as a 6-column Kanban board. Think "Jira for markdown files" — but local, instant, and zero-config.
 
 <img width="3806" height="1942" alt="image" src="https://github.com/user-attachments/assets/e159528d-1547-4077-96bd-653e81231b98" />
 
@@ -406,7 +393,7 @@ A lightweight web dashboard that visualizes the entire agentflow pipeline as a 6
 │ │ Raw │ │ │Idea │ │ │Spec │ │ │#1   │ │ │[x]  │ │ │14:32 │ │
 │ │ bug │ │ │     │ │ │in   │ │ │Ready│ │ │Done │ │ │Done  │ │
 │ │     │ │ │     │ │ │prog │ │ │     │ │ │     │ │ │      │ │
-│ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │[/sc]│ │ │      │ │
+│ │[/sh]│ │ │[/sh]│ │ │[/sh]│ │ │[/sh]│ │ │[/sh]│ │ │      │ │
 │ └─────┘ │ └─────┘ │ └─────┘ │ └─────┘ │ └─────┘ │ └──────┘ │
 │ ┌─────┐ │         │         │ ┌─────┐ │ ┌─────┐ │          │
 │ │Link │ │         │         │ │#2   │ │ │[ ]  │ │          │
@@ -423,7 +410,7 @@ A lightweight web dashboard that visualizes the entire agentflow pipeline as a 6
 - **Project filter** — scope the board to a single project or view all at once
 - **Epic accordion** — items grouped by epic prefix, collapse/expand state persisted in localStorage
 - **Promote button** — one-click promotion to the next pipeline stage (writes directly to `.md` files)
-- **Lane-aware command shortcuts** — each card shows the appropriate `/sc:` command for its stage, copies to clipboard on click
+- **Lane-aware command shortcuts** — each card shows the appropriate `/sh:` command for its stage, copies to clipboard on click
 - **Card details** — expand any card to see the full item body (spec links, AC, context)
 
 **Architecture:**
@@ -432,7 +419,7 @@ A lightweight web dashboard that visualizes the entire agentflow pipeline as a 6
 - No database — reads/writes directly to `.md` files via regex + file I/O
 - No authentication — designed for single-user local environments
 
-**How it integrates with agentflow:**
+**How it integrates with Shepherd:**
 
 | Pipeline File | Dashboard Column | Interaction |
 |---------------|-----------------|-------------|
