@@ -101,11 +101,11 @@ INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Toda
 
 ```
 ┌─────────────────────┐
-│  GREENLIGHT          │  Project test suite — 100% green
+│  GREENLIGHT         │  Project test suite — 100% green
 ├─────────────────────┤
-│  DEEP AUDIT          │  Security/perf/arch scan (M+ tasks)
+│  DEEP AUDIT         │  Security/perf/arch scan (M+ tasks)
 ├─────────────────────┤
-│  DEFINITION OF DONE  │  Code quality + architecture + committed + deployable
+│  DEFINITION OF DONE │  Code quality + architecture + committed + deployable
 └─────────────────────┘
 ```
 
@@ -285,15 +285,15 @@ The multi-agent architecture was developed alongside [**Tether**](https://github
 
 ```
 ┌─────────────┐                          ┌─────────────┐
-│   Claude     │ ── MCP (13 tools) ────→ │             │
-│   @claude    │                          │   Tether    │
-│   ACTIVE     │ ←─────────────────────── │   tether.db │
+│   Claude    │ ── MCP (13 tools) ────→  │             │
+│   @claude   │                          │   Tether    │
+│   ACTIVE    │ ←──────────────────────  │   tether.db │
 └─────────────┘                          │             │
-                                          │  HTTP :7890 │
+                                         │  HTTP :7890 │
 ┌─────────────┐                          │             │
-│   Gemini     │ ── Sheets bridge ──────→ │             │
-│   @gemini    │                          │             │
-│   STUB       │ ←── poll (2 min) ────── │             │
+│   Gemini    │ ── Sheets bridge ─────→  │             │
+│   @gemini   │                          │             │
+│   STUB      │ ←── poll (2 min) ──────  │             │
 └─────────────┘                          └─────────────┘
 ```
 
@@ -334,7 +334,7 @@ A native desktop GUI (WinForms/PowerShell) that exposes all 30+ loop functions w
 ```
 COMPACT MODE (~420×120 px, always-on-top)
 +================================================================+
-|  [>] [||] [U] [AB] | Status | [BLD] [RST] [GL] [D] [X]       |
+|  [>] [||] [U] [AB] | Status | [BLD] [RST] [GL] [D] [X]         |
 +----------------------------------------------------------------+
 |  > [4] US-019 Recipe validation              project v2.1      |
 +----------------------------------------------------------------+
@@ -343,18 +343,18 @@ COMPACT MODE (~420×120 px, always-on-top)
 
 DASHBOARD MODE (~900×700 px)
 +============================================================+
-|  RC-1.0  [Project v]  INBOX(3) BACKLOG(7) QUEUE(4)          |
+|  RC-1.0  [Project v]  INBOX(3) BACKLOG(7) QUEUE(4)         |
 +------------------------------------------------------------+
-|  PIPELINE (Kanban)                                           |
-|  +--------+ +--------+ +--------+ +--------+                |
-|  |Inbox(3)| |Ideate 2| |Refine 3| |Ready(2)|                |
+|  PIPELINE (Kanban)                                         |
+|  +--------+ +--------+ +--------+ +--------+               |
+|  |Inbox(3)| |Ideate 2| |Refine 3| |Ready(2)|               |
 +------------------------------------------------------------+
-|  QUEUE (TODO-Today)                [Greenlight] [Run]        |
-|  > Current: US-019 Recipe valid.    [2/7 done]               |
+|  QUEUE (TODO-Today)                [Greenlight] [Run]      |
+|  > Current: US-019 Recipe valid.    [2/7 done]             |
 +------------------------------------------------------------+
-|  AUTOPILOT      | SERVER       | SESSION                     |
-|  [>Resume] [||] | :9001 UP     | Memory: 2h ago              |
-|  [Unattend 2h]  | v2.1.0       | Retro: [===7/10==]          |
+|  AUTOPILOT      | SERVER       | SESSION                   |
+|  [>Resume] [||] | :9001 UP     | Memory: 2h ago            |
+|  [Unattend 2h]  | v2.1.0       | Retro: [===7/10==]        |
 +============================================================+
 ```
 
