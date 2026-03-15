@@ -415,6 +415,7 @@ These skills are useful but don't have a fixed position in the loop. Invoke them
 | `/software-architecture` | Python/FastAPI architecture patterns |
 | `/writing-plans` | Plan implementation strategy before coding |
 | `/writing-rules` | Create hookify rules for automation |
+| `/sh:poster-analysis` | Generate DIN A1 business analysis poster as PDF |
 
 ---
 
@@ -437,10 +438,11 @@ These skills are useful but don't have a fixed position in the loop. Invoke them
 | Optimize for search engines | `/seo-audit` → `/seo-optimizer` |
 | Analyze competitors | `/competitor-alternatives` → `/pricing-strategy` |
 | Create visual content | `/canvas-design` or `/imagegen` |
+| Create a business analysis poster | `/sh:poster-analysis` |
 | Build a UI component | `/frontend-design` or `/figma` |
 | Plan before coding | `/create-plan` or `/writing-plans` |
 | Create a new skill | `/skill-creator` |
 
 ---
 
-_61 skills wired to governance. 17 utility skills available on demand. Zero orphans._
+_61 skills wired to governance. 18 utility skills available on demand. Zero orphans._

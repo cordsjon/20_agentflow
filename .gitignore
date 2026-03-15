@@ -6,3 +6,6 @@ INBOX.md
 .claude-action
 HANDOVER.md
 done/
+
+# Environment / secrets
+.env
