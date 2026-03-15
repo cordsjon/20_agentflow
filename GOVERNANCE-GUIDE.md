@@ -804,6 +804,30 @@ Skills outside the dev loop are organized into **4 support processes**. Each has
 3. `/content-creator` optimizes for SEO
 4. `/copy-editing` polishes final version
 
+### SP-5: Lightsout Hygiene
+
+**Trigger:** Queue empty (autopilot end-of-day), planning round, or on-demand.
+**Cadence:** Daily (if autopilot active) or weekly minimum.
+**Owner:** Autopilot-triggered or user-initiated.
+
+```
+/health                        → pipeline staleness + velocity snapshot
+/backlog-grooming              → archive shipped items, flag stale/orphans, cleanup fixes
+/session-handoff               → save context for next session
+```
+
+**Workflow:**
+1. Queue drains (step 14 of inner loop) → lightsout chain fires automatically
+2. `/health` produces read-only pipeline snapshot
+3. `/backlog-grooming` archives shipped items, flags stale/orphans, applies cleanup fixes
+4. `/session-handoff` captures session context
+
+**Key behaviors:**
+- Idempotent — running twice produces no additional changes
+- `--dry-run` available for scan-only mode (no file modifications)
+- Never modifies active items or priorities — only touches shipped/resolved items
+- Stale/orphan findings surfaced for human decision in next session
+
 ### On-Demand Toolbox (no process — invoke directly)
 
 These skills are context-triggered during dev work. No formal process needed.

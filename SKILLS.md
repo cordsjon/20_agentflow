@@ -341,6 +341,39 @@ Changed files: app/services/theme_service.py, app/static/css/shell.css
 
 ---
 
+#### SP-5: Lightsout Hygiene
+
+**Trigger:** End-of-day (queue empty + autopilot=run), planning round agenda item, or on-demand.
+**Cadence:** Daily (if autopilot active) or weekly minimum.
+**Owner:** Autopilot-triggered or human-initiated.
+
+```
+/health                        → pipeline staleness + velocity snapshot
+/backlog-grooming              → archive shipped items, flag stale/orphans
+/session-handoff               → save context for next session
+```
+
+| Step | Skill | Purpose |
+|------|-------|---------|
+| 1 | `/health` | Pipeline staleness scan, velocity trend, risk review |
+| 2 | `/backlog-grooming` | Archive shipped items, detect stale/orphans, cleanup fixes |
+| 3 | `/session-handoff` | Save decisions, open questions, resume checklist |
+
+**Workflow:**
+1. `/health` produces a read-only pipeline snapshot
+2. `/backlog-grooming` runs the archive + cleanup pass (if candidates found)
+3. `/session-handoff` captures what was cleaned and any open decisions
+
+**Trigger conditions (any one):**
+- Autopilot queue is empty (natural end-of-day)
+- Planning round (PO-05 agenda item #2)
+- User invokes `/backlog-grooming` directly
+- Weekly timer fires (if using `/loop`)
+
+**Feedback loop:** Stale items → user decides: graduate, archive, or add Next action. Orphans → BACKLOG cleanup or deletion.
+
+---
+
 ### On-Demand Toolbox (invoke as needed)
 
 | Skill | Category | Use When |
