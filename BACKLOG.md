@@ -47,6 +47,45 @@
   - **Risk:** R-LOW — markdown files only, no runtime code. Main risk is over-engineering the brand context interview.
   - **Next:** Draft user stories for each sub-feature, spec-panel review
 
+- **AG-VPS: Agentflow VPS Integration Layer** (ideation 2026-03-16) `[agentflow]` `[infrastructure]` — Deploy three missing infrastructure components on VPS (`100.91.68.95`) to enable reliable Agent-to-Agent communication and pipeline observability for Agentflow-governed projects.
+  - **1. Message Queue (Redis)** — Deploy Redis on VPS as pub/sub backbone for Agent-to-Agent messaging. Replaces current Tether/Google Sheets bridge (2min polling, ngrok dependency) with sub-second delivery. Agents publish task completions, quality gate results, and approval requests to named channels. n8n subscribes for orchestration triggers. Container: `redis:alpine`, port `6379` (Tailscale-only). Persistence: AOF for message durability.
+  - **2. Tether Server on VPS** — Deploy Tether SQLite post office (`/tmp/Tether/` source) as Docker container on VPS. Eliminates ngrok tunnel dependency for Gemini-Bridge. Stable endpoint at `tether.getaccess.cloud` (Tailscale-only). Connects to Redis for real-time notifications alongside existing polling. Migration: update `AGENT_CAPABILITIES.md` transport entries from `ngrok` to VPS endpoint.
+  - **3. Agentflow Pipeline API** — Lightweight FastAPI service exposing pipeline status as REST endpoints. Reads governance markdown files (BACKLOG.md, TODO-Today.md per project) and exposes: `GET /pipeline/status` (INBOX/BACKLOG/READY/DONE counts), `GET /pipeline/active` (current task + agent), `GET /pipeline/health` (staleness, blocked items, gate failures). Feeds into: Homer dashboard widget, n8n polling workflows, Nanobot status queries via Slack. Container: Python 3.12 + FastAPI + uvicorn, port `8500` (Tailscale-only).
+  - **Synergy with existing VPS services:**
+    - **n8n** → subscribes to Redis channels, triggers workflows on task completions
+    - **Nanobot** → queries Pipeline API for status, sends Slack alerts on gate failures
+    - **Dify** → registered as agent in `AGENT_CAPABILITIES.md`, receives tasks via Tether
+    - **Uptime Kuma** → monitors all three new services
+    - **Ollama** → LLM backend for Dify agent and Nanobot responses
+  - **Dependencies:** Docker Compose extension of existing VPS stack, Tailscale for access control
+  - **Risk:** R-LOW — all additive, no changes to existing services. Redis is stateless (restart-safe). Tether migration needs rollback plan (keep ngrok as fallback).
+  - **Design decisions:**
+    - **Tailscale-only** for all three services — no public exposure needed, only Agents and admin tools access these endpoints. Simplifies security (no auth layer needed beyond Tailscale ACLs).
+    - **Redis pub/sub over message queue** — Agents publish events, n8n/Nanobot subscribe. Lighter than RabbitMQ and sufficient for expected load (dozens of events/day, not thousands). No consumer groups or dead-letter queues needed at this scale.
+    - **Naming convention:** `AG-VPS` prefix groups all three sub-features as one deliverable — they are interdependent (Pipeline API benefits from Redis for real-time push, Tether benefits from Redis for notification alongside polling).
+  - **Next:** Architecture spike for Redis pub/sub schema, Tether Dockerfile, Pipeline API endpoint spec
+
+- **AG-DIFY: Dify Integration Layer — Nanobot Workflow Backend & Prototyping Platform** (ideation 2026-03-16) `[agentflow]` `[infrastructure]` `[nanobot]` — Connect Dify (`dify.getaccess.cloud`, 11-container stack on VPS) to Nanobot and Agentflow as a visual workflow backend. Currently three isolated systems: Dify (visual LLM-app builder with RAG/Weaviate), Nanobot (multi-channel assistant via WhatsApp/Slack/Email), Agentflow (Claude Code governance with skills/pipeline/orchestrator). Goal: Dify becomes the visual workflow engine that Nanobot calls via API, and a rapid prototyping platform for new agent ideas before they graduate to Agentflow skills.
+  - **1. Nanobot → Dify API Bridge** — Add HTTP adapter in Nanobot that routes qualifying messages to Dify's `/v1/chat-messages` API and returns the response to the user's channel. Nanobot remains the channel gateway (WhatsApp/Slack/Email), Dify handles complex workflow logic. Routing: keyword-based or intent-classified — e.g. messages containing "Rezept", "suche", "fasse zusammen" trigger Dify; general chat stays in Nanobot's native LLM path. Config: Dify API key + app IDs stored in Nanobot's `config.json`. Fallback: if Dify is unreachable (timeout >5s), Nanobot responds with native LLM + "erweiterte Suche nicht verfügbar" notice.
+  - **2. Dify Knowledge Base — RAG Pipeline** — Create at least one Knowledge Base in Dify using Weaviate vector store. Candidate document sets: (a) Keto food database docs + recipe PDFs, (b) VPS runbooks + maintenance guides, (c) project documentation (BACKLOG.md, CLAUDE.md files across repos). Nanobot users can ask natural-language questions and get grounded, cited answers. Evaluationskriterium: "Ist die Antwort besser als reines LLM ohne RAG?" — wenn nein nach 2 Wochen, Knowledge Base abschalten.
+  - **3. Dify Workflow Templates** — Build 3 starter workflows in Dify's visual editor:
+    - **Keto-Rezeptsuche:** User fragt nach Rezept → Dify queries Keto PostgreSQL (`100.91.68.95:5433`) → filtert nach Nährwerten → formatiert Ergebnis
+    - **PDF-Zusammenfassung:** User sendet PDF-Link → Dify lädt herunter, chunked, fasst zusammen → Antwort zurück
+    - **VPS-Status-Check:** "Wie geht's dem Server?" → Dify ruft Uptime Kuma API auf → formatiert Health-Dashboard als Text
+  - **4. Dify als Prototyping-Plattform** — Organisatorisches Pattern: neue Agent-Ideen werden zuerst als Dify-Workflow prototypisiert (visuell, kein Code, 10x schneller). Wenn ein Workflow sich bewährt (>10 Nutzungen/Woche über 2 Wochen), wird er als Agentflow-Skill portiert. Dify = Experiment, Agentflow = Production. Dokumentation: `dify-workflows.md` im Agentflow-Repo mit Status pro Workflow (prototype/graduated/retired).
+  - **5. Dify ↔ Agentflow Agent Registration** — Registriere Dify als Agent in `AGENT_CAPABILITIES.md` mit Transport `http`, Endpoint `dify.getaccess.cloud`, Capabilities `[rag, workflow-execution, document-qa]`. Agentflow-Orchestrator kann dann Tasks an Dify routen wenn RAG oder visuelle Workflows gefragt sind. Dify meldet Ergebnisse via Tether oder direkte HTTP-Response zurück.
+  - **6. Resource Governance — Keep-or-Kill Gate** — Dify's 11-Container-Stack verbraucht ~1.5-2 GB RAM. Nach 30 Tagen: messe aktive Nutzung (API-Calls/Tag via Dify-Logs). Schwellwert: <5 API-Calls/Tag im Durchschnitt → Entscheidung: Dify abschalten und RAM für n8n/Nanobot/Ollama freigeben. >5 Calls/Tag → weiter betreiben. Dokumentiere Entscheidung in `decision_log.md`.
+  - **Synergien mit AG-VPS (wenn implementiert):**
+    - Redis pub/sub → Dify publisht Workflow-Completion-Events → n8n/Nanobot subscriben
+    - Pipeline API → zeigt Dify-Task-Status neben Agentflow-Tasks
+    - Tether auf VPS → stabiler Transport zwischen Dify und anderen Agents (kein ngrok)
+  - **Dependencies:** Nanobot config.json Erweiterung, Dify Admin-Setup (LLM-Provider konfigurieren, erste App anlegen)
+  - **Risk:** R-LOW — Dify läuft bereits. Nanobot-Adapter ist ein HTTP-Call. Hauptrisiko: Dify wird konfiguriert aber nicht genutzt (→ Keep-or-Kill Gate fängt das ab).
+  - **Strategische Hinweise:**
+    - **Keep-or-Kill Gate ist das wichtigste Sub-Feature:** Dify's 11-Container-Stack (~1.5-2 GB RAM) ist teuer für einen VPS. Ohne messbaren Nutzen nach 30 Tagen wird es zur Resource-Last. Der Gate verhindert "Install and forget"-Syndrom.
+    - **Synergy mit AG-VPS:** Falls AG-VPS (Redis, Tether auf VPS, Pipeline API) zuerst gebaut wird, wird AG-DIFY deutlich mächtiger — Dify kann Events über Redis publishen statt nur auf API-Polls zu warten. Empfehlung: AG-VPS vor AG-DIFY priorisieren.
+  - **Next:** Dify Admin-Login, ersten LLM-Provider (Anthropic oder Ollama) konfigurieren, erste Knowledge Base anlegen, Nanobot HTTP-Adapter designen
+
 - **CogniShield — Personal AI Usage Proxy & Cognitive Atrophy Tracker** (ideation 2026-03-08) `[new-product]` — Local proxy that intercepts all personal AI usage (ChatGPT, Claude, Gemini etc.), categorizes delegated tasks (definitions, code, writing, reasoning, research), and prescribes mitigating offline exercises to counteract cognitive atrophy. Not anti-AI — pro-human. Context: MIT EEG study shows 83% recall failure minutes after ChatGPT use, 47% brain connectivity collapse, Wharton confirms "cognitive surrender" across 10K trials. Tech: mitmproxy + SQLite + exercise engine, CLI-first, privacy-first (no cloud). Features: delegation frequency tracking, counter-exercise prescriptions ("10 definitions delegated → look up 10 in a dictionary"), weekly cognitive health dashboard, optional spaced repetition. Separate project. `BV: R=M U=H S=H`
   - Next: market validation, proxy architecture spike, exercise taxonomy design
 

@@ -345,8 +345,10 @@ class PosterCanvas:
             self.rounded_rect(cx, y, cw, h, fill="card", stroke=accent, stroke_width=0.8)
             # Header band
             self.c.saveState()
-            self.c.setFillColor(self.color(accent))
-            self.c.setGlobalAlpha(0.15)
+            # Use a darker shade instead of alpha for compatibility
+            from reportlab.lib.colors import Color
+            ac = self.color(accent)
+            self.c.setFillColor(Color(ac.red * 0.15, ac.green * 0.15, ac.blue * 0.15))
             self.c.rect(cx, y + h - 18, cw, 18, fill=1, stroke=0)
             self.c.restoreState()
             self.text(cx + 6, y + h - 14, label, color=accent, size=8, bold=True)

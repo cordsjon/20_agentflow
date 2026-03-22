@@ -4,191 +4,800 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AgentFlow — Interactive Playgrounds</title>
-<style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2333;
-    --border: #30363d;
-    --border-active: #58a6ff;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --text-bright: #f0f6fc;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --yellow: #d29922;
-    --purple: #bc8cff;
-    --orange: #f0883e;
-    --cyan: #39d2c0;
-    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 60px 24px;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-
-  h1 {
-    font-size: 2.4rem;
-    color: var(--text-bright);
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  h1 span {
-    color: var(--accent);
-  }
-
-  .subtitle {
-    color: var(--text-dim);
-    font-size: 1.1rem;
-    max-width: 500px;
-  }
-
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-    max-width: 1000px;
-    width: 100%;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    text-decoration: none;
-    color: inherit;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .card:hover {
-    border-color: var(--border-active);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  }
-
-  .card-icon {
-    font-size: 2rem;
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .card-icon.pipeline { background: rgba(88,166,255,0.15); color: var(--accent); }
-  .card-icon.business { background: rgba(63,185,80,0.15); color: var(--green); }
-  .card-icon.spec     { background: rgba(188,140,255,0.15); color: var(--purple); }
-  .card-icon.shepherd { background: rgba(57,210,192,0.15); color: var(--cyan); }
-
-  .card.featured {
-    grid-column: 1 / -1;
-    border-color: var(--cyan);
-  }
-
-  .card h2 {
-    font-size: 1.25rem;
-    color: var(--text-bright);
-    font-weight: 600;
-  }
-
-  .card p {
-    color: var(--text-dim);
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .card .tag {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    align-self: flex-start;
-  }
-
-  footer {
-    margin-top: 64px;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    font-family: var(--mono);
-  }
-
-  footer a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  footer a:hover {
-    text-decoration: underline;
-  }
-</style>
 </head>
 <body>
+<script>
+/**
+ * CanvasUI — Shared Infinite Canvas Engine
+ * Extracted from Cockpit, made reusable across all project UIs.
+ *
+ * Usage:
+ *   CanvasUI.init('#app', {
+ *     title: 'My App',
+ *     subtitle: 'Description',
+ *     theme: 'dark',          // 'dark' | 'light'
+ *     storageKey: 'myapp',    // localStorage prefix
+ *     clusters: [ { key, label, icon, color, x, y, nodes: [{ id, title, desc, icon, status, meta, onClick }] } ],
+ *     listRenderer: (container, clusters) => { ... },  // custom list-view renderer
+ *     onNodeClick: (node, cluster) => { ... },
+ *     onSearch: (query) => { ... },
+ *   });
+ */
+const CanvasUI = (function () {
+  'use strict';
 
-<header>
-  <h1><span>AgentFlow</span> Playgrounds</h1>
-  <p class="subtitle">Interactive demos for the Shepherd AI orchestration framework</p>
-</header>
+  // ─── State ─────────────────────────────────────────
+  let zoom = 0.85, panX = 100, panY = 80;
+  let isDragging = false, dragStartX, dragStartY, panStartX, panStartY;
+  let config = {};
+  let viewMode = 'spatial'; // 'spatial' | 'list'
+  let searchQuery = '';
+  let expandedNodes = {};
+  let els = {};
 
-<div class="cards">
+  // ─── CSS Injection ─────────────────────────────────
+  function injectStyles(theme) {
+    if (document.getElementById('canvas-ui-styles')) return;
+    const isDark = theme !== 'light';
+    const vars = isDark ? `
+      --cui-bg: #0c0e14; --cui-bg-elevated: #13161f; --cui-bg-node: #181c28;
+      --cui-bg-node-hover: #1e2233; --cui-bg-cluster: rgba(20,24,36,0.85);
+      --cui-border: #252a3a; --cui-border-hover: #3a4060;
+      --cui-text: #e2e8f0; --cui-text-sec: #94a3b8; --cui-muted: #5a6480;
+      --cui-accent: #64ffda; --cui-accent-dim: rgba(100,255,218,0.06);
+      --cui-grid-dot: rgba(100,255,218,0.06);
+    ` : `
+      --cui-bg: #f4f5f7; --cui-bg-elevated: #ffffff; --cui-bg-node: #ffffff;
+      --cui-bg-node-hover: #fafbfc; --cui-bg-cluster: rgba(255,255,255,0.9);
+      --cui-border: rgba(0,0,0,0.08); --cui-border-hover: rgba(0,0,0,0.15);
+      --cui-text: #1a1d23; --cui-text-sec: #4a5066; --cui-muted: #7c8298;
+      --cui-accent: #0e8c72; --cui-accent-dim: rgba(14,140,114,0.08);
+      --cui-grid-dot: rgba(0,0,0,0.06);
+    `;
 
-  <a href="shepherd.html" class="card featured">
-    <div class="card-icon shepherd">&#x2725;</div>
-    <h2>Shepherd</h2>
-    <p>Unified AI Agent Governance Framework &mdash; three nested loops, 44 skills, 19 expert panelists, five-layer quality stack.</p>
-    <span class="tag">governance</span>
-  </a>
+    const style = document.createElement('style');
+    style.id = 'canvas-ui-styles';
+    style.textContent = `
+      :root { ${vars}
+        --cui-mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+        --cui-sans: system-ui,-apple-system,sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body.cui-spatial { background: var(--cui-bg); color: var(--cui-text); overflow: hidden;
+        width: 100vw; height: 100vh; cursor: grab; -webkit-font-smoothing: antialiased;
+        user-select: none; font-family: var(--cui-sans); }
+      body.cui-spatial.dragging { cursor: grabbing; }
+      body.cui-list { background: var(--cui-bg); color: var(--cui-text); font-family: var(--cui-sans);
+        -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
-  <a href="pipeline-playground.html" class="card">
-    <div class="card-icon pipeline">&#9654;</div>
-    <h2>Pipeline Playground</h2>
-    <p>Shepherd Pipeline &mdash; trace the full journey from idea to commit through autonomous agent stages.</p>
-    <span class="tag">pipeline</span>
-  </a>
+      /* ═══ Viewport ═══ */
+      #cui-viewport { position: fixed; inset: 0; overflow: hidden; }
+      #cui-world { position: absolute; transform-origin: 0 0; }
+      #cui-viewport::before { content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(circle, var(--cui-grid-dot) 1px, transparent 1px);
+        background-size: 40px 40px; pointer-events: none; z-index: 0; }
 
-  <a href="business-panel-playground.html" class="card">
-    <div class="card-icon business">&#9733;</div>
-    <h2>Business Panel</h2>
-    <p>Strategic analysis playground &mdash; multi-expert business evaluation and market intelligence.</p>
-    <span class="tag">analysis</span>
-  </a>
+      /* ═══ HUD ═══ */
+      .cui-hud { position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(244,245,247,0.9)'};
+        backdrop-filter: blur(12px); border-bottom: 1px solid var(--cui-border);
+        display: flex; align-items: center; gap: 12px; padding: 10px 16px; height: 48px; }
+      .cui-hud-title { font-size: 14px; font-weight: 700; }
+      .cui-hud-sub { font-size: 11px; color: var(--cui-muted); }
+      .cui-hud-spacer { flex: 1; }
+      .cui-hud-search { position: relative; }
+      .cui-hud-search input { background: ${isDark ? 'var(--cui-bg)' : '#fff'}; border: 1px solid var(--cui-border);
+        border-radius: 6px; padding: 5px 10px 5px 26px; font-size: 12px; color: var(--cui-text);
+        width: 200px; outline: none; font-family: var(--cui-sans); }
+      .cui-hud-search input:focus { border-color: var(--cui-accent); }
+      .cui-hud-search::before { content: '\\1F50D'; position: absolute; left: 8px; top: 50%;
+        transform: translateY(-50%); font-size: 11px; }
+      .cui-hud-zoom { font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: ${isDark ? 'rgba(24,28,40,0.8)' : 'rgba(0,0,0,0.04)'};
+        border: 1px solid var(--cui-border); border-radius: 6px; padding: 3px 8px; }
 
-  <a href="spec-panel-playground.html" class="card">
-    <div class="card-icon spec">&#9881;</div>
-    <h2>Spec Panel</h2>
-    <p>Expert specification review &mdash; multi-persona evaluation of technical specifications.</p>
-    <span class="tag">review</span>
-  </a>
+      /* Toggle */
+      .cui-toggle { display: flex; border: 1px solid var(--cui-border); border-radius: 6px; overflow: hidden; }
+      .cui-toggle-btn { padding: 4px 10px; font-size: 11px; background: none; border: none;
+        color: var(--cui-muted); cursor: pointer; font-family: var(--cui-sans); transition: all 0.15s; }
+      .cui-toggle-btn.active { background: var(--cui-accent-dim); color: var(--cui-accent); font-weight: 600; }
+      .cui-toggle-btn:hover:not(.active) { color: var(--cui-text); }
 
-</div>
+      /* Stats */
+      .cui-hud-stats { display: flex; gap: 14px; font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-stat-val { color: var(--cui-accent); font-weight: 600; }
 
-<footer>
-  <a href="https://github.com/cordsjon/agentflow">cordsjon/agentflow</a>
-</footer>
+      /* ═══ Zoom Controls ═══ */
+      .cui-zoom-controls { position: fixed; bottom: 16px; left: 16px; display: flex;
+        flex-direction: column; gap: 4px; z-index: 50; }
+      .cui-zoom-btn { width: 36px; height: 36px; background: ${isDark ? 'rgba(24,28,40,0.9)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 8px; color: var(--cui-text);
+        font-size: 16px; cursor: pointer; display: flex; align-items: center;
+        justify-content: center; transition: background 0.15s, border-color 0.15s; }
+      .cui-zoom-btn:hover { border-color: var(--cui-accent); }
+      .cui-zoom-btn.fit { font-size: 11px; font-family: var(--cui-mono); }
 
+      /* ═══ Minimap ═══ */
+      .cui-minimap { position: fixed; bottom: 16px; right: 16px; width: 180px; height: 120px;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; overflow: hidden; z-index: 50; }
+      .cui-minimap-vp { position: absolute; border: 1.5px solid var(--cui-accent); border-radius: 2px;
+        background: rgba(100,255,218,0.04); pointer-events: none; }
+      .cui-minimap-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; }
+
+      /* ═══ Clusters ═══ */
+      .cui-cluster { position: absolute; border: 1px solid var(--cui-border); border-radius: 16px;
+        background: var(--cui-bg-cluster); backdrop-filter: blur(12px); min-width: 200px;
+        box-shadow: 0 4px 32px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); transition: box-shadow 0.3s; }
+      .cui-cluster:hover { box-shadow: 0 8px 48px rgba(0,0,0,${isDark ? '0.5' : '0.12'}); }
+      .cui-cluster-hdr { display: flex; align-items: center; gap: 10px; padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--cui-border); cursor: pointer; }
+      .cui-cluster-icon { font-size: 22px; }
+      .cui-cluster-title { font-size: 14px; font-weight: 700; flex: 1; letter-spacing: 0.3px; }
+      .cui-cluster-count { font-size: 11px; font-family: var(--cui-mono); padding: 2px 8px;
+        border-radius: 20px; background: var(--cui-bg); border: 1px solid var(--cui-border); }
+      .cui-cluster-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .cui-cluster-body { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px;
+        max-height: 800px; overflow: visible; }
+      .cui-cluster.collapsed .cui-cluster-body { display: none; }
+
+      /* ═══ Nodes ═══ */
+      .cui-node { background: var(--cui-bg-node); border: 1px solid var(--cui-border); border-radius: 10px;
+        padding: 10px 14px; min-width: 180px; max-width: 280px; cursor: pointer;
+        transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s; position: relative; }
+      .cui-node:hover { border-color: var(--cui-border-hover); transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); }
+      .cui-node:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-node-top { display: flex; align-items: center; gap: 6px; }
+      .cui-node-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-node-name { font-size: 12px; font-weight: 600; flex: 1; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+      .cui-node-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+      .cui-node-status.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.5); }
+      .cui-node-status.warn { background: #fbbf24; }
+      .cui-node-status.err { background: #ef4444; }
+      .cui-node-status.off { background: #6b7280; }
+      .cui-node-desc { font-size: 10px; color: var(--cui-muted); margin-top: 4px; line-height: 1.4;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .cui-node-meta { font-size: 9px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: var(--cui-bg); border-radius: 3px; padding: 1px 4px; margin-top: 4px; display: inline-block; }
+      .cui-node-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+      .cui-node-btn { font-size: 10px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--cui-border);
+        background: none; color: var(--cui-text-sec); cursor: pointer; font-family: var(--cui-sans); }
+      .cui-node-btn:hover { border-color: var(--cui-accent); color: var(--cui-accent); }
+      .cui-node-btn.primary { background: #238636; border-color: #238636; color: #fff; }
+      .cui-node-btn.danger { border-color: rgba(248,81,73,0.4); color: #f85149; }
+
+      /* ═══ First-visit hint ═══ */
+      .cui-hint { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 60;
+        background: ${isDark ? 'rgba(24,28,40,0.95)' : 'rgba(255,255,255,0.95)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; padding: 10px 20px;
+        font-size: 12px; color: var(--cui-text-sec); backdrop-filter: blur(8px);
+        display: flex; gap: 16px; align-items: center; animation: cui-fadeIn 0.5s; }
+      .cui-hint kbd { background: var(--cui-bg); border: 1px solid var(--cui-border);
+        border-radius: 3px; padding: 1px 5px; font-family: var(--cui-mono); font-size: 10px; }
+      @keyframes cui-fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+      /* ═══ List View ═══ */
+      .cui-list-container { max-width: 900px; margin: 0 auto; padding: 72px 24px 48px; }
+      .cui-list-group { margin-bottom: 24px; }
+      .cui-list-group-hdr { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+        color: var(--cui-muted); padding: 10px 0 5px; border-bottom: 1px solid var(--cui-border);
+        margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+      .cui-list-group-icon { font-size: 16px; }
+      .cui-list-row { display: flex; align-items: center; gap: 10px; background: var(--cui-bg-node);
+        border: 1px solid var(--cui-border); border-radius: 8px; padding: 10px 14px;
+        margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s; }
+      .cui-list-row:hover { border-color: var(--cui-border-hover); }
+      .cui-list-row:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-list-row-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-list-row-title { font-size: 13px; font-weight: 600; flex: 1; }
+      .cui-list-row-desc { font-size: 11px; color: var(--cui-text-sec); max-width: 300px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cui-list-row-meta { font-size: 10px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-list-row-actions { display: flex; gap: 4px; }
+
+      /* Hidden states */
+      .cui-hidden { display: none !important; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ─── DOM Setup ─────────────────────────────────────
+  function createDOM(container) {
+    container.innerHTML = `
+      <div class="cui-hud" id="cui-hud">
+        <span class="cui-hud-title" id="cui-title"></span>
+        <span class="cui-hud-sub" id="cui-sub"></span>
+        <span class="cui-hud-spacer"></span>
+        <div class="cui-hud-search"><input id="cui-search" type="text" placeholder="Search... (⌘K)" aria-label="Search"></div>
+        <div class="cui-hud-stats" id="cui-stats"></div>
+        <span class="cui-hud-zoom" id="cui-zoom-display">85%</span>
+        <div class="cui-toggle" role="radiogroup" aria-label="View mode">
+          <button class="cui-toggle-btn active" id="cui-tog-spatial" role="radio" aria-checked="true">A Spatial</button>
+          <button class="cui-toggle-btn" id="cui-tog-list" role="radio" aria-checked="false">B List</button>
+        </div>
+      </div>
+      <div id="cui-viewport" role="application" aria-label="Infinite canvas — drag to pan, scroll to zoom">
+        <div id="cui-world"></div>
+      </div>
+      <div class="cui-zoom-controls" id="cui-zoom-ctrls">
+        <button class="cui-zoom-btn" id="cui-zin" title="Zoom in" aria-label="Zoom in">+</button>
+        <button class="cui-zoom-btn" id="cui-zout" title="Zoom out" aria-label="Zoom out">&minus;</button>
+        <button class="cui-zoom-btn fit" id="cui-zfit" title="Fit all" aria-label="Fit all">FIT</button>
+      </div>
+      <div class="cui-minimap" id="cui-minimap" aria-hidden="true"></div>
+      <div id="cui-list-wrap" class="cui-hidden"></div>
+    `;
+    els = {
+      hud: document.getElementById('cui-hud'),
+      title: document.getElementById('cui-title'),
+      sub: document.getElementById('cui-sub'),
+      search: document.getElementById('cui-search'),
+      stats: document.getElementById('cui-stats'),
+      zoomDisplay: document.getElementById('cui-zoom-display'),
+      viewport: document.getElementById('cui-viewport'),
+      world: document.getElementById('cui-world'),
+      minimap: document.getElementById('cui-minimap'),
+      zoomCtrls: document.getElementById('cui-zoom-ctrls'),
+      listWrap: document.getElementById('cui-list-wrap'),
+      togSpatial: document.getElementById('cui-tog-spatial'),
+      togList: document.getElementById('cui-tog-list'),
+    };
+  }
+
+  // ─── Canvas Pan & Zoom ────────────────────────────
+  function setupCanvas() {
+    const vp = els.viewport;
+
+    vp.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.cui-node, .cui-node-btn, .cui-cluster-hdr, .cui-zoom-btn, .cui-hud, .cui-toggle')) return;
+      isDragging = true;
+      dragStartX = e.clientX; dragStartY = e.clientY;
+      panStartX = panX; panStartY = panY;
+      document.body.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    window.addEventListener('pointermove', function (e) {
+      if (!isDragging) return;
+      panX = panStartX + (e.clientX - dragStartX);
+      panY = panStartY + (e.clientY - dragStartY);
+      applyTransform(); renderMinimap();
+    });
+
+    window.addEventListener('pointerup', function () {
+      isDragging = false;
+      document.body.classList.remove('dragging');
+    });
+
+    vp.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var rect = vp.getBoundingClientRect();
+      var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var oldZoom = zoom;
+      var delta = e.deltaY > 0 ? 0.92 : 1.08;
+      var newZoom = Math.min(3, Math.max(0.15, zoom * delta));
+      panX = mx - (mx - panX) * (newZoom / oldZoom);
+      panY = my - (my - panY) * (newZoom / oldZoom);
+      zoom = newZoom;
+      applyTransform(); updateZoomDisplay(); renderMinimap();
+    }, { passive: false });
+
+    vp.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+    vp.addEventListener('gesturechange', function (e) {
+      e.preventDefault(); setZoom(zoom * e.scale);
+    });
+
+    applyTransform();
+  }
+
+  function applyTransform() {
+    els.world.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+  }
+
+  function setZoom(z) {
+    var cx = els.viewport.clientWidth / 2, cy = els.viewport.clientHeight / 2;
+    var oldZoom = zoom;
+    zoom = Math.min(3, Math.max(0.15, z));
+    panX = cx - (cx - panX) * (zoom / oldZoom);
+    panY = cy - (cy - panY) * (zoom / oldZoom);
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function fitAll() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) return;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+    });
+    var pad = 80, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight - 52;
+    zoom = Math.min(vpW / worldW, vpH / worldH, 1.2);
+    zoom = Math.max(0.15, Math.min(3, zoom));
+    panX = (vpW - worldW * zoom) / 2 - (minX - pad) * zoom;
+    panY = (vpH - worldH * zoom) / 2 - (minY - pad) * zoom + 52;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function focusCluster(key) {
+    var c = els.world.querySelector('.cui-cluster[data-key="' + key + '"]');
+    if (!c) return;
+    var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+    var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    zoom = Math.min(vpW / (w + 100), vpH / (h + 100), 1.5);
+    panX = vpW / 2 - (x + w / 2) * zoom;
+    panY = vpH / 2 - (y + h / 2) * zoom;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function updateZoomDisplay() {
+    els.zoomDisplay.textContent = Math.round(zoom * 100) + '%';
+  }
+
+  // ─── Rendering ────────────────────────────────────
+  function renderClusters(clusters) {
+    els.world.innerHTML = '';
+    clusters.forEach(function (cl) {
+      var div = document.createElement('div');
+      div.className = 'cui-cluster';
+      div.setAttribute('role', 'group');
+      div.setAttribute('aria-label', cl.label);
+      div.setAttribute('data-key', cl.key);
+      div.style.left = (cl.x || 0) + 'px';
+      div.style.top = (cl.y || 0) + 'px';
+
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q) ||
+            (n.id || '').toLowerCase().includes(q);
+        });
+        if (visibleNodes.length === 0 && !cl.label.toLowerCase().includes(q)) {
+          return; // skip empty clusters
+        }
+      }
+
+      div.innerHTML = `
+        <div class="cui-cluster-hdr">
+          <span class="cui-cluster-icon">${cl.icon || '\u{1F4C1}'}</span>
+          <span class="cui-cluster-dot" style="background:${cl.color || 'var(--cui-accent)'}"></span>
+          <span class="cui-cluster-title">${cl.label}</span>
+          <span class="cui-cluster-count">${visibleNodes.length}</span>
+        </div>
+        <div class="cui-cluster-body">
+          ${visibleNodes.map(function (n) { return renderNode(n); }).join('')}
+        </div>
+      `;
+
+      // Cluster collapse toggle
+      div.querySelector('.cui-cluster-hdr').addEventListener('click', function () {
+        div.classList.toggle('collapsed');
+      });
+
+      els.world.appendChild(div);
+    });
+
+    // Bind node clicks
+    els.world.querySelectorAll('.cui-node').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var nodeId = el.getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+
+    // Bind action buttons
+    els.world.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.closest('.cui-node').getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  function renderNode(n) {
+    var statusHtml = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+    var metaHtml = n.meta ? '<span class="cui-node-meta">' + n.meta + '</span>' : '';
+    var descHtml = n.desc ? '<div class="cui-node-desc">' + n.desc + '</div>' : '';
+    var actionsHtml = '';
+    if (n.actions && n.actions.length) {
+      actionsHtml = '<div class="cui-node-actions">' +
+        n.actions.map(function (a) {
+          return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '">' + a.label + '</button>';
+        }).join('') + '</div>';
+    }
+    return `
+      <div class="cui-node" data-id="${n.id}" role="button" tabindex="0" aria-label="${n.title || n.id}">
+        <div class="cui-node-top">
+          <span class="cui-node-icon">${n.icon || '\u{1F4C4}'}</span>
+          <span class="cui-node-name">${n.title || n.id}</span>
+          ${statusHtml}
+        </div>
+        ${descHtml}${metaHtml}${actionsHtml}
+      </div>`;
+  }
+
+  function findNode(id) {
+    for (var i = 0; i < config.clusters.length; i++) {
+      for (var j = 0; j < config.clusters[i].nodes.length; j++) {
+        if (config.clusters[i].nodes[j].id === id) return config.clusters[i].nodes[j];
+      }
+    }
+    return null;
+  }
+
+  // ─── List View ────────────────────────────────────
+  function renderListView(clusters) {
+    if (config.listRenderer) {
+      config.listRenderer(els.listWrap, clusters);
+      return;
+    }
+    var html = '<div class="cui-list-container">';
+    clusters.forEach(function (cl) {
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q);
+        });
+        if (!visibleNodes.length) return;
+      }
+      html += '<div class="cui-list-group">';
+      html += '<div class="cui-list-group-hdr"><span class="cui-list-group-icon">' +
+        (cl.icon || '\u{1F4C1}') + '</span> ' + cl.label + '</div>';
+      visibleNodes.forEach(function (n) {
+        var statusDot = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+        var metaHtml = n.meta ? '<span class="cui-list-row-meta">' + n.meta + '</span>' : '';
+        var actionsHtml = '';
+        if (n.actions && n.actions.length) {
+          actionsHtml = '<span class="cui-list-row-actions">' +
+            n.actions.map(function (a) {
+              return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '" data-node="' + n.id + '">' + a.label + '</button>';
+            }).join('') + '</span>';
+        }
+        html += '<div class="cui-list-row" data-id="' + n.id + '" role="button" tabindex="0" aria-label="' + (n.title || n.id) + '">' +
+          '<span class="cui-list-row-icon">' + (n.icon || '\u{1F4C4}') + '</span>' +
+          '<span class="cui-list-row-title">' + (n.title || n.id) + '</span>' +
+          statusDot +
+          '<span class="cui-list-row-desc">' + (n.desc || '') + '</span>' +
+          metaHtml + actionsHtml + '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    els.listWrap.innerHTML = html;
+
+    // Bind list row clicks
+    els.listWrap.querySelectorAll('.cui-list-row').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var node = findNode(row.getAttribute('data-id'));
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); }
+      });
+    });
+
+    // Bind list action buttons
+    els.listWrap.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.getAttribute('data-node');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  // ─── Minimap ──────────────────────────────────────
+  function renderMinimap() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) { els.minimap.innerHTML = ''; return; }
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    var dots = [];
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 200, h = c.offsetHeight || 100;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+      var color = c.querySelector('.cui-cluster-dot');
+      dots.push({ x: x + w / 2, y: y + h / 2, color: color ? color.style.background : 'var(--cui-accent)' });
+    });
+    var pad = 20, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var mmW = 180, mmH = 120;
+    var scale = Math.min(mmW / worldW, mmH / worldH);
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    var vpLeft = (-panX / zoom - minX + pad) * scale;
+    var vpTop = (-panY / zoom - minY + pad) * scale;
+    var vpBoxW = (vpW / zoom) * scale, vpBoxH = (vpH / zoom) * scale;
+
+    var html = '<div class="cui-minimap-vp" style="left:' + vpLeft + 'px;top:' + vpTop +
+      'px;width:' + vpBoxW + 'px;height:' + vpBoxH + 'px"></div>';
+    dots.forEach(function (d) {
+      var dx = (d.x - minX + pad) * scale, dy = (d.y - minY + pad) * scale;
+      html += '<div class="cui-minimap-dot" style="left:' + dx + 'px;top:' + dy + 'px;background:' + d.color + '"></div>';
+    });
+    els.minimap.innerHTML = html;
+  }
+
+  // ─── HUD & Stats ──────────────────────────────────
+  function renderHUD() {
+    els.title.textContent = config.title || 'Canvas';
+    els.sub.textContent = config.subtitle || '';
+    var totalNodes = config.clusters.reduce(function (s, c) { return s + c.nodes.length; }, 0);
+    els.stats.innerHTML = '<span><span class="cui-stat-val">' + config.clusters.length +
+      '</span> clusters</span><span><span class="cui-stat-val">' + totalNodes + '</span> items</span>';
+  }
+
+  // ─── View Toggle ──────────────────────────────────
+  function switchView(mode) {
+    viewMode = mode;
+    if (mode === 'spatial') {
+      document.body.className = 'cui-spatial';
+      els.viewport.classList.remove('cui-hidden');
+      els.zoomCtrls.classList.remove('cui-hidden');
+      els.minimap.classList.remove('cui-hidden');
+      els.listWrap.classList.add('cui-hidden');
+      els.togSpatial.classList.add('active');
+      els.togSpatial.setAttribute('aria-checked', 'true');
+      els.togList.classList.remove('active');
+      els.togList.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.remove('cui-hidden');
+      renderClusters(config.clusters);
+      requestAnimationFrame(function () { fitAll(); });
+    } else {
+      document.body.className = 'cui-list';
+      els.viewport.classList.add('cui-hidden');
+      els.zoomCtrls.classList.add('cui-hidden');
+      els.minimap.classList.add('cui-hidden');
+      els.listWrap.classList.remove('cui-hidden');
+      els.togList.classList.add('active');
+      els.togList.setAttribute('aria-checked', 'true');
+      els.togSpatial.classList.remove('active');
+      els.togSpatial.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.add('cui-hidden');
+      renderListView(config.clusters);
+    }
+    saveState();
+  }
+
+  // ─── Search ───────────────────────────────────────
+  function setupSearch() {
+    els.search.addEventListener('input', function () {
+      searchQuery = els.search.value.trim();
+      if (viewMode === 'spatial') renderClusters(config.clusters);
+      else renderListView(config.clusters);
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault(); els.search.focus(); els.search.select();
+      }
+      if (e.key === 'Escape' && document.activeElement === els.search) {
+        els.search.value = ''; searchQuery = '';
+        if (viewMode === 'spatial') renderClusters(config.clusters);
+        else renderListView(config.clusters);
+        els.search.blur();
+      }
+    });
+  }
+
+  // ─── Keyboard Nav ─────────────────────────────────
+  function setupKeyboard() {
+    document.addEventListener('keydown', function (e) {
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (e.key === 'v' && !e.metaKey && !e.ctrlKey) {
+        switchView(viewMode === 'spatial' ? 'list' : 'spatial');
+      }
+    });
+  }
+
+  // ─── Persistence ──────────────────────────────────
+  function saveState() {
+    if (!config.storageKey) return;
+    try {
+      localStorage.setItem('cui-' + config.storageKey, JSON.stringify({
+        viewMode: viewMode, zoom: zoom, panX: panX, panY: panY
+      }));
+    } catch (e) { /* quota exceeded */ }
+  }
+
+  function restoreState() {
+    if (!config.storageKey) return;
+    try {
+      var saved = JSON.parse(localStorage.getItem('cui-' + config.storageKey));
+      if (saved) {
+        if (saved.zoom) zoom = saved.zoom;
+        if (saved.panX !== undefined) panX = saved.panX;
+        if (saved.panY !== undefined) panY = saved.panY;
+        if (saved.viewMode) viewMode = saved.viewMode;
+      }
+    } catch (e) { /* parse error */ }
+  }
+
+  // ─── First-visit Hint ─────────────────────────────
+  function showHint() {
+    if (!config.storageKey) return;
+    if (localStorage.getItem('cui-hint-' + config.storageKey)) return;
+    var hint = document.createElement('div');
+    hint.className = 'cui-hint';
+    hint.innerHTML = 'Scroll to zoom &middot; Drag to pan &middot; <kbd>\u2318K</kbd> search &middot; <kbd>V</kbd> toggle view';
+    document.body.appendChild(hint);
+    localStorage.setItem('cui-hint-' + config.storageKey, '1');
+    setTimeout(function () { hint.style.opacity = '0'; hint.style.transition = 'opacity 0.5s';
+      setTimeout(function () { hint.remove(); }, 500);
+    }, 5000);
+  }
+
+  // ─── Public API ───────────────────────────────────
+  return {
+    init: function (containerSelector, cfg) {
+      config = cfg || {};
+      config.clusters = config.clusters || [];
+      var container = typeof containerSelector === 'string'
+        ? document.querySelector(containerSelector) : containerSelector;
+      if (!container) { container = document.body; }
+
+      injectStyles(config.theme || 'dark');
+      restoreState();
+      createDOM(container);
+      renderHUD();
+      setupSearch();
+      setupKeyboard();
+
+      // Toggle buttons
+      els.togSpatial.addEventListener('click', function () { switchView('spatial'); });
+      els.togList.addEventListener('click', function () { switchView('list'); });
+
+      // Zoom buttons
+      document.getElementById('cui-zin').addEventListener('click', function () { setZoom(zoom * 1.25); });
+      document.getElementById('cui-zout').addEventListener('click', function () { setZoom(zoom * 0.8); });
+      document.getElementById('cui-zfit').addEventListener('click', fitAll);
+
+      // Initial render
+      switchView(viewMode);
+
+      // Canvas setup (always, even if starting in list)
+      setupCanvas();
+
+      // Hint
+      if (viewMode === 'spatial') showHint();
+    },
+
+    setClusters: function (clusters) {
+      config.clusters = clusters;
+      renderHUD();
+      if (viewMode === 'spatial') {
+        renderClusters(config.clusters);
+        renderMinimap();
+      } else {
+        renderListView(config.clusters);
+      }
+    },
+
+    addNode: function (clusterKey, node) {
+      var cl = config.clusters.find(function (c) { return c.key === clusterKey; });
+      if (cl) {
+        cl.nodes.push(node);
+        this.setClusters(config.clusters);
+      }
+    },
+
+    removeNode: function (nodeId) {
+      config.clusters.forEach(function (cl) {
+        cl.nodes = cl.nodes.filter(function (n) { return n.id !== nodeId; });
+      });
+      this.setClusters(config.clusters);
+    },
+
+    switchView: switchView,
+    focusCluster: focusCluster,
+    fitAll: fitAll,
+    setZoom: setZoom,
+    getViewMode: function () { return viewMode; },
+  };
+})();
+
+// ─── Initialize AgentFlow Canvas ──────────────────
+CanvasUI.init('body', {
+  title: 'AgentFlow',
+  subtitle: 'Interactive Playgrounds',
+  theme: 'dark',
+  storageKey: 'agentflow-docs',
+  onNodeClick: function (node) {
+    if (node && node.url) {
+      window.location = node.url;
+    }
+  },
+  clusters: [
+    {
+      key: 'governance',
+      label: 'Governance',
+      icon: '\u2725',
+      color: '#39d2c0',
+      x: 80,
+      y: 80,
+      nodes: [
+        {
+          id: 'shepherd',
+          title: 'Shepherd',
+          desc: 'Unified AI Agent Governance Framework \u2014 three nested loops, 44 skills, 19 expert panelists, five-layer quality stack.',
+          icon: '\u2725',
+          meta: 'governance',
+          url: 'shepherd.html',
+          onClick: function () { window.location = 'shepherd.html'; }
+        }
+      ]
+    },
+    {
+      key: 'playgrounds',
+      label: 'Interactive Playgrounds',
+      icon: '\uD83C\uDFAE',
+      color: '#58a6ff',
+      x: 80,
+      y: 320,
+      nodes: [
+        {
+          id: 'pipeline',
+          title: 'Pipeline Playground',
+          desc: 'Shepherd Pipeline \u2014 trace the full journey from idea to commit through autonomous agent stages.',
+          icon: '\u25B6',
+          meta: 'pipeline',
+          url: 'pipeline-playground.html',
+          onClick: function () { window.location = 'pipeline-playground.html'; }
+        },
+        {
+          id: 'business-panel',
+          title: 'Business Panel',
+          desc: 'Strategic analysis playground \u2014 multi-expert business evaluation and market intelligence.',
+          icon: '\u2605',
+          meta: 'analysis',
+          url: 'business-panel-playground.html',
+          onClick: function () { window.location = 'business-panel-playground.html'; }
+        },
+        {
+          id: 'spec-panel',
+          title: 'Spec Panel',
+          desc: 'Expert specification review \u2014 multi-persona evaluation of technical specifications.',
+          icon: '\u2699',
+          meta: 'review',
+          url: 'spec-panel-playground.html',
+          onClick: function () { window.location = 'spec-panel-playground.html'; }
+        }
+      ]
+    }
+  ]
+});
+</script>
 </body>
 </html>

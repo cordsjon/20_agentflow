@@ -5,122 +5,779 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Panel — Strategic Analysis</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2333;
-    --border: #30363d;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --text-bright: #f0f6fc;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --green-dim: #238636;
-    --yellow: #d29922;
-    --red: #f85149;
-    --purple: #bc8cff;
-    --orange: #f0883e;
-    --cyan: #39d2c0;
-    --pink: #f778ba;
-    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+  /* ── Detail panel overlay ── */
+  .bp-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:100; backdrop-filter:blur(4px); }
+  .bp-overlay.visible { display:flex; align-items:center; justify-content:center; }
+  .bp-panel { background:#181c28; border:1px solid #252a3a; border-radius:14px; width:90vw; max-width:860px;
+    max-height:85vh; overflow-y:auto; padding:28px 32px; color:#e2e8f0; position:relative; box-shadow:0 12px 48px rgba(0,0,0,0.5); }
+  .bp-panel-close { position:absolute; top:14px; right:18px; background:none; border:1px solid #252a3a;
+    color:#94a3b8; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:13px; }
+  .bp-panel-close:hover { border-color:#64ffda; color:#64ffda; }
+  .bp-panel h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .bp-panel .bp-sub { font-size:12px; color:#5a6480; margin-bottom:16px; }
+  .bp-panel .bp-quote { border-left:3px solid #f0883e; padding:10px 16px; background:rgba(240,136,62,0.06);
+    border-radius:0 6px 6px 0; margin:10px 0; font-style:italic; line-height:1.6; font-size:14px; }
+  .bp-panel .bp-quote .attr { font-style:normal; font-size:11px; color:#5a6480; margin-top:6px; }
+  .bp-panel .bp-section { margin-top:16px; }
+  .bp-panel .bp-section h3 { font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#5a6480; margin-bottom:8px; font-weight:600; }
+  .bp-panel .bp-body { font-size:13px; line-height:1.7; }
+  .bp-panel .bp-body code { font-family:'SF Mono','Fira Code',monospace; font-size:11px; background:#0c0e14; padding:2px 6px; border-radius:4px; color:#39d2c0; }
+  .bp-panel .bp-body ul { padding-left:18px; }
+  .bp-panel .bp-body li { margin-bottom:4px; }
+  .bp-panel .bp-ok { color:#22c55e; } .bp-panel .bp-warn { color:#fbbf24; } .bp-panel .bp-danger { color:#ef4444; }
+  .bp-panel .bp-tag { font-size:10px; padding:2px 8px; border-radius:4px; display:inline-block; margin-left:8px; font-weight:500; }
+  .bp-panel pre { font-family:'SF Mono','Fira Code',monospace; font-size:12px; background:#0c0e14; padding:14px;
+    border-radius:6px; overflow-x:auto; margin:10px 0; line-height:1.6; border:1px solid #252a3a; white-space:pre-wrap; }
 
-  .header { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-  .header h1 { font-size: 20px; color: var(--text-bright); font-weight: 600; }
-  .header .subtitle { font-size: 13px; color: var(--text-dim); }
-  .header .back { font-size: 13px; color: var(--accent); text-decoration: none; margin-left: auto; font-family: var(--mono); }
-  .header .back:hover { text-decoration: underline; }
+  /* ── HUD extras ── */
+  .bp-hud-extra { display:flex; gap:6px; align-items:center; }
+  .bp-hud-btn { padding:4px 10px; border-radius:5px; border:1px solid #252a3a; background:none;
+    color:#94a3b8; font-size:11px; cursor:pointer; font-family:system-ui,sans-serif; transition:all 0.15s; }
+  .bp-hud-btn:hover { border-color:#64ffda; color:#64ffda; }
+  .bp-hud-btn.active { border-color:#64ffda; background:rgba(100,255,218,0.08); color:#64ffda; font-weight:600; }
+  .bp-back { font-size:12px; color:#64ffda; text-decoration:none; font-family:'SF Mono',monospace; }
+  .bp-back:hover { text-decoration:underline; }
 
-  .controls { padding: 12px 32px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
-  .control-group { display: flex; align-items: center; gap: 8px; }
-  .control-group label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-  .ctrl-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
-  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .ctrl-btn.active { border-color: var(--accent); background: rgba(88,166,255,0.1); color: var(--accent); }
-
-  .main { display: grid; grid-template-columns: 260px 1fr; height: calc(100vh - 100px); }
-
-  .sidebar { border-right: 1px solid var(--border); overflow-y: auto; background: var(--surface); }
-  .sidebar-title { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 8px; font-weight: 600; }
-  .expert-card { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: all 0.15s; position: relative; }
-  .expert-card:hover { background: var(--surface2); }
-  .expert-card.active { background: var(--surface2); border-left: 3px solid var(--orange); }
-  .expert-card.active .expert-name { color: var(--orange); }
-  .expert-card.dimmed { opacity: 0.35; }
-  .expert-name { font-size: 14px; font-weight: 600; color: var(--text-bright); margin-bottom: 2px; }
-  .expert-domain { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
-  .expert-badge { position: absolute; top: 12px; right: 12px; font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
-  .badge-default { background: rgba(240,136,62,0.2); color: var(--orange); }
-  .badge-auto { background: rgba(188,140,255,0.15); color: var(--purple); }
-  .token-cost { font-size: 10px; color: var(--text-dim); font-family: var(--mono); margin-top: 3px; }
-
-  .content { overflow-y: auto; padding: 24px 32px; }
-  .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-  .card.full { grid-column: 1 / -1; }
-  .card h3 { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .card h3 .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: none; letter-spacing: 0; font-weight: 500; }
-  .tag-comp { background: rgba(88,166,255,0.15); color: var(--accent); }
-  .tag-grow { background: rgba(63,185,80,0.15); color: var(--green); }
-  .tag-risk { background: rgba(248,81,73,0.15); color: var(--red); }
-  .tag-comm { background: rgba(210,153,34,0.15); color: var(--yellow); }
-  .tag-mode { background: rgba(240,136,62,0.15); color: var(--orange); }
-
-  .body { font-size: 14px; line-height: 1.7; color: var(--text); }
-  .body code { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
-  .body pre { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 10px 0; line-height: 1.6; border: 1px solid var(--border); white-space: pre-wrap; }
-  .body ul { padding-left: 18px; }
-  .body li { margin-bottom: 4px; }
-  .body li::marker { color: var(--text-dim); }
-  .hl { color: var(--accent); font-weight: 500; }
-  .warn { color: var(--yellow); }
-  .ok { color: var(--green); }
-  .danger { color: var(--red); }
-  .dim { color: var(--text-dim); }
-  .purple { color: var(--purple); }
-  .orange { color: var(--orange); }
-
-  .quote { border-left: 3px solid var(--orange); padding: 12px 16px; background: rgba(240,136,62,0.05); border-radius: 0 6px 6px 0; margin: 10px 0; font-style: italic; color: var(--text-bright); font-size: 14px; line-height: 1.6; }
-  .quote .attribution { font-style: normal; font-size: 12px; color: var(--text-dim); margin-top: 6px; }
-
-  .diff-label { display: inline-block; font-size: 11px; font-family: var(--mono); padding: 2px 8px; border-radius: 3px; margin-right: 4px; }
-  .diff-no { background: rgba(248,81,73,0.1); color: var(--red); }
-  .diff-yes { background: rgba(63,185,80,0.1); color: var(--green); }
-
-  @media (max-width: 900px) {
-    .main { grid-template-columns: 1fr; }
-    .sidebar { max-height: 200px; }
-    .content-grid { grid-template-columns: 1fr; }
-    .card.full { grid-column: 1; }
-  }
+  /* node highlight for selected expert */
+  .cui-node.bp-selected { border-color:#f0883e !important; box-shadow:0 0 12px rgba(240,136,62,0.3) !important; }
+  .cui-node.bp-active-fw { border-color:#bc8cff !important; box-shadow:0 0 12px rgba(188,140,255,0.3) !important; }
+  .cui-node.bp-active-mode { border-color:#39d2c0 !important; box-shadow:0 0 12px rgba(57,210,192,0.3) !important; }
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div><span style="font-size:24px;">📊</span></div>
-  <div>
-    <h1>/sc:business-panel — Strategic Business Analysis</h1>
-    <div class="subtitle">AI-facilitated panel discussion between 9 renowned business thought leaders — analysis only, no implementation</div>
-  </div>
-  <div style="margin-left:auto;display:flex;gap:8px;">
-    <a class="back" href="pipeline-playground.html">&larr; Pipeline</a>
-    <a class="back" href="spec-panel-playground.html" style="color:var(--accent);">👥 Spec Panel</a>
-  </div>
-</div>
-
-<div class="controls" id="controls"></div>
-
-<div class="main">
-  <div class="sidebar" id="sidebar"></div>
-  <div class="content" id="content"></div>
-</div>
-
+<!-- ══════════════════════════════════════════════════════════════════
+     Canvas-Core.js — Shared Infinite Canvas Engine (inlined)
+     ══════════════════════════════════════════════════════════════════ -->
 <script>
+/**
+ * CanvasUI — Shared Infinite Canvas Engine
+ * Extracted from Cockpit, made reusable across all project UIs.
+ *
+ * Usage:
+ *   CanvasUI.init('#app', {
+ *     title: 'My App',
+ *     subtitle: 'Description',
+ *     theme: 'dark',          // 'dark' | 'light'
+ *     storageKey: 'myapp',    // localStorage prefix
+ *     clusters: [ { key, label, icon, color, x, y, nodes: [{ id, title, desc, icon, status, meta, onClick }] } ],
+ *     listRenderer: (container, clusters) => { ... },  // custom list-view renderer
+ *     onNodeClick: (node, cluster) => { ... },
+ *     onSearch: (query) => { ... },
+ *   });
+ */
+const CanvasUI = (function () {
+  'use strict';
+
+  // ─── State ─────────────────────────────────────────
+  let zoom = 0.85, panX = 100, panY = 80;
+  let isDragging = false, dragStartX, dragStartY, panStartX, panStartY;
+  let config = {};
+  let viewMode = 'spatial'; // 'spatial' | 'list'
+  let searchQuery = '';
+  let expandedNodes = {};
+  let els = {};
+
+  // ─── CSS Injection ─────────────────────────────────
+  function injectStyles(theme) {
+    if (document.getElementById('canvas-ui-styles')) return;
+    const isDark = theme !== 'light';
+    const vars = isDark ? `
+      --cui-bg: #0c0e14; --cui-bg-elevated: #13161f; --cui-bg-node: #181c28;
+      --cui-bg-node-hover: #1e2233; --cui-bg-cluster: rgba(20,24,36,0.85);
+      --cui-border: #252a3a; --cui-border-hover: #3a4060;
+      --cui-text: #e2e8f0; --cui-text-sec: #94a3b8; --cui-muted: #5a6480;
+      --cui-accent: #64ffda; --cui-accent-dim: rgba(100,255,218,0.06);
+      --cui-grid-dot: rgba(100,255,218,0.06);
+    ` : `
+      --cui-bg: #f4f5f7; --cui-bg-elevated: #ffffff; --cui-bg-node: #ffffff;
+      --cui-bg-node-hover: #fafbfc; --cui-bg-cluster: rgba(255,255,255,0.9);
+      --cui-border: rgba(0,0,0,0.08); --cui-border-hover: rgba(0,0,0,0.15);
+      --cui-text: #1a1d23; --cui-text-sec: #4a5066; --cui-muted: #7c8298;
+      --cui-accent: #0e8c72; --cui-accent-dim: rgba(14,140,114,0.08);
+      --cui-grid-dot: rgba(0,0,0,0.06);
+    `;
+
+    const style = document.createElement('style');
+    style.id = 'canvas-ui-styles';
+    style.textContent = `
+      :root { ${vars}
+        --cui-mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+        --cui-sans: system-ui,-apple-system,sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body.cui-spatial { background: var(--cui-bg); color: var(--cui-text); overflow: hidden;
+        width: 100vw; height: 100vh; cursor: grab; -webkit-font-smoothing: antialiased;
+        user-select: none; font-family: var(--cui-sans); }
+      body.cui-spatial.dragging { cursor: grabbing; }
+      body.cui-list { background: var(--cui-bg); color: var(--cui-text); font-family: var(--cui-sans);
+        -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+      /* ═══ Viewport ═══ */
+      #cui-viewport { position: fixed; inset: 0; overflow: hidden; }
+      #cui-world { position: absolute; transform-origin: 0 0; }
+      #cui-viewport::before { content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(circle, var(--cui-grid-dot) 1px, transparent 1px);
+        background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+      /* ═══ HUD ═══ */
+      .cui-hud { position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(244,245,247,0.9)'};
+        backdrop-filter: blur(12px); border-bottom: 1px solid var(--cui-border);
+        display: flex; align-items: center; gap: 12px; padding: 10px 16px; height: 48px; }
+      .cui-hud-title { font-size: 14px; font-weight: 700; }
+      .cui-hud-sub { font-size: 11px; color: var(--cui-muted); }
+      .cui-hud-spacer { flex: 1; }
+      .cui-hud-search { position: relative; }
+      .cui-hud-search input { background: ${isDark ? 'var(--cui-bg)' : '#fff'}; border: 1px solid var(--cui-border);
+        border-radius: 6px; padding: 5px 10px 5px 26px; font-size: 12px; color: var(--cui-text);
+        width: 200px; outline: none; font-family: var(--cui-sans); }
+      .cui-hud-search input:focus { border-color: var(--cui-accent); }
+      .cui-hud-search::before { content: '\\1F50D'; position: absolute; left: 8px; top: 50%;
+        transform: translateY(-50%); font-size: 11px; }
+      .cui-hud-zoom { font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: ${isDark ? 'rgba(24,28,40,0.8)' : 'rgba(0,0,0,0.04)'};
+        border: 1px solid var(--cui-border); border-radius: 6px; padding: 3px 8px; }
+
+      /* Toggle */
+      .cui-toggle { display: flex; border: 1px solid var(--cui-border); border-radius: 6px; overflow: hidden; }
+      .cui-toggle-btn { padding: 4px 10px; font-size: 11px; background: none; border: none;
+        color: var(--cui-muted); cursor: pointer; font-family: var(--cui-sans); transition: all 0.15s; }
+      .cui-toggle-btn.active { background: var(--cui-accent-dim); color: var(--cui-accent); font-weight: 600; }
+      .cui-toggle-btn:hover:not(.active) { color: var(--cui-text); }
+
+      /* Stats */
+      .cui-hud-stats { display: flex; gap: 14px; font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-stat-val { color: var(--cui-accent); font-weight: 600; }
+
+      /* ═══ Zoom Controls ═══ */
+      .cui-zoom-controls { position: fixed; bottom: 16px; left: 16px; display: flex;
+        flex-direction: column; gap: 4px; z-index: 50; }
+      .cui-zoom-btn { width: 36px; height: 36px; background: ${isDark ? 'rgba(24,28,40,0.9)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 8px; color: var(--cui-text);
+        font-size: 16px; cursor: pointer; display: flex; align-items: center;
+        justify-content: center; transition: background 0.15s, border-color 0.15s; }
+      .cui-zoom-btn:hover { border-color: var(--cui-accent); }
+      .cui-zoom-btn.fit { font-size: 11px; font-family: var(--cui-mono); }
+
+      /* ═══ Minimap ═══ */
+      .cui-minimap { position: fixed; bottom: 16px; right: 16px; width: 180px; height: 120px;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; overflow: hidden; z-index: 50; }
+      .cui-minimap-vp { position: absolute; border: 1.5px solid var(--cui-accent); border-radius: 2px;
+        background: rgba(100,255,218,0.04); pointer-events: none; }
+      .cui-minimap-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; }
+
+      /* ═══ Clusters ═══ */
+      .cui-cluster { position: absolute; border: 1px solid var(--cui-border); border-radius: 16px;
+        background: var(--cui-bg-cluster); backdrop-filter: blur(12px); min-width: 200px;
+        box-shadow: 0 4px 32px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); transition: box-shadow 0.3s; }
+      .cui-cluster:hover { box-shadow: 0 8px 48px rgba(0,0,0,${isDark ? '0.5' : '0.12'}); }
+      .cui-cluster-hdr { display: flex; align-items: center; gap: 10px; padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--cui-border); cursor: pointer; }
+      .cui-cluster-icon { font-size: 22px; }
+      .cui-cluster-title { font-size: 14px; font-weight: 700; flex: 1; letter-spacing: 0.3px; }
+      .cui-cluster-count { font-size: 11px; font-family: var(--cui-mono); padding: 2px 8px;
+        border-radius: 20px; background: var(--cui-bg); border: 1px solid var(--cui-border); }
+      .cui-cluster-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .cui-cluster-body { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px;
+        max-height: 800px; overflow: visible; }
+      .cui-cluster.collapsed .cui-cluster-body { display: none; }
+
+      /* ═══ Nodes ═══ */
+      .cui-node { background: var(--cui-bg-node); border: 1px solid var(--cui-border); border-radius: 10px;
+        padding: 10px 14px; min-width: 180px; max-width: 280px; cursor: pointer;
+        transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s; position: relative; }
+      .cui-node:hover { border-color: var(--cui-border-hover); transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); }
+      .cui-node:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-node-top { display: flex; align-items: center; gap: 6px; }
+      .cui-node-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-node-name { font-size: 12px; font-weight: 600; flex: 1; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+      .cui-node-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+      .cui-node-status.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.5); }
+      .cui-node-status.warn { background: #fbbf24; }
+      .cui-node-status.err { background: #ef4444; }
+      .cui-node-status.off { background: #6b7280; }
+      .cui-node-desc { font-size: 10px; color: var(--cui-muted); margin-top: 4px; line-height: 1.4;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .cui-node-meta { font-size: 9px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: var(--cui-bg); border-radius: 3px; padding: 1px 4px; margin-top: 4px; display: inline-block; }
+      .cui-node-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+      .cui-node-btn { font-size: 10px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--cui-border);
+        background: none; color: var(--cui-text-sec); cursor: pointer; font-family: var(--cui-sans); }
+      .cui-node-btn:hover { border-color: var(--cui-accent); color: var(--cui-accent); }
+      .cui-node-btn.primary { background: #238636; border-color: #238636; color: #fff; }
+      .cui-node-btn.danger { border-color: rgba(248,81,73,0.4); color: #f85149; }
+
+      /* ═══ First-visit hint ═══ */
+      .cui-hint { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 60;
+        background: ${isDark ? 'rgba(24,28,40,0.95)' : 'rgba(255,255,255,0.95)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; padding: 10px 20px;
+        font-size: 12px; color: var(--cui-text-sec); backdrop-filter: blur(8px);
+        display: flex; gap: 16px; align-items: center; animation: cui-fadeIn 0.5s; }
+      .cui-hint kbd { background: var(--cui-bg); border: 1px solid var(--cui-border);
+        border-radius: 3px; padding: 1px 5px; font-family: var(--cui-mono); font-size: 10px; }
+      @keyframes cui-fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+      /* ═══ List View ═══ */
+      .cui-list-container { max-width: 900px; margin: 0 auto; padding: 72px 24px 48px; }
+      .cui-list-group { margin-bottom: 24px; }
+      .cui-list-group-hdr { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+        color: var(--cui-muted); padding: 10px 0 5px; border-bottom: 1px solid var(--cui-border);
+        margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+      .cui-list-group-icon { font-size: 16px; }
+      .cui-list-row { display: flex; align-items: center; gap: 10px; background: var(--cui-bg-node);
+        border: 1px solid var(--cui-border); border-radius: 8px; padding: 10px 14px;
+        margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s; }
+      .cui-list-row:hover { border-color: var(--cui-border-hover); }
+      .cui-list-row:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-list-row-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-list-row-title { font-size: 13px; font-weight: 600; flex: 1; }
+      .cui-list-row-desc { font-size: 11px; color: var(--cui-text-sec); max-width: 300px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cui-list-row-meta { font-size: 10px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-list-row-actions { display: flex; gap: 4px; }
+
+      /* Hidden states */
+      .cui-hidden { display: none !important; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ─── DOM Setup ─────────────────────────────────────
+  function createDOM(container) {
+    container.innerHTML = `
+      <div class="cui-hud" id="cui-hud">
+        <span class="cui-hud-title" id="cui-title"></span>
+        <span class="cui-hud-sub" id="cui-sub"></span>
+        <span class="cui-hud-spacer"></span>
+        <div class="cui-hud-search"><input id="cui-search" type="text" placeholder="Search... (⌘K)" aria-label="Search"></div>
+        <div class="cui-hud-stats" id="cui-stats"></div>
+        <span class="cui-hud-zoom" id="cui-zoom-display">85%</span>
+        <div class="cui-toggle" role="radiogroup" aria-label="View mode">
+          <button class="cui-toggle-btn active" id="cui-tog-spatial" role="radio" aria-checked="true">A Spatial</button>
+          <button class="cui-toggle-btn" id="cui-tog-list" role="radio" aria-checked="false">B List</button>
+        </div>
+      </div>
+      <div id="cui-viewport" role="application" aria-label="Infinite canvas — drag to pan, scroll to zoom">
+        <div id="cui-world"></div>
+      </div>
+      <div class="cui-zoom-controls" id="cui-zoom-ctrls">
+        <button class="cui-zoom-btn" id="cui-zin" title="Zoom in" aria-label="Zoom in">+</button>
+        <button class="cui-zoom-btn" id="cui-zout" title="Zoom out" aria-label="Zoom out">&minus;</button>
+        <button class="cui-zoom-btn fit" id="cui-zfit" title="Fit all" aria-label="Fit all">FIT</button>
+      </div>
+      <div class="cui-minimap" id="cui-minimap" aria-hidden="true"></div>
+      <div id="cui-list-wrap" class="cui-hidden"></div>
+    `;
+    els = {
+      hud: document.getElementById('cui-hud'),
+      title: document.getElementById('cui-title'),
+      sub: document.getElementById('cui-sub'),
+      search: document.getElementById('cui-search'),
+      stats: document.getElementById('cui-stats'),
+      zoomDisplay: document.getElementById('cui-zoom-display'),
+      viewport: document.getElementById('cui-viewport'),
+      world: document.getElementById('cui-world'),
+      minimap: document.getElementById('cui-minimap'),
+      zoomCtrls: document.getElementById('cui-zoom-ctrls'),
+      listWrap: document.getElementById('cui-list-wrap'),
+      togSpatial: document.getElementById('cui-tog-spatial'),
+      togList: document.getElementById('cui-tog-list'),
+    };
+  }
+
+  // ─── Canvas Pan & Zoom ────────────────────────────
+  function setupCanvas() {
+    const vp = els.viewport;
+
+    vp.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.cui-node, .cui-node-btn, .cui-cluster-hdr, .cui-zoom-btn, .cui-hud, .cui-toggle')) return;
+      isDragging = true;
+      dragStartX = e.clientX; dragStartY = e.clientY;
+      panStartX = panX; panStartY = panY;
+      document.body.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    window.addEventListener('pointermove', function (e) {
+      if (!isDragging) return;
+      panX = panStartX + (e.clientX - dragStartX);
+      panY = panStartY + (e.clientY - dragStartY);
+      applyTransform(); renderMinimap();
+    });
+
+    window.addEventListener('pointerup', function () {
+      isDragging = false;
+      document.body.classList.remove('dragging');
+    });
+
+    vp.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var rect = vp.getBoundingClientRect();
+      var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var oldZoom = zoom;
+      var delta = e.deltaY > 0 ? 0.92 : 1.08;
+      var newZoom = Math.min(3, Math.max(0.15, zoom * delta));
+      panX = mx - (mx - panX) * (newZoom / oldZoom);
+      panY = my - (my - panY) * (newZoom / oldZoom);
+      zoom = newZoom;
+      applyTransform(); updateZoomDisplay(); renderMinimap();
+    }, { passive: false });
+
+    vp.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+    vp.addEventListener('gesturechange', function (e) {
+      e.preventDefault(); setZoom(zoom * e.scale);
+    });
+
+    applyTransform();
+  }
+
+  function applyTransform() {
+    els.world.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+  }
+
+  function setZoom(z) {
+    var cx = els.viewport.clientWidth / 2, cy = els.viewport.clientHeight / 2;
+    var oldZoom = zoom;
+    zoom = Math.min(3, Math.max(0.15, z));
+    panX = cx - (cx - panX) * (zoom / oldZoom);
+    panY = cy - (cy - panY) * (zoom / oldZoom);
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function fitAll() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) return;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+    });
+    var pad = 80, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight - 52;
+    zoom = Math.min(vpW / worldW, vpH / worldH, 1.2);
+    zoom = Math.max(0.15, Math.min(3, zoom));
+    panX = (vpW - worldW * zoom) / 2 - (minX - pad) * zoom;
+    panY = (vpH - worldH * zoom) / 2 - (minY - pad) * zoom + 52;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function focusCluster(key) {
+    var c = els.world.querySelector('.cui-cluster[data-key="' + key + '"]');
+    if (!c) return;
+    var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+    var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    zoom = Math.min(vpW / (w + 100), vpH / (h + 100), 1.5);
+    panX = vpW / 2 - (x + w / 2) * zoom;
+    panY = vpH / 2 - (y + h / 2) * zoom;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function updateZoomDisplay() {
+    els.zoomDisplay.textContent = Math.round(zoom * 100) + '%';
+  }
+
+  // ─── Rendering ────────────────────────────────────
+  function renderClusters(clusters) {
+    els.world.innerHTML = '';
+    clusters.forEach(function (cl) {
+      var div = document.createElement('div');
+      div.className = 'cui-cluster';
+      div.setAttribute('role', 'group');
+      div.setAttribute('aria-label', cl.label);
+      div.setAttribute('data-key', cl.key);
+      div.style.left = (cl.x || 0) + 'px';
+      div.style.top = (cl.y || 0) + 'px';
+
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q) ||
+            (n.id || '').toLowerCase().includes(q);
+        });
+        if (visibleNodes.length === 0 && !cl.label.toLowerCase().includes(q)) {
+          return; // skip empty clusters
+        }
+      }
+
+      div.innerHTML = `
+        <div class="cui-cluster-hdr">
+          <span class="cui-cluster-icon">${cl.icon || '📁'}</span>
+          <span class="cui-cluster-dot" style="background:${cl.color || 'var(--cui-accent)'}"></span>
+          <span class="cui-cluster-title">${cl.label}</span>
+          <span class="cui-cluster-count">${visibleNodes.length}</span>
+        </div>
+        <div class="cui-cluster-body">
+          ${visibleNodes.map(function (n) { return renderNode(n); }).join('')}
+        </div>
+      `;
+
+      // Cluster collapse toggle
+      div.querySelector('.cui-cluster-hdr').addEventListener('click', function () {
+        div.classList.toggle('collapsed');
+      });
+
+      els.world.appendChild(div);
+    });
+
+    // Bind node clicks
+    els.world.querySelectorAll('.cui-node').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var nodeId = el.getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+
+    // Bind action buttons
+    els.world.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.closest('.cui-node').getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  function renderNode(n) {
+    var statusHtml = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+    var metaHtml = n.meta ? '<span class="cui-node-meta">' + n.meta + '</span>' : '';
+    var descHtml = n.desc ? '<div class="cui-node-desc">' + n.desc + '</div>' : '';
+    var actionsHtml = '';
+    if (n.actions && n.actions.length) {
+      actionsHtml = '<div class="cui-node-actions">' +
+        n.actions.map(function (a) {
+          return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '">' + a.label + '</button>';
+        }).join('') + '</div>';
+    }
+    return `
+      <div class="cui-node" data-id="${n.id}" role="button" tabindex="0" aria-label="${n.title || n.id}">
+        <div class="cui-node-top">
+          <span class="cui-node-icon">${n.icon || '📄'}</span>
+          <span class="cui-node-name">${n.title || n.id}</span>
+          ${statusHtml}
+        </div>
+        ${descHtml}${metaHtml}${actionsHtml}
+      </div>`;
+  }
+
+  function findNode(id) {
+    for (var i = 0; i < config.clusters.length; i++) {
+      for (var j = 0; j < config.clusters[i].nodes.length; j++) {
+        if (config.clusters[i].nodes[j].id === id) return config.clusters[i].nodes[j];
+      }
+    }
+    return null;
+  }
+
+  // ─── List View ────────────────────────────────────
+  function renderListView(clusters) {
+    if (config.listRenderer) {
+      config.listRenderer(els.listWrap, clusters);
+      return;
+    }
+    var html = '<div class="cui-list-container">';
+    clusters.forEach(function (cl) {
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q);
+        });
+        if (!visibleNodes.length) return;
+      }
+      html += '<div class="cui-list-group">';
+      html += '<div class="cui-list-group-hdr"><span class="cui-list-group-icon">' +
+        (cl.icon || '📁') + '</span> ' + cl.label + '</div>';
+      visibleNodes.forEach(function (n) {
+        var statusDot = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+        var metaHtml = n.meta ? '<span class="cui-list-row-meta">' + n.meta + '</span>' : '';
+        var actionsHtml = '';
+        if (n.actions && n.actions.length) {
+          actionsHtml = '<span class="cui-list-row-actions">' +
+            n.actions.map(function (a) {
+              return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '" data-node="' + n.id + '">' + a.label + '</button>';
+            }).join('') + '</span>';
+        }
+        html += '<div class="cui-list-row" data-id="' + n.id + '" role="button" tabindex="0" aria-label="' + (n.title || n.id) + '">' +
+          '<span class="cui-list-row-icon">' + (n.icon || '📄') + '</span>' +
+          '<span class="cui-list-row-title">' + (n.title || n.id) + '</span>' +
+          statusDot +
+          '<span class="cui-list-row-desc">' + (n.desc || '') + '</span>' +
+          metaHtml + actionsHtml + '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    els.listWrap.innerHTML = html;
+
+    // Bind list row clicks
+    els.listWrap.querySelectorAll('.cui-list-row').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var node = findNode(row.getAttribute('data-id'));
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); }
+      });
+    });
+
+    // Bind list action buttons
+    els.listWrap.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.getAttribute('data-node');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  // ─── Minimap ──────────────────────────────────────
+  function renderMinimap() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) { els.minimap.innerHTML = ''; return; }
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    var dots = [];
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 200, h = c.offsetHeight || 100;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+      var color = c.querySelector('.cui-cluster-dot');
+      dots.push({ x: x + w / 2, y: y + h / 2, color: color ? color.style.background : 'var(--cui-accent)' });
+    });
+    var pad = 20, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var mmW = 180, mmH = 120;
+    var scale = Math.min(mmW / worldW, mmH / worldH);
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    var vpLeft = (-panX / zoom - minX + pad) * scale;
+    var vpTop = (-panY / zoom - minY + pad) * scale;
+    var vpBoxW = (vpW / zoom) * scale, vpBoxH = (vpH / zoom) * scale;
+
+    var html = '<div class="cui-minimap-vp" style="left:' + vpLeft + 'px;top:' + vpTop +
+      'px;width:' + vpBoxW + 'px;height:' + vpBoxH + 'px"></div>';
+    dots.forEach(function (d) {
+      var dx = (d.x - minX + pad) * scale, dy = (d.y - minY + pad) * scale;
+      html += '<div class="cui-minimap-dot" style="left:' + dx + 'px;top:' + dy + 'px;background:' + d.color + '"></div>';
+    });
+    els.minimap.innerHTML = html;
+  }
+
+  // ─── HUD & Stats ──────────────────────────────────
+  function renderHUD() {
+    els.title.textContent = config.title || 'Canvas';
+    els.sub.textContent = config.subtitle || '';
+    var totalNodes = config.clusters.reduce(function (s, c) { return s + c.nodes.length; }, 0);
+    els.stats.innerHTML = '<span><span class="cui-stat-val">' + config.clusters.length +
+      '</span> clusters</span><span><span class="cui-stat-val">' + totalNodes + '</span> items</span>';
+  }
+
+  // ─── View Toggle ──────────────────────────────────
+  function switchView(mode) {
+    viewMode = mode;
+    if (mode === 'spatial') {
+      document.body.className = 'cui-spatial';
+      els.viewport.classList.remove('cui-hidden');
+      els.zoomCtrls.classList.remove('cui-hidden');
+      els.minimap.classList.remove('cui-hidden');
+      els.listWrap.classList.add('cui-hidden');
+      els.togSpatial.classList.add('active');
+      els.togSpatial.setAttribute('aria-checked', 'true');
+      els.togList.classList.remove('active');
+      els.togList.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.remove('cui-hidden');
+      renderClusters(config.clusters);
+      requestAnimationFrame(function () { fitAll(); });
+    } else {
+      document.body.className = 'cui-list';
+      els.viewport.classList.add('cui-hidden');
+      els.zoomCtrls.classList.add('cui-hidden');
+      els.minimap.classList.add('cui-hidden');
+      els.listWrap.classList.remove('cui-hidden');
+      els.togList.classList.add('active');
+      els.togList.setAttribute('aria-checked', 'true');
+      els.togSpatial.classList.remove('active');
+      els.togSpatial.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.add('cui-hidden');
+      renderListView(config.clusters);
+    }
+    saveState();
+  }
+
+  // ─── Search ───────────────────────────────────────
+  function setupSearch() {
+    els.search.addEventListener('input', function () {
+      searchQuery = els.search.value.trim();
+      if (viewMode === 'spatial') renderClusters(config.clusters);
+      else renderListView(config.clusters);
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault(); els.search.focus(); els.search.select();
+      }
+      if (e.key === 'Escape' && document.activeElement === els.search) {
+        els.search.value = ''; searchQuery = '';
+        if (viewMode === 'spatial') renderClusters(config.clusters);
+        else renderListView(config.clusters);
+        els.search.blur();
+      }
+    });
+  }
+
+  // ─── Keyboard Nav ─────────────────────────────────
+  function setupKeyboard() {
+    document.addEventListener('keydown', function (e) {
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (e.key === 'v' && !e.metaKey && !e.ctrlKey) {
+        switchView(viewMode === 'spatial' ? 'list' : 'spatial');
+      }
+    });
+  }
+
+  // ─── Persistence ──────────────────────────────────
+  function saveState() {
+    if (!config.storageKey) return;
+    try {
+      localStorage.setItem('cui-' + config.storageKey, JSON.stringify({
+        viewMode: viewMode, zoom: zoom, panX: panX, panY: panY
+      }));
+    } catch (e) { /* quota exceeded */ }
+  }
+
+  function restoreState() {
+    if (!config.storageKey) return;
+    try {
+      var saved = JSON.parse(localStorage.getItem('cui-' + config.storageKey));
+      if (saved) {
+        if (saved.zoom) zoom = saved.zoom;
+        if (saved.panX !== undefined) panX = saved.panX;
+        if (saved.panY !== undefined) panY = saved.panY;
+        if (saved.viewMode) viewMode = saved.viewMode;
+      }
+    } catch (e) { /* parse error */ }
+  }
+
+  // ─── First-visit Hint ─────────────────────────────
+  function showHint() {
+    if (!config.storageKey) return;
+    if (localStorage.getItem('cui-hint-' + config.storageKey)) return;
+    var hint = document.createElement('div');
+    hint.className = 'cui-hint';
+    hint.innerHTML = 'Scroll to zoom &middot; Drag to pan &middot; <kbd>⌘K</kbd> search &middot; <kbd>V</kbd> toggle view';
+    document.body.appendChild(hint);
+    localStorage.setItem('cui-hint-' + config.storageKey, '1');
+    setTimeout(function () { hint.style.opacity = '0'; hint.style.transition = 'opacity 0.5s';
+      setTimeout(function () { hint.remove(); }, 500);
+    }, 5000);
+  }
+
+  // ─── Public API ───────────────────────────────────
+  return {
+    init: function (containerSelector, cfg) {
+      config = cfg || {};
+      config.clusters = config.clusters || [];
+      var container = typeof containerSelector === 'string'
+        ? document.querySelector(containerSelector) : containerSelector;
+      if (!container) { container = document.body; }
+
+      injectStyles(config.theme || 'dark');
+      restoreState();
+      createDOM(container);
+      renderHUD();
+      setupSearch();
+      setupKeyboard();
+
+      // Toggle buttons
+      els.togSpatial.addEventListener('click', function () { switchView('spatial'); });
+      els.togList.addEventListener('click', function () { switchView('list'); });
+
+      // Zoom buttons
+      document.getElementById('cui-zin').addEventListener('click', function () { setZoom(zoom * 1.25); });
+      document.getElementById('cui-zout').addEventListener('click', function () { setZoom(zoom * 0.8); });
+      document.getElementById('cui-zfit').addEventListener('click', fitAll);
+
+      // Initial render
+      switchView(viewMode);
+
+      // Canvas setup (always, even if starting in list)
+      setupCanvas();
+
+      // Hint
+      if (viewMode === 'spatial') showHint();
+    },
+
+    setClusters: function (clusters) {
+      config.clusters = clusters;
+      renderHUD();
+      if (viewMode === 'spatial') {
+        renderClusters(config.clusters);
+        renderMinimap();
+      } else {
+        renderListView(config.clusters);
+      }
+    },
+
+    addNode: function (clusterKey, node) {
+      var cl = config.clusters.find(function (c) { return c.key === clusterKey; });
+      if (cl) {
+        cl.nodes.push(node);
+        this.setClusters(config.clusters);
+      }
+    },
+
+    removeNode: function (nodeId) {
+      config.clusters.forEach(function (cl) {
+        cl.nodes = cl.nodes.filter(function (n) { return n.id !== nodeId; });
+      });
+      this.setClusters(config.clusters);
+    },
+
+    switchView: switchView,
+    focusCluster: focusCluster,
+    fitAll: fitAll,
+    setZoom: setZoom,
+    getViewMode: function () { return viewMode; },
+  };
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     Business Panel — Application Logic
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────
+// EXPERTS DATA
+// ─────────────────────────────────────────────
 const EXPERTS = {
   'michael-porter': {
     name: 'Michael Porter', domain: 'Competitive Strategy', tokens: 300,
@@ -131,7 +788,7 @@ const EXPERTS = {
     redFlags: ['"We compete on everything" (stuck in the middle)', 'No awareness of substitute products or new entrants', 'Competing on price without a structural cost advantage'],
     approves: ['Positioning is clear and defensible', 'Industry forces are analyzed and strategy addresses them', 'Value chain shows where competitive advantage is built'],
     modes: { discussion: '"Let\'s map the Five Forces for this market"', debate: '"Being cheaper isn\'t a strategy unless you have a structural cost advantage"', socratic: '"What would a new entrant need to do to take your market share?"' },
-    focusAreas: ['competitive'], isDefault: true
+    focusAreas: ['competitive'], isDefault: true, badge: 'LEAD'
   },
   'clayton-christensen': {
     name: 'Clayton Christensen', domain: 'Disruption & Innovation', tokens: 300,
@@ -142,7 +799,7 @@ const EXPERTS = {
     redFlags: ['Trying to out-feature an incumbent on their own turf (sustaining trap)', 'No clarity on target customer\'s "job to be done"', 'Conflating product features with customer progress'],
     approves: ['The job-to-be-done is clearly articulated with evidence', 'Strategy matches the innovation type (sustaining vs. disruptive)', 'Market entry targets an overlooked or overserved segment'],
     modes: { discussion: '"Let\'s identify the job — what progress is the customer trying to make?"', debate: '"You\'re playing a sustaining game against an incumbent with more resources"', socratic: '"Who is NOT served by the current market leaders? Why?"' },
-    focusAreas: ['competitive'], isDefault: true
+    focusAreas: ['competitive'], isDefault: true, badge: 'DEFAULT'
   },
   'peter-drucker': {
     name: 'Peter Drucker', domain: 'Management & Effectiveness', tokens: 280,
@@ -153,7 +810,7 @@ const EXPERTS = {
     redFlags: ['Activity without measurable outcomes', 'Optimizing processes that shouldn\'t exist', 'No clear answer to "who is our customer and what do they value?"'],
     approves: ['Purpose is clear and customer-centric', 'Objectives are measurable and prioritized', 'Resources are allocated to strengths, not propping up weaknesses'],
     modes: { discussion: '"What is the one thing this organization does that no one else can?"', debate: '"You\'re measuring activity, not results"', socratic: '"If you started fresh today, would you build this the same way?"' },
-    focusAreas: ['growth'], isDefault: true
+    focusAreas: ['growth'], isDefault: true, badge: 'DEFAULT'
   },
   'seth-godin': {
     name: 'Seth Godin', domain: 'Marketing & Tribe Building', tokens: 280,
@@ -164,7 +821,7 @@ const EXPERTS = {
     redFlags: ['"Our target market is everyone"', 'Unremarkable products competing on price alone', 'Interruption-based marketing strategy (ads-first, value-second)'],
     approves: ['Target audience is specific and passionate', 'Product has a "Purple Cow" — a reason to be talked about', 'Growth strategy relies on earning trust, not buying attention'],
     modes: { discussion: '"Who would miss this if it were gone? That\'s your tribe"', debate: '"Average products for average people is a race to the bottom"', socratic: '"Would your best customer recommend this to a friend? Why or why not?"' },
-    focusAreas: ['growth']
+    focusAreas: ['growth'], badge: 'LEAD'
   },
   'wckim-mauborgne': {
     name: 'Kim & Mauborgne', domain: 'Blue Ocean Strategy', tokens: 300,
@@ -175,7 +832,7 @@ const EXPERTS = {
     redFlags: ['Head-to-head competition with established players on their terms', 'Accepting industry boundaries as given', 'Incremental improvements instead of strategic leaps'],
     approves: ['Strategy creates new demand rather than fighting over existing demand', 'Four Actions Framework applied — clear eliminate/reduce/raise/create choices', 'Value curve is visually distinct from competitors'],
     modes: { discussion: '"Let\'s draw the strategy canvas — how does your value curve differ?"', debate: '"You\'re competing in a red ocean — what would a blue ocean look like?"', socratic: '"What does your industry take for granted that could be eliminated?"' },
-    focusAreas: ['competitive']
+    focusAreas: ['competitive'], badge: ''
   },
   'jim-collins': {
     name: 'Jim Collins', domain: 'Organizational Excellence', tokens: 280,
@@ -186,7 +843,7 @@ const EXPERTS = {
     redFlags: ['Chasing multiple opportunities without a unifying concept', 'Reliance on one-time events instead of compounding momentum', '"Fox" strategy (many things) instead of "Hedgehog" (one big thing done excellently)'],
     approves: ['Hedgehog Concept is clear and guides resource allocation', 'Flywheel is identified and each turn feeds the next', 'Strategy favors discipline and consistency over brilliance and luck'],
     modes: { discussion: '"What\'s the flywheel? How does each turn accelerate the next?"', debate: '"You\'re being a fox — chasing too many things instead of one great one"', socratic: '"What could you be the best in the world at? Not just good — the best?"' },
-    focusAreas: ['growth']
+    focusAreas: ['growth'], badge: ''
   },
   'nassim-taleb': {
     name: 'Nassim Nicholas Taleb', domain: 'Risk & Antifragility', tokens: 320,
@@ -197,7 +854,7 @@ const EXPERTS = {
     redFlags: ['Fragile dependencies (single supplier, single revenue stream, single point of failure)', 'Plans that assume smooth, predictable conditions', 'Decision-makers with no downside exposure (no skin in the game)'],
     approves: ['Strategy has convex payoffs (more upside than downside from volatility)', 'Key risks have explicit caps (barbell strategy)', 'Optionality is preserved — ability to change course cheaply'],
     modes: { discussion: '"Where\'s the fragility? What breaks under stress?"', debate: '"Your plan assumes the future will look like the past — it won\'t"', socratic: '"What\'s the worst case? Not the likely worst — the actual worst?"' },
-    focusAreas: ['risk'], isDefault: true
+    focusAreas: ['risk'], isDefault: true, badge: 'LEAD'
   },
   'donella-meadows': {
     name: 'Donella Meadows', domain: 'Systems Thinking', tokens: 280,
@@ -208,7 +865,7 @@ const EXPERTS = {
     redFlags: ['Linear cause-and-effect thinking in a complex system', 'Ignoring delays between action and consequence', 'Optimizing a subsystem at the expense of the whole'],
     approves: ['Key feedback loops are identified and understood', 'Intervention targets high-leverage points, not symptoms', 'Mental models are explicit and open to revision'],
     modes: { discussion: '"Let\'s map the feedback loops — what reinforces what?"', debate: '"You\'re treating a symptom, not the system structure causing it"', socratic: '"What happens three steps downstream from this decision?"' },
-    focusAreas: ['risk']
+    focusAreas: ['risk'], badge: 'DEFAULT'
   },
   'jeanluc-doumont': {
     name: 'Jean-luc Doumont', domain: 'Structured Communication', tokens: 250,
@@ -219,18 +876,17 @@ const EXPERTS = {
     redFlags: ['Documents that bury the conclusion at the end', 'Visual clutter — decorative elements that add no information', 'Writing for the author\'s ego instead of the reader\'s needs'],
     approves: ['Core message is stated upfront and everything supports it', 'Structure is scannable — headings, hierarchy, and flow guide the reader', 'Nothing is included that doesn\'t serve the audience'],
     modes: { discussion: '"What\'s the one sentence summary? Lead with that"', debate: '"This section doesn\'t serve your message — cut it"', socratic: '"If your reader has 30 seconds, what do they need to know?"' },
-    focusAreas: ['communication']
+    focusAreas: ['communication'], badge: 'LEAD'
   }
 };
 
 const FOCUS_AREAS = {
-  competitive: { name: 'Competitive', tag: 'tag-comp', lead: 'michael-porter', experts: ['michael-porter', 'clayton-christensen', 'wckim-mauborgne'], description: 'Competitive positioning, market forces, strategy' },
-  growth: { name: 'Growth', tag: 'tag-grow', lead: 'seth-godin', experts: ['seth-godin', 'jim-collins', 'peter-drucker'], description: 'Marketing, tribe building, scaling' },
-  risk: { name: 'Risk', tag: 'tag-risk', lead: 'nassim-taleb', experts: ['nassim-taleb', 'donella-meadows'], description: 'Risk management, antifragility, systems dynamics' },
-  communication: { name: 'Communication', tag: 'tag-comm', lead: 'jeanluc-doumont', experts: ['jeanluc-doumont', 'seth-godin'], description: 'Structured clarity, presentation, stakeholder messaging' }
+  competitive: { name: 'Competitive', lead: 'michael-porter', experts: ['michael-porter', 'clayton-christensen', 'wckim-mauborgne'], description: 'Competitive positioning, market forces, strategy' },
+  growth: { name: 'Growth', lead: 'seth-godin', experts: ['seth-godin', 'jim-collins', 'peter-drucker'], description: 'Marketing, tribe building, scaling' },
+  risk: { name: 'Risk', lead: 'nassim-taleb', experts: ['nassim-taleb', 'donella-meadows'], description: 'Risk management, antifragility, systems dynamics' },
+  communication: { name: 'Communication', lead: 'jeanluc-doumont', experts: ['jeanluc-doumont', 'seth-godin'], description: 'Structured clarity, presentation, stakeholder messaging' }
 };
 
-// ── Example business being analyzed ──
 const EXAMPLE_BIZ = {
   title: "SVG-PAINT — Etsy Digital Asset Platform",
   summary: "Local-first SVG generation platform for Etsy sellers creating print-ready contrast cards and content sheets for children's products.",
@@ -243,602 +899,67 @@ const EXAMPLE_BIZ = {
   ]
 };
 
+// ─────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────
 let state = {
   mode: 'discussion',
   focus: 'competitive',
   selectedExpert: 'michael-porter',
-  view: 'experts'
+  view: 'experts' // experts | session | synthesis
 };
 
-function render() {
-  renderControls();
-  renderSidebar();
-  renderContent();
-}
-
-function renderControls() {
-  const el = document.getElementById('controls');
-  const modes = ['discussion', 'debate', 'socratic'];
-  const focuses = Object.keys(FOCUS_AREAS);
-  el.innerHTML = `
-    <div class="control-group">
-      <label>Mode</label>
-      ${modes.map(m => `<button class="ctrl-btn ${state.mode === m ? 'active' : ''}" onclick="setMode('${m}')">${m}</button>`).join('')}
-    </div>
-    <div class="control-group">
-      <label>Focus</label>
-      ${focuses.map(f => `<button class="ctrl-btn ${state.focus === f ? 'active' : ''}" onclick="setFocus('${f}')">${FOCUS_AREAS[f].name}</button>`).join('')}
-    </div>
-    <div class="control-group" style="margin-left:auto;">
-      <label>View</label>
-      <button class="ctrl-btn ${state.view === 'experts' ? 'active' : ''}" onclick="setView('experts')">Experts</button>
-      <button class="ctrl-btn ${state.view === 'session' ? 'active' : ''}" onclick="setView('session')">Live Session</button>
-      <button class="ctrl-btn ${state.view === 'synthesis' ? 'active' : ''}" onclick="setView('synthesis')">Synthesis</button>
-    </div>
-  `;
-}
-
-function renderSidebar() {
-  const el = document.getElementById('sidebar');
-  const focus = FOCUS_AREAS[state.focus];
-  const activeExperts = focus.experts;
-  const sortedKeys = Object.keys(EXPERTS).sort((a, b) => {
-    const aA = activeExperts.includes(a), bA = activeExperts.includes(b);
-    if (aA && !bA) return -1;
-    if (!aA && bA) return 1;
-    return 0;
-  });
-
-  let html = `<div class="sidebar-title">Panel: ${focus.name} Focus (${activeExperts.length} experts)</div>`;
-  sortedKeys.forEach(key => {
-    const e = EXPERTS[key];
-    const isActive = activeExperts.includes(key);
-    const isDefault = e.isDefault;
-    let badge = '';
-    if (key === focus.lead) badge = '<span class="expert-badge badge-default">LEAD</span>';
-    else if (isDefault && isActive) badge = '<span class="expert-badge badge-default">DEFAULT</span>';
-
-    html += `<div class="expert-card ${state.selectedExpert === key ? 'active' : ''} ${!isActive ? 'dimmed' : ''}" onclick="selectExpert('${key}')">
-      ${badge}
-      <div class="expert-name">${e.name}</div>
-      <div class="expert-domain">${e.domain}</div>
-      <div class="token-cost">~${e.tokens} tokens</div>
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
-function renderContent() {
-  const el = document.getElementById('content');
-  if (state.view === 'experts') renderExpertView(el);
-  else if (state.view === 'session') renderSessionView(el);
-  else renderSynthesisView(el);
-}
-
-function renderExpertView(el) {
-  const e = EXPERTS[state.selectedExpert];
-  const focus = FOCUS_AREAS[state.focus];
-  const isOnPanel = focus.experts.includes(state.selectedExpert);
-  const tagClass = state.focus === 'competitive' ? 'tag-comp' : state.focus === 'growth' ? 'tag-grow' : state.focus === 'risk' ? 'tag-risk' : 'tag-comm';
-
-  el.innerHTML = `<div class="content-grid">
-    <div class="card full">
-      <h3>${e.name} <span class="tag ${tagClass}">${FOCUS_AREAS[state.focus].name} Panel</span>
-      ${!isOnPanel ? '<span class="tag" style="background:rgba(248,81,73,0.15);color:var(--red);">Not on this panel</span>' : ''}
-      ${state.selectedExpert === focus.lead ? '<span class="tag" style="background:rgba(240,136,62,0.15);color:var(--orange);">Panel Lead</span>' : ''}</h3>
-      <div class="body">
-        <div class="quote">"${e.voice}"<div class="attribution">— ${e.name}, typical ${state.mode} mode response</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Perspective</h3>
-      <div class="body"><p>${e.perspective}</p></div>
-    </div>
-    <div class="card">
-      <h3>Methodology</h3>
-      <div class="body">
-        <p><code>${e.methodology}</code></p>
-        <p style="margin-top:12px;"><strong>In ${state.mode} mode:</strong></p>
-        <div class="quote" style="border-left-color:var(--purple);">${e.modes[state.mode]}</div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Looks For <span class="tag tag-grow">approves</span></h3>
-      <div class="body"><ul>${e.looksFor.map(l => `<li><span class="ok">${l}</span></li>`).join('')}</ul></div>
-    </div>
-    <div class="card">
-      <h3>Red Flags <span class="tag tag-risk">rejects</span></h3>
-      <div class="body"><ul>${e.redFlags.map(r => `<li><span class="danger">${r}</span></li>`).join('')}</ul></div>
-    </div>
-    <div class="card full">
-      <h3>Approval Criteria</h3>
-      <div class="body"><p class="dim">This expert endorses when:</p><ul>${e.approves.map(a => `<li>${a}</li>`).join('')}</ul></div>
-    </div>
-  </div>`;
-}
-
-function renderSessionView(el) {
-  const focus = FOCUS_AREAS[state.focus];
-  const modeLabel = { discussion: 'Discussion — Collaborative Analysis', debate: 'Debate — Adversarial Stress Test', socratic: 'Socratic Inquiry — Strategic Questioning' };
-
-  el.innerHTML = `
-    <div class="card full" style="margin-bottom:20px;">
-      <h3>Business Under Analysis <span class="tag tag-mode">${EXAMPLE_BIZ.title}</span></h3>
-      <div class="body">
-        <p style="margin-bottom:10px;">${EXAMPLE_BIZ.summary}</p>
-        <pre>${EXAMPLE_BIZ.details.join('\n')}</pre>
-      </div>
-    </div>
-    <div style="font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:12px;">${modeLabel[state.mode]}</div>
-    <div class="card full">
-      <h3>Panel Session <span class="tag tag-mode">${focus.name} Focus</span></h3>
-      <div class="body"><pre>${getSessionContent(state.focus, state.mode)}</pre></div>
-    </div>
-    <div class="card full" style="margin-top:20px;">
-      <h3>Key Takeaways</h3>
-      <div class="body"><pre>${getTakeaways(state.focus, state.mode)}</pre></div>
-    </div>
-  `;
-}
-
-function renderSynthesisView(el) {
-  const synth = getSynthesis(state.focus);
-  el.innerHTML = `<div class="content-grid">
-    <div class="card full">
-      <h3>Panel Synthesis <span class="tag tag-mode">${FOCUS_AREAS[state.focus].name} Focus</span></h3>
-      <div class="body"><pre>${synth.consensus}</pre></div>
-    </div>
-    <div class="card">
-      <h3>Agreements</h3>
-      <div class="body"><pre>${synth.agreements}</pre></div>
-    </div>
-    <div class="card">
-      <h3>Disagreements</h3>
-      <div class="body"><pre>${synth.disagreements}</pre></div>
-    </div>
-    <div class="card full">
-      <h3>Priority-Ranked Recommendations</h3>
-      <div class="body"><pre>${synth.recommendations}</pre></div>
-    </div>
-    <div class="card full">
-      <h3>Boundary — What Happens Next</h3>
-      <div class="body">
-        <p><span class="danger">This panel produces ANALYSIS ONLY — not implementation.</span></p>
-        <p style="margin-top:8px;">The business panel stops here. To act on recommendations:</p>
-        <ul style="margin-top:8px;">
-          <li><code>/sc:design</code> — for architectural changes suggested by the panel</li>
-          <li><code>/sc:implement</code> — for feature development from recommendations</li>
-          <li><code>/sc:workflow</code> — to convert recommendations into executable tasks</li>
-          <li><code>/sc:spec-panel</code> — to validate any spec changes with the engineering panel</li>
-        </ul>
-        <p class="dim" style="margin-top:12px;">The human decides which recommendations to pursue. The panel advises — it does not execute.</p>
-      </div>
-    </div>
-  </div>`;
-}
-
 // ─────────────────────────────────────────────
-// SESSION CONTENT DATA
+// SESSION CONTENT DATA (full original content)
 // ─────────────────────────────────────────────
-
 function getSessionContent(focus, mode) {
+  const hl = (name) => `<span style="color:#58a6ff;font-weight:600;">${name}:</span>`;
   const sessions = {
     competitive: {
-      discussion: `<span class="hl">MICHAEL PORTER:</span> "Let's map the Five Forces for the Etsy
-digital downloads market. First — competitive rivalry: there are
-thousands of sellers creating children's printables. But most are
-selling finished PDFs, not generation tools. SVG-PAINT isn't
-competing in the printable market — it's competing in the
-seller-tools market. That's a much smaller, less crowded space."
-
-<span class="hl">CLAYTON CHRISTENSEN:</span> "Let me reframe this through Jobs-to-be-Done.
-The Etsy seller isn't hiring SVG-PAINT to 'generate SVGs.' They're
-hiring it to 'create a professional product line without being a
-designer.' The job is professionalizing their shop — going from
-5 hand-made products to 500 programmatically generated ones.
-
-That's a completely different competitive frame. The alternative
-isn't another SVG tool — it's hiring a freelance designer on
-Fiverr, or spending 40 hours in Canva manually."
-
-<span class="hl">KIM & MAUBORGNE:</span> "Let's draw the strategy canvas. The existing
-alternatives compete on:
-  • Design quality (high for Canva/designers, low for DIY)
-  • Speed (low for manual, medium for Canva, high for SVG-PAINT)
-  • Accessibility compliance (zero for all competitors)
-  • Batch volume (impossible manually, limited in Canva)
-
-SVG-PAINT's value curve is completely different. You've eliminated
-design complexity (programmatic generation), raised speed and
-volume massively, and created accessibility compliance where
-none existed. This IS a blue ocean."
-
-<span class="hl">MICHAEL PORTER:</span> "The accessibility angle is the defensible
-moat. Anyone can build an SVG generator. But the contrast
-checking by age range — that's domain-specific knowledge
-embedded in software. It creates switching costs: once a seller
-validates their product line against your contrast tiers,
-moving to a competitor means re-validating everything."`,
-
-      debate: `<span class="hl">MICHAEL PORTER:</span> "I'll push back on the optimism. Your Five
-Forces analysis has a gap: threat of new entrants. Building an
-SVG generator is not hard. A competent developer could clone
-your core feature in a weekend. Where's the barrier to entry?"
-
-<span class="hl">CLAYTON CHRISTENSEN:</span> "Porter is right to worry, but for the
-wrong reason. The barrier isn't technical — it's the accumulated
-domain knowledge. 100,000 glyphs, age-range contrast tiers,
-font license verification, 9 print sizes — this is a year of
-embedded expertise. A clone gets the code but not the knowledge.
-
-But here's MY concern: you're building a sustaining innovation
-for an existing market (Etsy sellers). If someone builds a
-simpler, worse tool that targets a NEW segment — say, teachers
-making classroom materials — they could disrupt you from below."
-
-<span class="hl">KIM & MAUBORGNE:</span> "Both of you are thinking red ocean. The
-question isn't 'who can copy us' or 'who can disrupt us' — it's
-'are we creating new demand?' If SVG-PAINT enables sellers who
-COULDN'T create professional products before, you're expanding
-the market, not just competing for existing customers."
-
-<span class="hl">MICHAEL PORTER:</span> "Market creation is nice in theory, but
-you still need to capture value. What's stopping Etsy from
-building this directly into their platform? Buyer power is
-your biggest risk — you have one distribution channel."`,
-
-      socratic: `<span class="hl">MICHAEL PORTER:</span> "If Etsy shut down tomorrow, would your
-business survive? If not, you have a platform dependency
-problem, not a product problem."
-
-<span class="hl">CLAYTON CHRISTENSEN:</span> "When a seller opens SVG-PAINT at
-8 PM after putting their kids to bed, what progress are they
-trying to make in their life? Is it 'generate SVGs' or is it
-'build financial independence through a side business'? The
-answer changes everything about your product roadmap."
-
-<span class="hl">KIM & MAUBORGNE:</span> "What does your industry take for granted?
-Every digital download tool assumes the seller is a designer.
-What if you eliminated that assumption entirely? What would a
-tool for NON-designers look like?"
-
-<span class="hl">MICHAEL PORTER:</span> "Your competitors offer 10,000 features.
-You offer 3. But your 3 features are 10x better at the specific
-job. Is that a weakness or a strategy? Porter says: that's
-focus strategy. Don't add features 4-10. Double down on 1-3."
-
-<span class="hl">CLAYTON CHRISTENSEN:</span> "Who is NOT using your product today
-that you wish was? What's stopping them? That barrier is either
-your next feature or your blind spot."`
+      discussion: `${hl('MICHAEL PORTER')} "Let's map the Five Forces for the Etsy\ndigital downloads market. First — competitive rivalry: there are\nthousands of sellers creating children's printables. But most are\nselling finished PDFs, not generation tools. SVG-PAINT isn't\ncompeting in the printable market — it's competing in the\nseller-tools market. That's a much smaller, less crowded space."\n\n${hl('CLAYTON CHRISTENSEN')} "Let me reframe this through Jobs-to-be-Done.\nThe Etsy seller isn't hiring SVG-PAINT to 'generate SVGs.' They're\nhiring it to 'create a professional product line without being a\ndesigner.' The job is professionalizing their shop — going from\n5 hand-made products to 500 programmatically generated ones.\n\nThat's a completely different competitive frame. The alternative\nisn't another SVG tool — it's hiring a freelance designer on\nFiverr, or spending 40 hours in Canva manually."\n\n${hl('KIM & MAUBORGNE')} "Let's draw the strategy canvas. The existing\nalternatives compete on:\n  - Design quality (high for Canva/designers, low for DIY)\n  - Speed (low for manual, medium for Canva, high for SVG-PAINT)\n  - Accessibility compliance (zero for all competitors)\n  - Batch volume (impossible manually, limited in Canva)\n\nSVG-PAINT's value curve is completely different. You've eliminated\ndesign complexity (programmatic generation), raised speed and\nvolume massively, and created accessibility compliance where\nnone existed. This IS a blue ocean."\n\n${hl('MICHAEL PORTER')} "The accessibility angle is the defensible\nmoat. Anyone can build an SVG generator. But the contrast\nchecking by age range — that's domain-specific knowledge\nembedded in software. It creates switching costs: once a seller\nvalidates their product line against your contrast tiers,\nmoving to a competitor means re-validating everything."`,
+      debate: `${hl('MICHAEL PORTER')} "I'll push back on the optimism. Your Five\nForces analysis has a gap: threat of new entrants. Building an\nSVG generator is not hard. A competent developer could clone\nyour core feature in a weekend. Where's the barrier to entry?"\n\n${hl('CLAYTON CHRISTENSEN')} "Porter is right to worry, but for the\nwrong reason. The barrier isn't technical — it's the accumulated\ndomain knowledge. 100,000 glyphs, age-range contrast tiers,\nfont license verification, 9 print sizes — this is a year of\nembedded expertise. A clone gets the code but not the knowledge.\n\nBut here's MY concern: you're building a sustaining innovation\nfor an existing market (Etsy sellers). If someone builds a\nsimpler, worse tool that targets a NEW segment — say, teachers\nmaking classroom materials — they could disrupt you from below."\n\n${hl('KIM & MAUBORGNE')} "Both of you are thinking red ocean. The\nquestion isn't 'who can copy us' or 'who can disrupt us' — it's\n'are we creating new demand?' If SVG-PAINT enables sellers who\nCOULDN'T create professional products before, you're expanding\nthe market, not just competing for existing customers."\n\n${hl('MICHAEL PORTER')} "Market creation is nice in theory, but\nyou still need to capture value. What's stopping Etsy from\nbuilding this directly into their platform? Buyer power is\nyour biggest risk — you have one distribution channel."`,
+      socratic: `${hl('MICHAEL PORTER')} "If Etsy shut down tomorrow, would your\nbusiness survive? If not, you have a platform dependency\nproblem, not a product problem."\n\n${hl('CLAYTON CHRISTENSEN')} "When a seller opens SVG-PAINT at\n8 PM after putting their kids to bed, what progress are they\ntrying to make in their life? Is it 'generate SVGs' or is it\n'build financial independence through a side business'? The\nanswer changes everything about your product roadmap."\n\n${hl('KIM & MAUBORGNE')} "What does your industry take for granted?\nEvery digital download tool assumes the seller is a designer.\nWhat if you eliminated that assumption entirely? What would a\ntool for NON-designers look like?"\n\n${hl('MICHAEL PORTER')} "Your competitors offer 10,000 features.\nYou offer 3. But your 3 features are 10x better at the specific\njob. Is that a weakness or a strategy? Porter says: that's\nfocus strategy. Don't add features 4-10. Double down on 1-3."\n\n${hl('CLAYTON CHRISTENSEN')} "Who is NOT using your product today\nthat you wish was? What's stopping them? That barrier is either\nyour next feature or your blind spot."`
     },
-
     growth: {
-      discussion: `<span class="hl">SETH GODIN:</span> "Who is your smallest viable audience? Not
-'Etsy sellers' — that's millions of people. I want specifics.
-'Etsy sellers who create children's educational printables and
-have more than 50 listings.' That's maybe 10,000 people.
-Can you make something so remarkable that those 10,000 would
-miss it if it were gone?"
-
-<span class="hl">JIM COLLINS:</span> "Let's find the Hedgehog Concept. Three circles:
-
-  1. What are you deeply passionate about?
-     → Making print products accessible for all children
-  2. What can you be best in the world at?
-     → Age-range contrast validation for children's print products
-  3. What drives your economic engine?
-     → One-time license fee + template packs for Etsy sellers
-
-The intersection: 'The definitive tool for creating accessible
-children's printables.' That's your Hedgehog. Everything you
-build should serve it. Everything that doesn't — cut it."
-
-<span class="hl">PETER DRUCKER:</span> "You're measuring the wrong thing. You're
-tracking features built and glyphs supported. But your customer
-doesn't care about glyphs — they care about listings published
-and revenue earned. Measure: 'How many listings has SVG-PAINT
-helped create this month?' That's your effectiveness metric."
-
-<span class="hl">SETH GODIN:</span> "The Purple Cow here is the contrast checking.
-No other tool does it. That's your 'Would a seller tell another
-seller about this?' moment. When a seller realizes their yellow-
-on-cream baby cards would fail accessibility — and SVG-PAINT
-catches it before they ship — THAT'S the story they tell."
-
-<span class="hl">JIM COLLINS:</span> "Now the flywheel:
-  Sellers create accessible products → positive reviews mention
-  accessibility → more parents seek accessible products → more
-  sellers need SVG-PAINT → more data to improve contrast rules
-  → better products → more positive reviews...
-
-  Each turn accelerates the next. That's compounding."`,
-
-      debate: `<span class="hl">PETER DRUCKER:</span> "You're building a tool. But are you
-building a business? A tool has a one-time sale. A business
-has recurring value. If you sell SVG-PAINT for $49 once, what's
-your customer lifetime value? Can you afford to acquire customers?"
-
-<span class="hl">SETH GODIN:</span> "Drucker is measuring the old way. This isn't
-about LTV-to-CAC ratios. This is about tribe building. If your
-10,000 smallest viable audience members each tell 2 friends,
-your growth is organic. You don't need a marketing budget —
-you need a remarkable product and a way for people to share it."
-
-<span class="hl">JIM COLLINS:</span> "I disagree with both of you. The question
-isn't pricing or marketing — it's discipline. Are you building
-one great thing or five mediocre things? I see a project with
-Epics 1-16, a roadmap stretching to the horizon, and branching
-into AI and procedural generation. That's fox behavior. Pick
-the Hedgehog and go deep."
-
-<span class="hl">PETER DRUCKER:</span> "Collins is right. If you weren't already
-building the AI analysis feature, would you start it today?
-Apply my 'systematic abandonment' test: if this feature didn't
-exist and you were starting fresh, would you invest in it?"
-
-<span class="hl">SETH GODIN:</span> "The risk of discipline is stagnation. The risk
-of expansion is dilution. Find the middle: expand WITHIN your
-Hedgehog. More print sizes? That serves the Hedgehog. AI-powered
-tag generation? Only if it makes the seller's job faster — not
-because AI is trendy."`,
-
-      socratic: `<span class="hl">SETH GODIN:</span> "If you had to describe SVG-PAINT in six
-words to a seller at an Etsy conference, what would you say?
-If you can't do it in six, your positioning isn't clear enough."
-
-<span class="hl">JIM COLLINS:</span> "What could SVG-PAINT be the best in the world
-at? Not 'good' — the actual best. If the answer is 'accessible
-children's printables,' then every feature that doesn't serve
-that should be questioned."
-
-<span class="hl">PETER DRUCKER:</span> "Who is your customer? Not your user — your
-CUSTOMER. The person who pays. Is it the Etsy seller? Or is
-it the parent who buys the printable? Who you optimize for
-determines everything."
-
-<span class="hl">JIM COLLINS:</span> "What would happen if SVG-PAINT disappeared
-tomorrow? Would anyone notice? Who would be most affected?
-Those people are your core. Build for them first, exclusively,
-obsessively."
-
-<span class="hl">SETH GODIN:</span> "What permission do you have from your users?
-Can you email them about a new feature and they'll be excited?
-Or will they unsubscribe? Permission is the most valuable
-asset a small business can have."`
+      discussion: `${hl('SETH GODIN')} "Who is your smallest viable audience? Not\n'Etsy sellers' — that's millions of people. I want specifics.\n'Etsy sellers who create children's educational printables and\nhave more than 50 listings.' That's maybe 10,000 people.\nCan you make something so remarkable that those 10,000 would\nmiss it if it were gone?"\n\n${hl('JIM COLLINS')} "Let's find the Hedgehog Concept. Three circles:\n\n  1. What are you deeply passionate about?\n     > Making print products accessible for all children\n  2. What can you be best in the world at?\n     > Age-range contrast validation for children's print products\n  3. What drives your economic engine?\n     > One-time license fee + template packs for Etsy sellers\n\nThe intersection: 'The definitive tool for creating accessible\nchildren's printables.' That's your Hedgehog. Everything you\nbuild should serve it. Everything that doesn't — cut it."\n\n${hl('PETER DRUCKER')} "You're measuring the wrong thing. You're\ntracking features built and glyphs supported. But your customer\ndoesn't care about glyphs — they care about listings published\nand revenue earned. Measure: 'How many listings has SVG-PAINT\nhelped create this month?' That's your effectiveness metric."\n\n${hl('SETH GODIN')} "The Purple Cow here is the contrast checking.\nNo other tool does it. That's your 'Would a seller tell another\nseller about this?' moment. When a seller realizes their yellow-\non-cream baby cards would fail accessibility — and SVG-PAINT\ncatches it before they ship — THAT'S the story they tell."\n\n${hl('JIM COLLINS')} "Now the flywheel:\n  Sellers create accessible products > positive reviews mention\n  accessibility > more parents seek accessible products > more\n  sellers need SVG-PAINT > more data to improve contrast rules\n  > better products > more positive reviews...\n\n  Each turn accelerates the next. That's compounding."`,
+      debate: `${hl('PETER DRUCKER')} "You're building a tool. But are you\nbuilding a business? A tool has a one-time sale. A business\nhas recurring value. If you sell SVG-PAINT for $49 once, what's\nyour customer lifetime value? Can you afford to acquire customers?"\n\n${hl('SETH GODIN')} "Drucker is measuring the old way. This isn't\nabout LTV-to-CAC ratios. This is about tribe building. If your\n10,000 smallest viable audience members each tell 2 friends,\nyour growth is organic. You don't need a marketing budget —\nyou need a remarkable product and a way for people to share it."\n\n${hl('JIM COLLINS')} "I disagree with both of you. The question\nisn't pricing or marketing — it's discipline. Are you building\none great thing or five mediocre things? I see a project with\nEpics 1-16, a roadmap stretching to the horizon, and branching\ninto AI and procedural generation. That's fox behavior. Pick\nthe Hedgehog and go deep."\n\n${hl('PETER DRUCKER')} "Collins is right. If you weren't already\nbuilding the AI analysis feature, would you start it today?\nApply my 'systematic abandonment' test: if this feature didn't\nexist and you were starting fresh, would you invest in it?"\n\n${hl('SETH GODIN')} "The risk of discipline is stagnation. The risk\nof expansion is dilution. Find the middle: expand WITHIN your\nHedgehog. More print sizes? That serves the Hedgehog. AI-powered\ntag generation? Only if it makes the seller's job faster — not\nbecause AI is trendy."`,
+      socratic: `${hl('SETH GODIN')} "If you had to describe SVG-PAINT in six\nwords to a seller at an Etsy conference, what would you say?\nIf you can't do it in six, your positioning isn't clear enough."\n\n${hl('JIM COLLINS')} "What could SVG-PAINT be the best in the world\nat? Not 'good' — the actual best. If the answer is 'accessible\nchildren's printables,' then every feature that doesn't serve\nthat should be questioned."\n\n${hl('PETER DRUCKER')} "Who is your customer? Not your user — your\nCUSTOMER. The person who pays. Is it the Etsy seller? Or is\nit the parent who buys the printable? Who you optimize for\ndetermines everything."\n\n${hl('JIM COLLINS')} "What would happen if SVG-PAINT disappeared\ntomorrow? Would anyone notice? Who would be most affected?\nThose people are your core. Build for them first, exclusively,\nobsessively."\n\n${hl('SETH GODIN')} "What permission do you have from your users?\nCan you email them about a new feature and they'll be excited?\nOr will they unsubscribe? Permission is the most valuable\nasset a small business can have."`
     },
-
     risk: {
-      discussion: `<span class="hl">NASSIM TALEB:</span> "Let me assess the fragility profile.
-SVG-PAINT has several fragilities I want to examine:
-
-  1. <span class="danger">Platform dependency</span> — 100% of revenue flows through
-     Etsy. If Etsy changes their digital download policy,
-     adds fees, or launches a competing tool, you're exposed.
-     This is a single point of failure with unlimited downside.
-
-  2. <span class="warn">Local-first as antifragile</span> — actually good. No server
-     costs, no cloud dependency, no monthly burn. If revenue
-     drops to zero, costs drop to zero. That's convex.
-
-  3. <span class="ok">Open format (SVG)</span> — no vendor lock-in on the output
-     format. If SVG-PAINT dies, sellers keep their files.
-     This builds trust and is antifragile.
-
-The barbell strategy here: keep costs near zero (local-first)
-while having unlimited upside potential (template marketplace).
-The fragile part is the Etsy dependency."
-
-<span class="hl">DONELLA MEADOWS:</span> "Let me map the system dynamics.
-
-The reinforcing loop (R1):
-  More sellers → more reviews → more visibility → more sellers
-  This is a classic growth engine.
-
-The balancing loop (B1):
-  More sellers → more competition → lower prices → fewer sellers
-  This caps growth.
-
-The leverage point: accessibility compliance. It shifts the
-competition from 'who has prettier designs' (race to the
-bottom) to 'who has verified accessible designs' (defensible
-niche). That's a leverage point at the system RULES level —
-Meadows' Leverage Point #5. Very powerful."
-
-<span class="hl">NASSIM TALEB:</span> "Meadows is right about the leverage point.
-But I want to add: the contrast validation rules themselves
-are antifragile. Every time a parent complains about a
-non-accessible product, demand for verified products increases.
-SVG-PAINT BENEFITS from the problem it solves getting worse.
-That's textbook antifragility."`,
-
-      debate: `<span class="hl">NASSIM TALEB:</span> "Your entire business is built on a
-platform you don't control. That's not a risk — it's a
-guarantee of eventual harm. Etsy has already changed their
-fee structure three times. What happens when they take a 25%
-cut instead of 15%? Or when they build contrast-checking
-into their upload flow? You're a feature, not a product."
-
-<span class="hl">DONELLA MEADOWS:</span> "Taleb is being too binary. The Etsy
-dependency isn't a cliff — it's a stock that can be drawn down
-gradually. The system response is: diversify the outflow.
-Teachers Pay Teachers, Amazon KDP, Shopify digital downloads.
-Each channel reduces the stock's sensitivity to Etsy policy."
-
-<span class="hl">NASSIM TALEB:</span> "Diversification of channels is necessary
-but insufficient. The question is: do you have skin in the
-game? If Etsy sellers lose money on your advice, do YOU lose
-money? If not, there's an agency problem. You benefit from
-their effort without sharing their downside."
-
-<span class="hl">DONELLA MEADOWS:</span> "That's a valid point. But consider the
-delay dynamics. Taleb wants immediate action on platform risk.
-The system says: delays between action and effect mean you
-should start diversifying NOW, because it takes 6-12 months
-to build a presence on a new platform."`,
-
-      socratic: `<span class="hl">NASSIM TALEB:</span> "What's the worst case? Not the likely
-worst — the actual worst. Etsy bans AI-generated content
-tomorrow. Your entire user base can't sell. What happens?"
-
-<span class="hl">DONELLA MEADOWS:</span> "What happens three steps downstream from
-adding AI-powered features? Does it make you more dependent
-on external APIs? Does it add fragility or reduce it?"
-
-<span class="hl">NASSIM TALEB:</span> "If your revenue dropped 90% overnight,
-would SVG-PAINT survive? If yes — you're antifragile. If no
-— you're fragile. What would need to change to survive that?"
-
-<span class="hl">DONELLA MEADOWS:</span> "What feedback loop is missing? You have
-seller input driving product development. But where is the
-end-user (parent/child) feedback loop? The person using the
-printed product has zero input into the system. That's a
-blind spot."
-
-<span class="hl">NASSIM TALEB:</span> "Are you confusing 'no downside risk today'
-with 'no downside risk ever'? Local-first means low costs.
-But it also means no recurring revenue. When do you need to
-generate revenue again — and what's your optionality then?"`
+      discussion: `${hl('NASSIM TALEB')} "Let me assess the fragility profile.\nSVG-PAINT has several fragilities I want to examine:\n\n  1. Platform dependency — 100% of revenue flows through\n     Etsy. If Etsy changes their digital download policy,\n     adds fees, or launches a competing tool, you're exposed.\n     This is a single point of failure with unlimited downside.\n\n  2. Local-first as antifragile — actually good. No server\n     costs, no cloud dependency, no monthly burn. If revenue\n     drops to zero, costs drop to zero. That's convex.\n\n  3. Open format (SVG) — no vendor lock-in on the output\n     format. If SVG-PAINT dies, sellers keep their files.\n     This builds trust and is antifragile.\n\nThe barbell strategy here: keep costs near zero (local-first)\nwhile having unlimited upside potential (template marketplace).\nThe fragile part is the Etsy dependency."\n\n${hl('DONELLA MEADOWS')} "Let me map the system dynamics.\n\nThe reinforcing loop (R1):\n  More sellers > more reviews > more visibility > more sellers\n  This is a classic growth engine.\n\nThe balancing loop (B1):\n  More sellers > more competition > lower prices > fewer sellers\n  This caps growth.\n\nThe leverage point: accessibility compliance. It shifts the\ncompetition from 'who has prettier designs' (race to the\nbottom) to 'who has verified accessible designs' (defensible\nniche). That's a leverage point at the system RULES level —\nMeadows' Leverage Point #5. Very powerful."\n\n${hl('NASSIM TALEB')} "Meadows is right about the leverage point.\nBut I want to add: the contrast validation rules themselves\nare antifragile. Every time a parent complains about a\nnon-accessible product, demand for verified products increases.\nSVG-PAINT BENEFITS from the problem it solves getting worse.\nThat's textbook antifragility."`,
+      debate: `${hl('NASSIM TALEB')} "Your entire business is built on a\nplatform you don't control. That's not a risk — it's a\nguarantee of eventual harm. Etsy has already changed their\nfee structure three times. What happens when they take a 25%\ncut instead of 15%? Or when they build contrast-checking\ninto their upload flow? You're a feature, not a product."\n\n${hl('DONELLA MEADOWS')} "Taleb is being too binary. The Etsy\ndependency isn't a cliff — it's a stock that can be drawn down\ngradually. The system response is: diversify the outflow.\nTeachers Pay Teachers, Amazon KDP, Shopify digital downloads.\nEach channel reduces the stock's sensitivity to Etsy policy."\n\n${hl('NASSIM TALEB')} "Diversification of channels is necessary\nbut insufficient. The question is: do you have skin in the\ngame? If Etsy sellers lose money on your advice, do YOU lose\nmoney? If not, there's an agency problem. You benefit from\ntheir effort without sharing their downside."\n\n${hl('DONELLA MEADOWS')} "That's a valid point. But consider the\ndelay dynamics. Taleb wants immediate action on platform risk.\nThe system says: delays between action and effect mean you\nshould start diversifying NOW, because it takes 6-12 months\nto build a presence on a new platform."`,
+      socratic: `${hl('NASSIM TALEB')} "What's the worst case? Not the likely\nworst — the actual worst. Etsy bans AI-generated content\ntomorrow. Your entire user base can't sell. What happens?"\n\n${hl('DONELLA MEADOWS')} "What happens three steps downstream from\nadding AI-powered features? Does it make you more dependent\non external APIs? Does it add fragility or reduce it?"\n\n${hl('NASSIM TALEB')} "If your revenue dropped 90% overnight,\nwould SVG-PAINT survive? If yes — you're antifragile. If no\n— you're fragile. What would need to change to survive that?"\n\n${hl('DONELLA MEADOWS')} "What feedback loop is missing? You have\nseller input driving product development. But where is the\nend-user (parent/child) feedback loop? The person using the\nprinted product has zero input into the system. That's a\nblind spot."\n\n${hl('NASSIM TALEB')} "Are you confusing 'no downside risk today'\nwith 'no downside risk ever'? Local-first means low costs.\nBut it also means no recurring revenue. When do you need to\ngenerate revenue again — and what's your optionality then?"`
     },
-
     communication: {
-      discussion: `<span class="hl">JEAN-LUC DOUMONT:</span> "What is the one message SVG-PAINT
-needs to communicate to a potential user? I see the landing
-page talking about 'SVG generation,' 'batch processing,'
-'contrast validation,' 'print sizes,' 'age ranges' — that's
-five messages. The reader's brain can hold one.
-
-My recommendation: 'Create accessible children's printables —
-hundreds at a time, all contrast-verified.'
-
-Everything else supports this message or gets cut."
-
-<span class="hl">SETH GODIN:</span> "Doumont is right about clarity, but I want
-to push on the emotional layer. Sellers don't buy 'contrast
-validation.' They buy 'confidence that their products won't
-hurt a child's developing vision.' Lead with the emotion:
-
-  'Every card you sell is safe for tiny eyes.'
-
-That's the story they tell other sellers. That's the Purple
-Cow moment."
-
-<span class="hl">JEAN-LUC DOUMONT:</span> "Godin's framing is good but needs
-structure. I'd organize the communication hierarchy as:
-
-  Level 1 (headline): Safe printables for tiny eyes
-  Level 2 (subhead): Batch-generate contrast-verified cards
-  Level 3 (details): Age-range tiers, 9 print sizes, 100K+
-
-Each level serves the one above it. The reader can stop at
-any level and have a complete, usable understanding."
-
-<span class="hl">SETH GODIN:</span> "And the call to action isn't 'Download' or
-'Buy' — it's 'See it in action.' Let the product sell itself.
-Permission marketing: give them a free contrast check on their
-existing designs. They see the value. Then they buy."`,
-
-      debate: `<span class="hl">JEAN-LUC DOUMONT:</span> "The current documentation is written
-for the developer, not the user. CLAUDE.md has 200+ lines of
-constraints. Where is the user-facing equivalent? A seller
-shouldn't need to understand 'viewBox 0 0 100 100' to make
-a product."
-
-<span class="hl">SETH GODIN:</span> "I'll go further — the documentation shouldn't
-exist at all in its current form. If your product needs 200
-lines of documentation for the USER, your product is too
-complicated. The product should teach itself through use."
-
-<span class="hl">JEAN-LUC DOUMONT:</span> "I disagree with Godin. Documentation
-is necessary — but it must serve the audience. Technical docs
-for developers, workflow guides for sellers, one-page quick
-starts for beginners. Three audiences, three documents, one
-message each."
-
-<span class="hl">SETH GODIN:</span> "Fair — but each document should be so clear
-that no one needs to read it twice. If someone reads your
-tutorial and still has questions, the tutorial failed."`,
-
-      socratic: `<span class="hl">JEAN-LUC DOUMONT:</span> "If your best customer had 30 seconds
-to explain SVG-PAINT to a friend, what would they say?
-Whatever that sentence is — that's your positioning. Not
-what you think they should say. What they actually say."
-
-<span class="hl">SETH GODIN:</span> "Is your product worth talking about? Not
-'is it good' — is it remarkable? If a seller told another
-seller about SVG-PAINT at a meetup, would the listener
-lean in or tune out? What makes them lean in?"
-
-<span class="hl">JEAN-LUC DOUMONT:</span> "Look at your README right now.
-What's the first sentence? If it starts with 'SVG-PAINT
-is a...' you've already lost. Start with the problem:
-'Your children's printables might be hurting tiny eyes.'
-Then offer the solution."
-
-<span class="hl">SETH GODIN:</span> "Who will never use your product, no matter
-how good it is? Knowing who ISN'T your audience is as
-important as knowing who is. Stop trying to reach them."`
+      discussion: `${hl('JEAN-LUC DOUMONT')} "What is the one message SVG-PAINT\nneeds to communicate to a potential user? I see the landing\npage talking about 'SVG generation,' 'batch processing,'\n'contrast validation,' 'print sizes,' 'age ranges' — that's\nfive messages. The reader's brain can hold one.\n\nMy recommendation: 'Create accessible children's printables —\nhundreds at a time, all contrast-verified.'\n\nEverything else supports this message or gets cut."\n\n${hl('SETH GODIN')} "Doumont is right about clarity, but I want\nto push on the emotional layer. Sellers don't buy 'contrast\nvalidation.' They buy 'confidence that their products won't\nhurt a child's developing vision.' Lead with the emotion:\n\n  'Every card you sell is safe for tiny eyes.'\n\nThat's the story they tell other sellers. That's the Purple\nCow moment."\n\n${hl('JEAN-LUC DOUMONT')} "Godin's framing is good but needs\nstructure. I'd organize the communication hierarchy as:\n\n  Level 1 (headline): Safe printables for tiny eyes\n  Level 2 (subhead): Batch-generate contrast-verified cards\n  Level 3 (details): Age-range tiers, 9 print sizes, 100K+\n\nEach level serves the one above it. The reader can stop at\nany level and have a complete, usable understanding."\n\n${hl('SETH GODIN')} "And the call to action isn't 'Download' or\n'Buy' — it's 'See it in action.' Let the product sell itself.\nPermission marketing: give them a free contrast check on their\nexisting designs. They see the value. Then they buy."`,
+      debate: `${hl('JEAN-LUC DOUMONT')} "The current documentation is written\nfor the developer, not the user. CLAUDE.md has 200+ lines of\nconstraints. Where is the user-facing equivalent? A seller\nshouldn't need to understand 'viewBox 0 0 100 100' to make\na product."\n\n${hl('SETH GODIN')} "I'll go further — the documentation shouldn't\nexist at all in its current form. If your product needs 200\nlines of documentation for the USER, your product is too\ncomplicated. The product should teach itself through use."\n\n${hl('JEAN-LUC DOUMONT')} "I disagree with Godin. Documentation\nis necessary — but it must serve the audience. Technical docs\nfor developers, workflow guides for sellers, one-page quick\nstarts for beginners. Three audiences, three documents, one\nmessage each."\n\n${hl('SETH GODIN')} "Fair — but each document should be so clear\nthat no one needs to read it twice. If someone reads your\ntutorial and still has questions, the tutorial failed."`,
+      socratic: `${hl('JEAN-LUC DOUMONT')} "If your best customer had 30 seconds\nto explain SVG-PAINT to a friend, what would they say?\nWhatever that sentence is — that's your positioning. Not\nwhat you think they should say. What they actually say."\n\n${hl('SETH GODIN')} "Is your product worth talking about? Not\n'is it good' — is it remarkable? If a seller told another\nseller about SVG-PAINT at a meetup, would the listener\nlean in or tune out? What makes them lean in?"\n\n${hl('JEAN-LUC DOUMONT')} "Look at your README right now.\nWhat's the first sentence? If it starts with 'SVG-PAINT\nis a...' you've already lost. Start with the problem:\n'Your children's printables might be hurting tiny eyes.'\nThen offer the solution."\n\n${hl('SETH GODIN')} "Who will never use your product, no matter\nhow good it is? Knowing who ISN'T your audience is as\nimportant as knowing who is. Stop trying to reach them."`
     }
   };
-  return sessions[focus]?.[mode] || '<span class="dim">No session content for this combination.</span>';
+  return sessions[focus]?.[mode] || 'No session content for this combination.';
 }
 
 function getTakeaways(focus, mode) {
   const data = {
     competitive: {
-      discussion: `<span class="ok">1.</span> SVG-PAINT competes in seller-tools, not printables — different market
-<span class="ok">2.</span> Contrast checking is the defensible moat (domain knowledge barrier)
-<span class="ok">3.</span> Blue ocean confirmed — value curve distinct from all alternatives
-<span class="ok">4.</span> Job-to-be-Done: "professionalize my Etsy shop without being a designer"`,
-      debate: `<span class="warn">1.</span> Technical moat is weak — domain knowledge moat is strong
-<span class="warn">2.</span> Platform dependency (Etsy) is the biggest strategic risk
-<span class="warn">3.</span> Sustaining vs. disruptive position needs clarification
-<span class="ok">4.</span> Focus strategy (few features, 10x better) is defensible`,
-      socratic: `<span class="purple">1.</span> Platform dependency test: would the business survive without Etsy?
-<span class="purple">2.</span> Customer progress: financial independence, not SVG generation
-<span class="purple">3.</span> Non-designer assumption is the industry orthodoxy to challenge
-<span class="purple">4.</span> Focus strategy: don't add features 4-10, double down on 1-3`
+      discussion: `1. SVG-PAINT competes in seller-tools, not printables — different market\n2. Contrast checking is the defensible moat (domain knowledge barrier)\n3. Blue ocean confirmed — value curve distinct from all alternatives\n4. Job-to-be-Done: "professionalize my Etsy shop without being a designer"`,
+      debate: `1. Technical moat is weak — domain knowledge moat is strong\n2. Platform dependency (Etsy) is the biggest strategic risk\n3. Sustaining vs. disruptive position needs clarification\n4. Focus strategy (few features, 10x better) is defensible`,
+      socratic: `1. Platform dependency test: would the business survive without Etsy?\n2. Customer progress: financial independence, not SVG generation\n3. Non-designer assumption is the industry orthodoxy to challenge\n4. Focus strategy: don't add features 4-10, double down on 1-3`
     },
     growth: {
-      discussion: `<span class="ok">1.</span> Smallest viable audience: Etsy sellers with 50+ children's listings
-<span class="ok">2.</span> Hedgehog: "the definitive tool for accessible children's printables"
-<span class="ok">3.</span> Flywheel: accessible products → positive reviews → more demand → more sellers
-<span class="ok">4.</span> Metric: listings created, not features built`,
-      debate: `<span class="warn">1.</span> Tool vs. business tension: one-time sale limits growth
-<span class="warn">2.</span> Expansion should stay within the Hedgehog, not chase trends
-<span class="warn">3.</span> AI features pass the "would you start today?" test only if they serve the Hedgehog
-<span class="ok">4.</span> Tribe building > marketing budget for this audience`,
-      socratic: `<span class="purple">1.</span> Six-word positioning test: can you say it in six words?
-<span class="purple">2.</span> Customer vs. user: optimize for the person who pays
-<span class="purple">3.</span> Permission level: can you email users and they'll be excited?
-<span class="purple">4.</span> Disappearance test: who would notice if SVG-PAINT were gone?`
+      discussion: `1. Smallest viable audience: Etsy sellers with 50+ children's listings\n2. Hedgehog: "the definitive tool for accessible children's printables"\n3. Flywheel: accessible products > positive reviews > more demand > more sellers\n4. Metric: listings created, not features built`,
+      debate: `1. Tool vs. business tension: one-time sale limits growth\n2. Expansion should stay within the Hedgehog, not chase trends\n3. AI features pass the "would you start today?" test only if they serve the Hedgehog\n4. Tribe building > marketing budget for this audience`,
+      socratic: `1. Six-word positioning test: can you say it in six words?\n2. Customer vs. user: optimize for the person who pays\n3. Permission level: can you email users and they'll be excited?\n4. Disappearance test: who would notice if SVG-PAINT were gone?`
     },
     risk: {
-      discussion: `<span class="ok">1.</span> Local-first architecture IS antifragile (costs ↔ revenue)
-<span class="danger">2.</span> Etsy dependency is the critical fragility — single point of failure
-<span class="ok">3.</span> Contrast validation is antifragile — benefits from the problem worsening
-<span class="ok">4.</span> Accessibility compliance is a Leverage Point #5 (system rules level)`,
-      debate: `<span class="danger">1.</span> Platform risk is a guarantee of eventual harm, not just a possibility
-<span class="warn">2.</span> Channel diversification needed NOW — 6-12 month lead time
-<span class="warn">3.</span> Skin in the game gap: tool maker doesn't share seller's downside
-<span class="ok">4.</span> Open format (SVG) prevents vendor lock-in — builds trust`,
-      socratic: `<span class="purple">1.</span> Worst case: Etsy bans AI content — entire user base affected
-<span class="purple">2.</span> 90% revenue drop test: would SVG-PAINT survive?
-<span class="purple">3.</span> Missing feedback loop: end-user (parent/child) has zero input
-<span class="purple">4.</span> AI features may add API dependency (new fragility)`
+      discussion: `1. Local-first architecture IS antifragile (costs <> revenue)\n2. Etsy dependency is the critical fragility — single point of failure\n3. Contrast validation is antifragile — benefits from the problem worsening\n4. Accessibility compliance is a Leverage Point #5 (system rules level)`,
+      debate: `1. Platform risk is a guarantee of eventual harm, not just a possibility\n2. Channel diversification needed NOW — 6-12 month lead time\n3. Skin in the game gap: tool maker doesn't share seller's downside\n4. Open format (SVG) prevents vendor lock-in — builds trust`,
+      socratic: `1. Worst case: Etsy bans AI content — entire user base affected\n2. 90% revenue drop test: would SVG-PAINT survive?\n3. Missing feedback loop: end-user (parent/child) has zero input\n4. AI features may add API dependency (new fragility)`
     },
     communication: {
-      discussion: `<span class="ok">1.</span> One message: "Create accessible children's printables — hundreds at a time"
-<span class="ok">2.</span> Emotional hook: "Every card you sell is safe for tiny eyes"
-<span class="ok">3.</span> Communication hierarchy: headline → subhead → details (each level standalone)
-<span class="ok">4.</span> CTA: "See it in action" not "Buy now" — let the product sell itself`,
-      debate: `<span class="warn">1.</span> Current docs serve developers, not sellers — audience mismatch
-<span class="warn">2.</span> If the product needs 200 lines of docs for users, it's too complex
-<span class="ok">3.</span> Three audiences need three documents: developers, sellers, beginners
-<span class="ok">4.</span> Each document: one message, clear enough to never re-read`,
-      socratic: `<span class="purple">1.</span> 30-second test: what would your best customer actually say?
-<span class="purple">2.</span> Remarkability test: would a listener lean in or tune out?
-<span class="purple">3.</span> README first sentence: lead with the problem, not the product name
-<span class="purple">4.</span> Anti-audience: knowing who ISN'T your audience is equally important`
+      discussion: `1. One message: "Create accessible children's printables — hundreds at a time"\n2. Emotional hook: "Every card you sell is safe for tiny eyes"\n3. Communication hierarchy: headline > subhead > details (each level standalone)\n4. CTA: "See it in action" not "Buy now" — let the product sell itself`,
+      debate: `1. Current docs serve developers, not sellers — audience mismatch\n2. If the product needs 200 lines of docs for users, it's too complex\n3. Three audiences need three different documents: developers, sellers, beginners\n4. Each document: one message, clear enough to never re-read`,
+      socratic: `1. 30-second test: what would your best customer actually say?\n2. Remarkability test: would a listener lean in or tune out?\n3. README first sentence: lead with the problem, not the product name\n4. Anti-audience: knowing who ISN'T your audience is equally important`
     }
   };
   return data[focus]?.[mode] || '';
@@ -847,205 +968,345 @@ function getTakeaways(focus, mode) {
 function getSynthesis(focus) {
   const data = {
     competitive: {
-      consensus: `<span class="orange">═══ BUSINESS PANEL SYNTHESIS: COMPETITIVE ═══</span>
-
-<span class="hl">Core Finding:</span> SVG-PAINT operates in a blue ocean — the
-seller-tools-for-accessible-printables market has zero direct
-competitors. The contrast checking feature is both the Purple Cow
-and the competitive moat.
-
-<span class="hl">Strategic Position:</span> Focus strategy (Porter) targeting an
-overlooked segment (Christensen) with a distinct value curve
-(Kim & Mauborgne). All three frameworks align — rare.
-
-<span class="dim">No pass/fail scoring — advisory panel only.</span>`,
-      agreements: `<span class="ok">UNANIMOUS:</span>
-  • Contrast validation is the core differentiator
-  • SVG-PAINT competes in seller-tools, not printables
-  • Domain knowledge is the real barrier to entry
-  • Focus strategy is correct — don't expand features
-
-<span class="ok">MAJORITY (2/3):</span>
-  • Blue ocean positioning is genuine, not aspirational
-  • Job-to-be-Done framing should guide product decisions`,
-      disagreements: `<span class="warn">PORTER vs CHRISTENSEN:</span>
-  Porter says the moat is industry structure (switching costs).
-  Christensen says the moat is the accumulated job insight.
-  <span class="dim">Resolution: both are right — structural and knowledge moats
-  are complementary, not competing.</span>
-
-<span class="warn">KIM & MAUBORGNE vs PORTER:</span>
-  K&M say "stop analyzing competition, create new demand."
-  Porter says "always know your Five Forces — ignorance is risk."
-  <span class="dim">Resolution: create new demand while monitoring forces.</span>`,
-      recommendations: `<span class="danger">[HIGH] Platform risk mitigation</span>
-  Etsy dependency is unanimous concern. Explore Teachers Pay
-  Teachers, Amazon KDP as secondary channels. Timeline: 6 months.
-
-<span class="warn">[MED] Sharpen JTBD positioning</span>
-  Reframe from "SVG generation tool" to "professional shop builder
-  for accessible children's products." Affects marketing, docs, UI.
-
-<span class="warn">[MED] Deepen the moat</span>
-  Add more age-range tiers, more accessibility checks, more print
-  standards. Each addition increases switching cost.
-
-<span class="dim">[LOW] Monitor for disruption from below</span>
-  Watch for simpler tools targeting teachers/homeschoolers that
-  could expand into the Etsy seller segment.`
+      consensus: `=== BUSINESS PANEL SYNTHESIS: COMPETITIVE ===\n\nCore Finding: SVG-PAINT operates in a blue ocean — the seller-tools-for-accessible-printables market has zero direct competitors. The contrast checking feature is both the Purple Cow and the competitive moat.\n\nStrategic Position: Focus strategy (Porter) targeting an overlooked segment (Christensen) with a distinct value curve (Kim & Mauborgne). All three frameworks align — rare.\n\nNo pass/fail scoring — advisory panel only.`,
+      agreements: `UNANIMOUS:\n  - Contrast validation is the core differentiator\n  - SVG-PAINT competes in seller-tools, not printables\n  - Domain knowledge is the real barrier to entry\n  - Focus strategy is correct — don't expand features\n\nMAJORITY (2/3):\n  - Blue ocean positioning is genuine, not aspirational\n  - Job-to-be-Done framing should guide product decisions`,
+      disagreements: `PORTER vs CHRISTENSEN:\n  Porter says the moat is industry structure (switching costs).\n  Christensen says the moat is the accumulated job insight.\n  Resolution: both are right — structural and knowledge moats are complementary.\n\nKIM & MAUBORGNE vs PORTER:\n  K&M say "stop analyzing competition, create new demand."\n  Porter says "always know your Five Forces — ignorance is risk."\n  Resolution: create new demand while monitoring forces.`,
+      recommendations: `[HIGH] Platform risk mitigation\n  Etsy dependency is unanimous concern. Explore Teachers Pay Teachers, Amazon KDP as secondary channels. Timeline: 6 months.\n\n[MED] Sharpen JTBD positioning\n  Reframe from "SVG generation tool" to "professional shop builder for accessible children's products."\n\n[MED] Deepen the moat\n  Add more age-range tiers, more accessibility checks, more print standards.\n\n[LOW] Monitor for disruption from below\n  Watch for simpler tools targeting teachers/homeschoolers.`
     },
     growth: {
-      consensus: `<span class="orange">═══ BUSINESS PANEL SYNTHESIS: GROWTH ═══</span>
-
-<span class="hl">Core Finding:</span> The Hedgehog Concept is clear — "the definitive
-tool for accessible children's printables." The flywheel exists
-but isn't being consciously managed. Metric alignment is off:
-measuring features built instead of seller outcomes.
-
-<span class="hl">Growth Strategy:</span> Tribe-based, permission-driven, organic.
-Not paid acquisition. The Purple Cow (contrast checking) drives
-word-of-mouth if properly positioned.`,
-      agreements: `<span class="ok">UNANIMOUS:</span>
-  • Hedgehog = accessible children's printables
-  • Metric should be "listings created" not "features built"
-  • Tribe-based growth fits this audience perfectly
-  • AI features must serve the Hedgehog or be cut
-
-<span class="ok">MAJORITY (2/3):</span>
-  • Flywheel mechanics are present but underutilized
-  • One-time pricing is a constraint but not fatal`,
-      disagreements: `<span class="warn">GODIN vs COLLINS:</span>
-  Godin: "Expand into adjacent audiences (teachers, homeschoolers)"
-  Collins: "That's fox behavior — stay with the Hedgehog"
-  <span class="dim">Resolution: expand only if new audience has the SAME job-to-be-done.</span>
-
-<span class="warn">DRUCKER vs GODIN:</span>
-  Drucker: "Measure customer value with hard numbers (LTV, listings)"
-  Godin: "Trust isn't measured — it's earned through generosity"
-  <span class="dim">Resolution: measure outcomes, earn trust through the product itself.</span>`,
-      recommendations: `<span class="danger">[HIGH] Align metrics to customer outcomes</span>
-  Track: listings created, contrast checks passed, revenue enabled.
-  Stop tracking: features built, code coverage, sprint velocity.
-
-<span class="warn">[MED] Activate the flywheel consciously</span>
-  Make it easy for sellers to share their accessibility-verified
-  products. Badge system? "Contrast Verified" stamp?
-
-<span class="warn">[MED] Apply systematic abandonment</span>
-  For every feature on the roadmap, ask: "Would we start this
-  today?" If no — cut it. Focus resources on the Hedgehog.
-
-<span class="dim">[LOW] Free contrast check as lead magnet</span>
-  Let sellers upload existing designs for a free check. Experience
-  the value before buying. Permission marketing in action.`
+      consensus: `=== BUSINESS PANEL SYNTHESIS: GROWTH ===\n\nCore Finding: The Hedgehog Concept is clear — "the definitive tool for accessible children's printables." The flywheel exists but isn't being consciously managed. Metric alignment is off: measuring features built instead of seller outcomes.\n\nGrowth Strategy: Tribe-based, permission-driven, organic. Not paid acquisition. The Purple Cow (contrast checking) drives word-of-mouth if properly positioned.`,
+      agreements: `UNANIMOUS:\n  - Hedgehog = accessible children's printables\n  - Metric should be "listings created" not "features built"\n  - Tribe-based growth fits this audience perfectly\n  - AI features must serve the Hedgehog or be cut\n\nMAJORITY (2/3):\n  - Flywheel mechanics are present but underutilized\n  - One-time pricing is a constraint but not fatal`,
+      disagreements: `GODIN vs COLLINS:\n  Godin: "Expand into adjacent audiences (teachers, homeschoolers)"\n  Collins: "That's fox behavior — stay with the Hedgehog"\n  Resolution: expand only if new audience has the SAME job-to-be-done.\n\nDRUCKER vs GODIN:\n  Drucker: "Measure customer value with hard numbers (LTV, listings)"\n  Godin: "Trust isn't measured — it's earned through generosity"\n  Resolution: measure outcomes, earn trust through the product itself.`,
+      recommendations: `[HIGH] Align metrics to customer outcomes\n  Track: listings created, contrast checks passed, revenue enabled.\n  Stop tracking: features built, code coverage, sprint velocity.\n\n[MED] Activate the flywheel consciously\n  Make it easy for sellers to share their accessibility-verified products. Badge system?\n\n[MED] Apply systematic abandonment\n  For every feature on the roadmap, ask: "Would we start this today?"\n\n[LOW] Free contrast check as lead magnet\n  Let sellers upload existing designs for a free check.`
     },
     risk: {
-      consensus: `<span class="orange">═══ BUSINESS PANEL SYNTHESIS: RISK ═══</span>
-
-<span class="hl">Core Finding:</span> SVG-PAINT has a mixed fragility profile. The
-architecture is antifragile (local-first, zero server costs).
-The business model is fragile (single platform dependency).
-The product feature (contrast checking) is antifragile (benefits
-from the problem getting worse).
-
-<span class="hl">System Dynamics:</span> Two feedback loops identified. Reinforcing
-loop (R1) drives growth. Balancing loop (B1) caps it. The
-leverage point is at the system rules level — accessibility
-compliance changes the competitive game entirely.`,
-      agreements: `<span class="ok">UNANIMOUS:</span>
-  • Etsy dependency is the critical fragility
-  • Local-first architecture is genuinely antifragile
-  • Contrast validation benefits from the problem worsening
-  • Open format (SVG) prevents vendor lock-in
-
-<span class="ok">BOTH EXPERTS:</span>
-  • Missing end-user feedback loop is a system blind spot
-  • Channel diversification has 6-12 month lead time — start now`,
-      disagreements: `<span class="warn">TALEB vs MEADOWS:</span>
-  Taleb: "Act immediately on platform risk — it's existential"
-  Meadows: "Diversification is a gradual process — rushing creates
-  new fragilities. Start now but don't panic."
-  <span class="dim">Resolution: begin diversification this quarter but invest
-  proportionally — 80% effort on Etsy, 20% on next channel.</span>`,
-      recommendations: `<span class="danger">[HIGH] Platform diversification — begin immediately</span>
-  Research Teachers Pay Teachers + Amazon KDP compatibility.
-  Goal: second channel operational within 6 months. But invest
-  proportionally (80/20 split with Etsy).
-
-<span class="danger">[HIGH] Preserve optionality</span>
-  Keep the architecture local-first. Do not add cloud dependencies
-  for AI features — use local LLMs or make cloud AI optional.
-  Every cloud dependency adds fragility.
-
-<span class="warn">[MED] Add end-user feedback loop</span>
-  Currently: seller → SVG-PAINT → product. Missing: parent/child
-  → feedback → product improvement. Consider a "parent feedback
-  card" template that sellers include with products.
-
-<span class="dim">[LOW] Stress-test the business model</span>
-  Simulate: what if Etsy takes 25%? What if revenue drops 50%?
-  What if a competitor clones the contrast feature? Build
-  scenarios and identify trigger points for each.`
+      consensus: `=== BUSINESS PANEL SYNTHESIS: RISK ===\n\nCore Finding: SVG-PAINT has a mixed fragility profile. The architecture is antifragile (local-first, zero server costs). The business model is fragile (single platform dependency). The product feature (contrast checking) is antifragile (benefits from the problem getting worse).\n\nSystem Dynamics: Two feedback loops identified. Reinforcing loop (R1) drives growth. Balancing loop (B1) caps it. The leverage point is at the system rules level — accessibility compliance changes the competitive game entirely.`,
+      agreements: `UNANIMOUS:\n  - Etsy dependency is the critical fragility\n  - Local-first architecture is genuinely antifragile\n  - Contrast validation benefits from the problem worsening\n  - Open format (SVG) prevents vendor lock-in\n\nBOTH EXPERTS:\n  - Missing end-user feedback loop is a system blind spot\n  - Channel diversification has 6-12 month lead time — start now`,
+      disagreements: `TALEB vs MEADOWS:\n  Taleb: "Act immediately on platform risk — it's existential"\n  Meadows: "Diversification is a gradual process — rushing creates new fragilities."\n  Resolution: begin diversification this quarter but invest proportionally — 80% effort on Etsy, 20% on next channel.`,
+      recommendations: `[HIGH] Platform diversification — begin immediately\n  Research Teachers Pay Teachers + Amazon KDP compatibility. Goal: second channel within 6 months.\n\n[HIGH] Preserve optionality\n  Keep the architecture local-first. Do not add cloud dependencies for AI features.\n\n[MED] Add end-user feedback loop\n  Currently: seller > SVG-PAINT > product. Missing: parent/child > feedback > improvement.\n\n[LOW] Stress-test the business model\n  Simulate: what if Etsy takes 25%? What if revenue drops 50%?`
     },
     communication: {
-      consensus: `<span class="orange">═══ BUSINESS PANEL SYNTHESIS: COMMUNICATION ═══</span>
-
-<span class="hl">Core Finding:</span> SVG-PAINT has a clear value proposition buried
-under technical language. The product sells itself — but the
-communication doesn't. Restructuring around one message would
-dramatically improve adoption.
-
-<span class="hl">Message Hierarchy:</span>
-  L1: "Safe printables for tiny eyes"
-  L2: "Batch-generate contrast-verified children's cards"
-  L3: "100K+ glyphs, 9 print sizes, age-range accessibility"`,
-      agreements: `<span class="ok">UNANIMOUS:</span>
-  • Current messaging leads with features, should lead with benefit
-  • One message per communication unit — cut everything else
-  • Three audiences need three different documents
-  • Call-to-action should be experiential ("See it in action")
-
-<span class="ok">BOTH EXPERTS:</span>
-  • Emotional hook ("safe for tiny eyes") > technical description
-  • README should start with the problem, not the product name`,
-      disagreements: `<span class="warn">DOUMONT vs GODIN:</span>
-  Doumont: "Documentation is necessary — just restructure it"
-  Godin: "If it needs documentation, the product is too complex"
-  <span class="dim">Resolution: simplify the product AND improve the docs. Both.</span>`,
-      recommendations: `<span class="danger">[HIGH] Rewrite all user-facing messaging</span>
-  Lead with benefit, not feature. "Safe for tiny eyes" not
-  "SVG generation platform." Apply to README, landing page,
-  Etsy listing description, social media.
-
-<span class="warn">[MED] Create audience-specific documentation</span>
-  1. Quick Start (seller, 1 page): first product in 5 minutes
-  2. Workflow Guide (seller, 5 pages): full product line creation
-  3. Technical Docs (developer): architecture and contribution
-
-<span class="warn">[MED] Build a free contrast checker</span>
-  Upload any image → get accessibility report. Zero friction.
-  This IS the marketing. Let the product demonstrate its own
-  value. Permission earned through generosity.
-
-<span class="dim">[LOW] Add "Contrast Verified" badge for listings</span>
-  Visual trust signal that sellers can add to Etsy listings.
-  Creates social proof and spreads awareness organically.`
+      consensus: `=== BUSINESS PANEL SYNTHESIS: COMMUNICATION ===\n\nCore Finding: SVG-PAINT has a clear value proposition buried under technical language. The product sells itself — but the communication doesn't. Restructuring around one message would dramatically improve adoption.\n\nMessage Hierarchy:\n  L1: "Safe printables for tiny eyes"\n  L2: "Batch-generate contrast-verified children's cards"\n  L3: "100K+ glyphs, 9 print sizes, age-range accessibility"`,
+      agreements: `UNANIMOUS:\n  - Current messaging leads with features, should lead with benefit\n  - One message per communication unit — cut everything else\n  - Three audiences need three different documents\n  - Call-to-action should be experiential ("See it in action")\n\nBOTH EXPERTS:\n  - Emotional hook ("safe for tiny eyes") > technical description\n  - README should start with the problem, not the product name`,
+      disagreements: `DOUMONT vs GODIN:\n  Doumont: "Documentation is necessary — just restructure it"\n  Godin: "If it needs documentation, the product is too complex"\n  Resolution: simplify the product AND improve the docs. Both.`,
+      recommendations: `[HIGH] Rewrite all user-facing messaging\n  Lead with benefit, not feature. "Safe for tiny eyes" not "SVG generation platform."\n\n[MED] Create audience-specific documentation\n  1. Quick Start (seller, 1 page)\n  2. Workflow Guide (seller, 5 pages)\n  3. Technical Docs (developer)\n\n[MED] Build a free contrast checker\n  Upload any image > get accessibility report. Zero friction.\n\n[LOW] Add "Contrast Verified" badge for listings\n  Visual trust signal for Etsy listings.`
     }
   };
   return data[focus];
 }
 
-function setMode(m) { state.mode = m; render(); }
-function setFocus(f) {
-  state.focus = f;
-  const focusExperts = FOCUS_AREAS[f].experts;
-  if (!focusExperts.includes(state.selectedExpert)) state.selectedExpert = focusExperts[0];
-  render();
-}
-function setView(v) { state.view = v; render(); }
-function selectExpert(key) { state.selectedExpert = key; state.view = 'experts'; render(); }
+// ─────────────────────────────────────────────
+// BUILD CLUSTERS
+// ─────────────────────────────────────────────
+function buildClusters() {
+  const focus = FOCUS_AREAS[state.focus];
+  const activeExperts = focus.experts;
 
-render();
+  // Expert Panel cluster
+  const expertNodes = Object.entries(EXPERTS).map(([key, e]) => {
+    const isActive = activeExperts.includes(key);
+    const isLead = key === focus.lead;
+    let badgeText = isLead ? ' [LEAD]' : (e.isDefault && isActive ? ' [DEFAULT]' : '');
+    return {
+      id: key,
+      title: e.name,
+      desc: e.domain + badgeText,
+      icon: isLead ? '👑' : (e.isDefault ? '⭐' : '🧠'),
+      meta: '~' + e.tokens + ' tokens',
+      status: isActive ? 'ok' : 'off',
+    };
+  });
+
+  // Frameworks cluster
+  const frameworkNodes = [
+    { id: 'fw-swot', title: 'SWOT Analysis', desc: 'Strengths, Weaknesses, Opportunities, Threats', icon: '📋' },
+    { id: 'fw-bmc', title: 'Business Model Canvas', desc: 'Nine building blocks of a business model', icon: '🧩' },
+    { id: 'fw-five-forces', title: "Five Forces", desc: "Porter's industry analysis framework", icon: '🔬' },
+    { id: 'fw-blue-ocean', title: 'Blue Ocean Strategy', desc: 'Create uncontested market space', icon: '🌊' },
+    { id: 'fw-jtbd', title: 'Jobs-to-be-Done', desc: 'What job is the customer hiring this for?', icon: '🎯' },
+    { id: 'fw-hedgehog', title: 'Hedgehog Concept', desc: 'Passion + capability + economic engine', icon: '🦔' },
+    { id: 'fw-flywheel', title: 'Flywheel Effect', desc: 'Compounding momentum through consistency', icon: '🔄' },
+    { id: 'fw-antifragile', title: 'Antifragility', desc: 'Systems that gain from disorder', icon: '💎' },
+  ];
+
+  // Modes cluster
+  const modeNodes = [
+    { id: 'mode-discussion', title: 'Discussion', desc: 'Collaborative analysis — experts build on each other', icon: '💬', status: state.mode === 'discussion' ? 'ok' : 'off' },
+    { id: 'mode-debate', title: 'Debate', desc: 'Adversarial stress test — experts challenge each other', icon: '⚔️', status: state.mode === 'debate' ? 'ok' : 'off' },
+    { id: 'mode-socratic', title: 'Socratic', desc: 'Strategic questioning — experts probe assumptions', icon: '❓', status: state.mode === 'socratic' ? 'ok' : 'off' },
+  ];
+
+  // Focus areas cluster
+  const focusNodes = Object.entries(FOCUS_AREAS).map(([key, f]) => ({
+    id: 'focus-' + key,
+    title: f.name,
+    desc: f.description + ' (' + f.experts.length + ' experts)',
+    icon: key === 'competitive' ? '🏆' : key === 'growth' ? '📈' : key === 'risk' ? '🛡️' : '📢',
+    status: state.focus === key ? 'ok' : 'off',
+  }));
+
+  // Output cluster — dynamic based on current view
+  const outputNodes = [];
+  if (state.view === 'experts') {
+    const e = EXPERTS[state.selectedExpert];
+    outputNodes.push(
+      { id: 'out-expert', title: e.name + ' — Detail', desc: 'Click to view full expert profile, methodology, and criteria', icon: '📊',
+        actions: [
+          { action: 'view-expert', label: 'View Profile', cls: 'primary' }
+        ]
+      }
+    );
+  }
+  outputNodes.push(
+    { id: 'out-session', title: 'Live Session', desc: FOCUS_AREAS[state.focus].name + ' focus, ' + state.mode + ' mode — click to view panel discussion', icon: '🎙️',
+      actions: [
+        { action: 'view-session', label: 'View Session', cls: 'primary' }
+      ]
+    },
+    { id: 'out-synthesis', title: 'Panel Synthesis', desc: 'Consensus, agreements, disagreements, and recommendations', icon: '📑',
+      actions: [
+        { action: 'view-synthesis', label: 'View Synthesis', cls: 'primary' }
+      ]
+    },
+    { id: 'out-takeaways', title: 'Key Takeaways', desc: 'Priority-ranked findings from the current session', icon: '🎯',
+      actions: [
+        { action: 'view-takeaways', label: 'View Takeaways', cls: 'primary' }
+      ]
+    }
+  );
+
+  return [
+    { key: 'experts', label: 'Expert Panel', icon: '🎯', color: '#f0883e', x: 80, y: 80, nodes: expertNodes },
+    { key: 'frameworks', label: 'Analysis Frameworks', icon: '📊', color: '#bc8cff', x: 600, y: 80, nodes: frameworkNodes },
+    { key: 'focus', label: 'Focus Areas', icon: '🔍', color: '#58a6ff', x: 80, y: 620, nodes: focusNodes },
+    { key: 'modes', label: 'Modes', icon: '⚙️', color: '#39d2c0', x: 600, y: 620, nodes: modeNodes },
+    { key: 'output', label: 'Analysis Output', icon: '📋', color: '#58a6ff', x: 340, y: 900, nodes: outputNodes },
+  ];
+}
+
+// ─────────────────────────────────────────────
+// DETAIL PANEL (overlay)
+// ─────────────────────────────────────────────
+function createOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'bp-overlay';
+  overlay.id = 'bp-overlay';
+  overlay.innerHTML = '<div class="bp-panel" id="bp-panel"><button class="bp-panel-close" id="bp-panel-close">ESC</button><div id="bp-panel-content"></div></div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.getElementById('bp-panel-close').addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
+}
+
+function closeOverlay() {
+  document.getElementById('bp-overlay').classList.remove('visible');
+}
+
+function showOverlay(html) {
+  document.getElementById('bp-panel-content').innerHTML = html;
+  document.getElementById('bp-overlay').classList.add('visible');
+}
+
+function showExpertDetail(expertId) {
+  const e = EXPERTS[expertId];
+  if (!e) return;
+  const focus = FOCUS_AREAS[state.focus];
+  const isOnPanel = focus.experts.includes(expertId);
+  const isLead = expertId === focus.lead;
+
+  showOverlay(`
+    <h2>${e.name} <span class="bp-tag" style="background:rgba(240,136,62,0.15);color:#f0883e;">${e.domain}</span>
+    ${!isOnPanel ? '<span class="bp-tag" style="background:rgba(248,81,73,0.15);color:#ef4444;">Not on this panel</span>' : ''}
+    ${isLead ? '<span class="bp-tag" style="background:rgba(240,136,62,0.15);color:#f0883e;">Panel Lead</span>' : ''}</h2>
+    <div class="bp-sub">${FOCUS_AREAS[state.focus].name} Focus &middot; ${state.mode} mode &middot; ~${e.tokens} tokens</div>
+    <div class="bp-quote">"${e.voice}"<div class="attr">— ${e.name}, typical ${state.mode} mode response</div></div>
+
+    <div class="bp-section"><h3>Perspective</h3><div class="bp-body"><p>${e.perspective}</p></div></div>
+
+    <div class="bp-section"><h3>Methodology</h3><div class="bp-body">
+      <p><code>${e.methodology}</code></p>
+      <p style="margin-top:10px;"><strong>In ${state.mode} mode:</strong></p>
+      <div class="bp-quote" style="border-left-color:#bc8cff;">${e.modes[state.mode]}</div>
+    </div></div>
+
+    <div class="bp-section"><h3>Looks For (approves)</h3><div class="bp-body"><ul>${e.looksFor.map(l => `<li class="bp-ok">${l}</li>`).join('')}</ul></div></div>
+
+    <div class="bp-section"><h3>Red Flags (rejects)</h3><div class="bp-body"><ul>${e.redFlags.map(r => `<li class="bp-danger">${r}</li>`).join('')}</ul></div></div>
+
+    <div class="bp-section"><h3>Approval Criteria</h3><div class="bp-body"><p style="color:#5a6480;">This expert endorses when:</p><ul>${e.approves.map(a => `<li>${a}</li>`).join('')}</ul></div></div>
+  `);
+}
+
+function showSessionDetail() {
+  const content = getSessionContent(state.focus, state.mode);
+  const modeLabel = { discussion: 'Discussion — Collaborative Analysis', debate: 'Debate — Adversarial Stress Test', socratic: 'Socratic Inquiry — Strategic Questioning' };
+
+  showOverlay(`
+    <h2>Live Session <span class="bp-tag" style="background:rgba(240,136,62,0.15);color:#f0883e;">${FOCUS_AREAS[state.focus].name} Focus</span></h2>
+    <div class="bp-sub">${modeLabel[state.mode]}</div>
+
+    <div class="bp-section"><h3>Business Under Analysis</h3><div class="bp-body">
+      <p style="margin-bottom:8px;"><strong>${EXAMPLE_BIZ.title}</strong></p>
+      <p style="margin-bottom:8px;">${EXAMPLE_BIZ.summary}</p>
+      <pre>${EXAMPLE_BIZ.details.join('\n')}</pre>
+    </div></div>
+
+    <div class="bp-section"><h3>Panel Discussion</h3><div class="bp-body"><pre>${content}</pre></div></div>
+  `);
+}
+
+function showSynthesisDetail() {
+  const synth = getSynthesis(state.focus);
+  showOverlay(`
+    <h2>Panel Synthesis <span class="bp-tag" style="background:rgba(240,136,62,0.15);color:#f0883e;">${FOCUS_AREAS[state.focus].name} Focus</span></h2>
+    <div class="bp-sub">Cross-expert consensus and recommendations</div>
+
+    <div class="bp-section"><h3>Consensus</h3><div class="bp-body"><pre>${synth.consensus}</pre></div></div>
+    <div class="bp-section"><h3>Agreements</h3><div class="bp-body"><pre>${synth.agreements}</pre></div></div>
+    <div class="bp-section"><h3>Disagreements</h3><div class="bp-body"><pre>${synth.disagreements}</pre></div></div>
+    <div class="bp-section"><h3>Priority-Ranked Recommendations</h3><div class="bp-body"><pre>${synth.recommendations}</pre></div></div>
+
+    <div class="bp-section"><h3>Boundary — What Happens Next</h3><div class="bp-body">
+      <p style="color:#ef4444;font-weight:600;">This panel produces ANALYSIS ONLY — not implementation.</p>
+      <p style="margin-top:8px;">The business panel stops here. To act on recommendations:</p>
+      <ul style="margin-top:8px;">
+        <li><code>/sc:design</code> — for architectural changes suggested by the panel</li>
+        <li><code>/sc:implement</code> — for feature development from recommendations</li>
+        <li><code>/sc:workflow</code> — to convert recommendations into executable tasks</li>
+        <li><code>/sc:spec-panel</code> — to validate any spec changes with the engineering panel</li>
+      </ul>
+      <p style="color:#5a6480;margin-top:12px;">The human decides which recommendations to pursue. The panel advises — it does not execute.</p>
+    </div></div>
+  `);
+}
+
+function showTakeawaysDetail() {
+  const takeaways = getTakeaways(state.focus, state.mode);
+  showOverlay(`
+    <h2>Key Takeaways <span class="bp-tag" style="background:rgba(240,136,62,0.15);color:#f0883e;">${FOCUS_AREAS[state.focus].name} Focus</span></h2>
+    <div class="bp-sub">${state.mode} mode findings</div>
+    <div class="bp-section"><div class="bp-body"><pre>${takeaways}</pre></div></div>
+  `);
+}
+
+// ─────────────────────────────────────────────
+// HIGHLIGHT HELPERS
+// ─────────────────────────────────────────────
+function updateNodeHighlights() {
+  document.querySelectorAll('.cui-node').forEach(n => {
+    n.classList.remove('bp-selected', 'bp-active-fw', 'bp-active-mode');
+  });
+  const selNode = document.querySelector(`.cui-node[data-id="${state.selectedExpert}"]`);
+  if (selNode) selNode.classList.add('bp-selected');
+
+  const modeNode = document.querySelector(`.cui-node[data-id="mode-${state.mode}"]`);
+  if (modeNode) modeNode.classList.add('bp-active-mode');
+
+  const focusNode = document.querySelector(`.cui-node[data-id="focus-${state.focus}"]`);
+  if (focusNode) focusNode.classList.add('bp-active-fw');
+}
+
+// ─────────────────────────────────────────────
+// REFRESH
+// ─────────────────────────────────────────────
+function refreshCanvas() {
+  CanvasUI.setClusters(buildClusters());
+  requestAnimationFrame(updateNodeHighlights);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  createOverlay();
+
+  CanvasUI.init('body', {
+    title: 'Business Panel',
+    subtitle: 'Strategic Analysis',
+    theme: 'dark',
+    storageKey: 'business-panel-pg',
+    clusters: buildClusters(),
+    onNodeClick: (node) => {
+      if (!node) return;
+      const id = node.id;
+
+      // Expert nodes
+      if (EXPERTS[id]) {
+        state.selectedExpert = id;
+        state.view = 'experts';
+        showExpertDetail(id);
+        refreshCanvas();
+        return;
+      }
+
+      // Mode nodes
+      if (id.startsWith('mode-')) {
+        const m = id.replace('mode-', '');
+        state.mode = m;
+        refreshCanvas();
+        return;
+      }
+
+      // Focus nodes
+      if (id.startsWith('focus-')) {
+        const f = id.replace('focus-', '');
+        state.focus = f;
+        const focusExperts = FOCUS_AREAS[f].experts;
+        if (!focusExperts.includes(state.selectedExpert)) state.selectedExpert = focusExperts[0];
+        refreshCanvas();
+        return;
+      }
+
+      // Framework nodes — show the relevant expert
+      if (id === 'fw-five-forces') { state.selectedExpert = 'michael-porter'; showExpertDetail('michael-porter'); refreshCanvas(); }
+      else if (id === 'fw-jtbd') { state.selectedExpert = 'clayton-christensen'; showExpertDetail('clayton-christensen'); refreshCanvas(); }
+      else if (id === 'fw-blue-ocean') { state.selectedExpert = 'wckim-mauborgne'; showExpertDetail('wckim-mauborgne'); refreshCanvas(); }
+      else if (id === 'fw-hedgehog' || id === 'fw-flywheel') { state.selectedExpert = 'jim-collins'; showExpertDetail('jim-collins'); refreshCanvas(); }
+      else if (id === 'fw-antifragile') { state.selectedExpert = 'nassim-taleb'; showExpertDetail('nassim-taleb'); refreshCanvas(); }
+      else if (id === 'fw-bmc' || id === 'fw-swot') { showSessionDetail(); }
+
+      // Output nodes — handled by action buttons below
+    },
+  });
+
+  // Bind action buttons on output nodes
+  // We need to re-bind after each setClusters call, so use event delegation
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.cui-node-btn');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    if (action === 'view-expert') showExpertDetail(state.selectedExpert);
+    else if (action === 'view-session') showSessionDetail();
+    else if (action === 'view-synthesis') showSynthesisDetail();
+    else if (action === 'view-takeaways') showTakeawaysDetail();
+  });
+
+  // Add back link + mode/focus buttons to HUD
+  const hud = document.getElementById('cui-hud');
+  const backLink = document.createElement('a');
+  backLink.className = 'bp-back';
+  backLink.href = 'index.html';
+  backLink.innerHTML = '&larr; Back';
+  hud.insertBefore(backLink, hud.firstChild);
+
+  // Add pipeline link
+  const pipeLink = document.createElement('a');
+  pipeLink.className = 'bp-back';
+  pipeLink.href = 'pipeline-playground.html';
+  pipeLink.textContent = 'Pipeline';
+  pipeLink.style.marginLeft = '4px';
+  backLink.after(pipeLink);
+
+  // Add spec-panel link
+  const specLink = document.createElement('a');
+  specLink.className = 'bp-back';
+  specLink.href = 'spec-panel-playground.html';
+  specLink.innerHTML = '&#x1F465; Spec Panel';
+  specLink.style.marginLeft = '4px';
+  pipeLink.after(specLink);
+
+  requestAnimationFrame(updateNodeHighlights);
+});
 </script>
 </body>
 </html>

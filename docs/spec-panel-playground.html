@@ -5,146 +5,816 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spec Panel — Expert Specification Review</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2333;
-    --border: #30363d;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --text-bright: #f0f6fc;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --green-dim: #238636;
-    --yellow: #d29922;
-    --red: #f85149;
-    --purple: #bc8cff;
-    --orange: #f0883e;
-    --cyan: #39d2c0;
-    --pink: #f778ba;
-    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  /* Detail panel overlay */
+  .sp-detail-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 100; display: none;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
-
-  /* ── Layout ── */
-  .header { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-  .header h1 { font-size: 20px; color: var(--text-bright); font-weight: 600; }
-  .header .subtitle { font-size: 13px; color: var(--text-dim); }
-  .header .back { font-size: 13px; color: var(--accent); text-decoration: none; margin-left: auto; font-family: var(--mono); }
-  .header .back:hover { text-decoration: underline; }
-
-  .controls { padding: 12px 32px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
-  .control-group { display: flex; align-items: center; gap: 8px; }
-  .control-group label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-  .ctrl-btn { padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
-  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .ctrl-btn.active { border-color: var(--accent); background: rgba(88,166,255,0.1); color: var(--accent); }
-
-  .main { display: grid; grid-template-columns: 260px 1fr; height: calc(100vh - 100px); }
-
-  /* ── Expert sidebar ── */
-  .sidebar { border-right: 1px solid var(--border); overflow-y: auto; background: var(--surface); padding: 0; }
-  .sidebar-title { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 8px; font-weight: 600; }
-
-  .expert-card {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
+  .sp-detail-overlay.open { display: flex; }
+  .sp-detail-panel {
+    background: #13161f; border: 1px solid #252a3a; border-radius: 16px;
+    width: 90vw; max-width: 900px; max-height: 85vh; overflow-y: auto;
+    padding: 28px; box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    font-family: system-ui, -apple-system, sans-serif; color: #e2e8f0;
   }
-  .expert-card:hover { background: var(--surface2); }
-  .expert-card.active { background: var(--surface2); border-left: 3px solid var(--accent); }
-  .expert-card.active .expert-name { color: var(--accent); }
-  .expert-card.dimmed { opacity: 0.35; }
+  .sp-detail-panel h2 { font-size: 18px; margin-bottom: 4px; }
+  .sp-detail-panel .sp-subtitle { font-size: 12px; color: #5a6480; margin-bottom: 16px; }
+  .sp-detail-panel .sp-close { float: right; background: none; border: 1px solid #252a3a;
+    color: #94a3b8; border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 12px; }
+  .sp-detail-panel .sp-close:hover { border-color: #64ffda; color: #64ffda; }
 
-  .expert-name { font-size: 14px; font-weight: 600; color: var(--text-bright); margin-bottom: 2px; }
-  .expert-domain { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
-  .expert-badge { position: absolute; top: 12px; right: 12px; font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
-  .badge-lead { background: rgba(210,153,34,0.2); color: var(--yellow); }
-  .badge-default { background: rgba(63,185,80,0.15); color: var(--green); }
-  .badge-auto { background: rgba(188,140,255,0.15); color: var(--purple); }
-  .token-cost { font-size: 10px; color: var(--text-dim); font-family: var(--mono); margin-top: 3px; }
+  .sp-detail-panel .sp-section { margin-bottom: 16px; }
+  .sp-detail-panel .sp-section h3 { font-size: 13px; color: #5a6480; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600; }
+  .sp-detail-panel .sp-body { font-size: 14px; line-height: 1.7; }
+  .sp-detail-panel .sp-body pre { font-family: 'SF Mono','Fira Code',monospace; font-size: 12px;
+    background: #0c0e14; padding: 14px; border-radius: 8px; border: 1px solid #252a3a;
+    white-space: pre-wrap; overflow-x: auto; line-height: 1.6; margin: 8px 0; }
+  .sp-detail-panel .sp-body code { font-family: 'SF Mono','Fira Code',monospace; font-size: 12px;
+    background: #0c0e14; padding: 2px 6px; border-radius: 4px; color: #39d2c0; }
+  .sp-detail-panel .sp-body ul { padding-left: 18px; }
+  .sp-detail-panel .sp-body li { margin-bottom: 4px; }
+  .sp-quote { border-left: 3px solid #58a6ff; padding: 12px 16px; background: rgba(88,166,255,0.05);
+    border-radius: 0 6px 6px 0; margin: 8px 0; font-style: italic; font-size: 14px; line-height: 1.6; }
+  .sp-quote .sp-attr { font-style: normal; font-size: 12px; color: #5a6480; margin-top: 6px; }
 
-  /* ── Content area ── */
-  .content { overflow-y: auto; padding: 24px 32px; }
-  .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sp-score-row { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+  .sp-score-label { font-size: 12px; color: #5a6480; width: 100px; flex-shrink: 0; }
+  .sp-score-bar { flex: 1; height: 6px; background: #1e2233; border-radius: 3px; overflow: hidden; }
+  .sp-score-fill { height: 100%; border-radius: 3px; }
+  .sp-score-val { font-size: 12px; font-family: 'SF Mono',monospace; width: 40px; text-align: right; flex-shrink: 0; }
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-  .card.full { grid-column: 1 / -1; }
-  .card h3 { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .card h3 .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: none; letter-spacing: 0; font-weight: 500; }
-  .tag-req { background: rgba(88,166,255,0.15); color: var(--accent); }
-  .tag-arch { background: rgba(188,140,255,0.15); color: var(--purple); }
-  .tag-test { background: rgba(63,185,80,0.15); color: var(--green); }
-  .tag-comp { background: rgba(240,136,62,0.15); color: var(--orange); }
-  .tag-mode { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .sp-tabs { display: flex; gap: 0; border-bottom: 1px solid #252a3a; margin-bottom: 16px; }
+  .sp-tab { padding: 8px 16px; font-size: 13px; color: #5a6480; cursor: pointer;
+    border-bottom: 2px solid transparent; font-weight: 500; }
+  .sp-tab:hover { color: #e2e8f0; }
+  .sp-tab.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+  .sp-tab-content { display: none; }
+  .sp-tab-content.active { display: block; }
 
-  .body { font-size: 14px; line-height: 1.7; color: var(--text); }
-  .body code { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
-  .body pre { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 10px 0; line-height: 1.6; border: 1px solid var(--border); white-space: pre-wrap; }
-  .body ul { padding-left: 18px; }
-  .body li { margin-bottom: 4px; }
-  .body li::marker { color: var(--text-dim); }
-  .hl { color: var(--accent); font-weight: 500; }
-  .warn { color: var(--yellow); }
-  .ok { color: var(--green); }
-  .danger { color: var(--red); }
-  .dim { color: var(--text-dim); }
-  .purple { color: var(--purple); }
+  /* Color utility classes for pre content */
+  .hl { color: #58a6ff; font-weight: 500; }
+  .warn { color: #d29922; }
+  .ok { color: #3fb950; }
+  .danger { color: #f85149; }
+  .dim { color: #5a6480; }
+  .purple { color: #bc8cff; }
 
-  /* ── Quote block ── */
-  .quote { border-left: 3px solid var(--accent); padding: 12px 16px; background: rgba(88,166,255,0.05); border-radius: 0 6px 6px 0; margin: 10px 0; font-style: italic; color: var(--text-bright); font-size: 14px; line-height: 1.6; }
-  .quote .attribution { font-style: normal; font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+  /* HUD back link */
+  .sp-hud-extra { display: flex; align-items: center; gap: 10px; }
+  .sp-hud-extra a { font-size: 12px; color: #64ffda; text-decoration: none;
+    font-family: 'SF Mono','Fira Code',monospace; padding: 3px 8px;
+    border: 1px solid #252a3a; border-radius: 6px; }
+  .sp-hud-extra a:hover { border-color: #64ffda; }
 
-  /* ── Score gauge ── */
-  .score-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
-  .score-label { font-size: 12px; color: var(--text-dim); width: 100px; flex-shrink: 0; }
-  .score-bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-  .score-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-  .score-val { font-size: 12px; font-family: var(--mono); width: 40px; text-align: right; flex-shrink: 0; }
+  /* Mode/focus controls in HUD */
+  .sp-ctrl-group { display: flex; align-items: center; gap: 6px; }
+  .sp-ctrl-group label { font-size: 10px; color: #5a6480; text-transform: uppercase;
+    letter-spacing: 0.5px; font-weight: 600; }
+  .sp-ctrl-btn { padding: 3px 10px; border-radius: 5px; border: 1px solid #252a3a;
+    background: #0c0e14; color: #94a3b8; font-size: 11px; cursor: pointer;
+    font-family: system-ui, sans-serif; transition: all 0.15s; }
+  .sp-ctrl-btn:hover { border-color: #64ffda; color: #64ffda; }
+  .sp-ctrl-btn.active { border-color: #58a6ff; background: rgba(88,166,255,0.1); color: #58a6ff; }
 
-  /* ── Nav ── */
-  .nav-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .nav-tab { padding: 10px 18px; font-size: 13px; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-weight: 500; }
-  .nav-tab:hover { color: var(--text); }
-  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  @media (max-width: 900px) {
-    .main { grid-template-columns: 1fr; }
-    .sidebar { max-height: 200px; }
-    .content-grid { grid-template-columns: 1fr; }
-    .card.full { grid-column: 1; }
-  }
+  /* Active expert/dimension node highlighting */
+  .cui-node.sp-active { border-color: #58a6ff !important; box-shadow: 0 0 12px rgba(88,166,255,0.3) !important; }
+  .cui-node.sp-dimmed { opacity: 0.35; }
+  .cui-node.sp-selected { border-color: #64ffda !important; box-shadow: 0 0 16px rgba(100,255,218,0.25) !important; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div><span style="font-size:24px;">👥</span></div>
-  <div>
-    <h1>/sc:spec-panel — Expert Specification Review</h1>
-    <div class="subtitle">Multi-expert quality gate for Refining → Ready — 10 renowned experts, 4 focus areas, 3 analysis modes</div>
-  </div>
-  <div style="margin-left:auto;display:flex;gap:8px;">
-    <a class="back" href="pipeline-playground.html">&larr; Pipeline</a>
-    <a class="back" href="business-panel-playground.html" style="color:var(--orange);">📊 Business Panel</a>
-  </div>
-</div>
-
-<div class="controls" id="controls"></div>
-
-<div class="main">
-  <div class="sidebar" id="sidebar"></div>
-  <div class="content" id="content"></div>
-</div>
-
 <script>
-// ─────────────────────────────────────────────
-// EXPERT DATA
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// canvas-core.js — INLINED
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * CanvasUI — Shared Infinite Canvas Engine
+ * Extracted from Cockpit, made reusable across all project UIs.
+ *
+ * Usage:
+ *   CanvasUI.init('#app', {
+ *     title: 'My App',
+ *     subtitle: 'Description',
+ *     theme: 'dark',          // 'dark' | 'light'
+ *     storageKey: 'myapp',    // localStorage prefix
+ *     clusters: [ { key, label, icon, color, x, y, nodes: [{ id, title, desc, icon, status, meta, onClick }] } ],
+ *     listRenderer: (container, clusters) => { ... },  // custom list-view renderer
+ *     onNodeClick: (node, cluster) => { ... },
+ *     onSearch: (query) => { ... },
+ *   });
+ */
+const CanvasUI = (function () {
+  'use strict';
+
+  // ─── State ─────────────────────────────────────────
+  let zoom = 0.85, panX = 100, panY = 80;
+  let isDragging = false, dragStartX, dragStartY, panStartX, panStartY;
+  let config = {};
+  let viewMode = 'spatial'; // 'spatial' | 'list'
+  let searchQuery = '';
+  let expandedNodes = {};
+  let els = {};
+
+  // ─── CSS Injection ─────────────────────────────────
+  function injectStyles(theme) {
+    if (document.getElementById('canvas-ui-styles')) return;
+    const isDark = theme !== 'light';
+    const vars = isDark ? `
+      --cui-bg: #0c0e14; --cui-bg-elevated: #13161f; --cui-bg-node: #181c28;
+      --cui-bg-node-hover: #1e2233; --cui-bg-cluster: rgba(20,24,36,0.85);
+      --cui-border: #252a3a; --cui-border-hover: #3a4060;
+      --cui-text: #e2e8f0; --cui-text-sec: #94a3b8; --cui-muted: #5a6480;
+      --cui-accent: #64ffda; --cui-accent-dim: rgba(100,255,218,0.06);
+      --cui-grid-dot: rgba(100,255,218,0.06);
+    ` : `
+      --cui-bg: #f4f5f7; --cui-bg-elevated: #ffffff; --cui-bg-node: #ffffff;
+      --cui-bg-node-hover: #fafbfc; --cui-bg-cluster: rgba(255,255,255,0.9);
+      --cui-border: rgba(0,0,0,0.08); --cui-border-hover: rgba(0,0,0,0.15);
+      --cui-text: #1a1d23; --cui-text-sec: #4a5066; --cui-muted: #7c8298;
+      --cui-accent: #0e8c72; --cui-accent-dim: rgba(14,140,114,0.08);
+      --cui-grid-dot: rgba(0,0,0,0.06);
+    `;
+
+    const style = document.createElement('style');
+    style.id = 'canvas-ui-styles';
+    style.textContent = `
+      :root { ${vars}
+        --cui-mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+        --cui-sans: system-ui,-apple-system,sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body.cui-spatial { background: var(--cui-bg); color: var(--cui-text); overflow: hidden;
+        width: 100vw; height: 100vh; cursor: grab; -webkit-font-smoothing: antialiased;
+        user-select: none; font-family: var(--cui-sans); }
+      body.cui-spatial.dragging { cursor: grabbing; }
+      body.cui-list { background: var(--cui-bg); color: var(--cui-text); font-family: var(--cui-sans);
+        -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+      /* ═══ Viewport ═══ */
+      #cui-viewport { position: fixed; inset: 0; overflow: hidden; }
+      #cui-world { position: absolute; transform-origin: 0 0; }
+      #cui-viewport::before { content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(circle, var(--cui-grid-dot) 1px, transparent 1px);
+        background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+      /* ═══ HUD ═══ */
+      .cui-hud { position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(244,245,247,0.9)'};
+        backdrop-filter: blur(12px); border-bottom: 1px solid var(--cui-border);
+        display: flex; align-items: center; gap: 12px; padding: 10px 16px; height: 48px; }
+      .cui-hud-title { font-size: 14px; font-weight: 700; }
+      .cui-hud-sub { font-size: 11px; color: var(--cui-muted); }
+      .cui-hud-spacer { flex: 1; }
+      .cui-hud-search { position: relative; }
+      .cui-hud-search input { background: ${isDark ? 'var(--cui-bg)' : '#fff'}; border: 1px solid var(--cui-border);
+        border-radius: 6px; padding: 5px 10px 5px 26px; font-size: 12px; color: var(--cui-text);
+        width: 200px; outline: none; font-family: var(--cui-sans); }
+      .cui-hud-search input:focus { border-color: var(--cui-accent); }
+      .cui-hud-search::before { content: '\\1F50D'; position: absolute; left: 8px; top: 50%;
+        transform: translateY(-50%); font-size: 11px; }
+      .cui-hud-zoom { font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: ${isDark ? 'rgba(24,28,40,0.8)' : 'rgba(0,0,0,0.04)'};
+        border: 1px solid var(--cui-border); border-radius: 6px; padding: 3px 8px; }
+
+      /* Toggle */
+      .cui-toggle { display: flex; border: 1px solid var(--cui-border); border-radius: 6px; overflow: hidden; }
+      .cui-toggle-btn { padding: 4px 10px; font-size: 11px; background: none; border: none;
+        color: var(--cui-muted); cursor: pointer; font-family: var(--cui-sans); transition: all 0.15s; }
+      .cui-toggle-btn.active { background: var(--cui-accent-dim); color: var(--cui-accent); font-weight: 600; }
+      .cui-toggle-btn:hover:not(.active) { color: var(--cui-text); }
+
+      /* Stats */
+      .cui-hud-stats { display: flex; gap: 14px; font-size: 11px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-stat-val { color: var(--cui-accent); font-weight: 600; }
+
+      /* ═══ Zoom Controls ═══ */
+      .cui-zoom-controls { position: fixed; bottom: 16px; left: 16px; display: flex;
+        flex-direction: column; gap: 4px; z-index: 50; }
+      .cui-zoom-btn { width: 36px; height: 36px; background: ${isDark ? 'rgba(24,28,40,0.9)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 8px; color: var(--cui-text);
+        font-size: 16px; cursor: pointer; display: flex; align-items: center;
+        justify-content: center; transition: background 0.15s, border-color 0.15s; }
+      .cui-zoom-btn:hover { border-color: var(--cui-accent); }
+      .cui-zoom-btn.fit { font-size: 11px; font-family: var(--cui-mono); }
+
+      /* ═══ Minimap ═══ */
+      .cui-minimap { position: fixed; bottom: 16px; right: 16px; width: 180px; height: 120px;
+        background: ${isDark ? 'rgba(12,14,20,0.85)' : 'rgba(255,255,255,0.9)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; overflow: hidden; z-index: 50; }
+      .cui-minimap-vp { position: absolute; border: 1.5px solid var(--cui-accent); border-radius: 2px;
+        background: rgba(100,255,218,0.04); pointer-events: none; }
+      .cui-minimap-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; }
+
+      /* ═══ Clusters ═══ */
+      .cui-cluster { position: absolute; border: 1px solid var(--cui-border); border-radius: 16px;
+        background: var(--cui-bg-cluster); backdrop-filter: blur(12px); min-width: 200px;
+        box-shadow: 0 4px 32px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); transition: box-shadow 0.3s; }
+      .cui-cluster:hover { box-shadow: 0 8px 48px rgba(0,0,0,${isDark ? '0.5' : '0.12'}); }
+      .cui-cluster-hdr { display: flex; align-items: center; gap: 10px; padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--cui-border); cursor: pointer; }
+      .cui-cluster-icon { font-size: 22px; }
+      .cui-cluster-title { font-size: 14px; font-weight: 700; flex: 1; letter-spacing: 0.3px; }
+      .cui-cluster-count { font-size: 11px; font-family: var(--cui-mono); padding: 2px 8px;
+        border-radius: 20px; background: var(--cui-bg); border: 1px solid var(--cui-border); }
+      .cui-cluster-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .cui-cluster-body { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px;
+        max-height: 800px; overflow: visible; }
+      .cui-cluster.collapsed .cui-cluster-body { display: none; }
+
+      /* ═══ Nodes ═══ */
+      .cui-node { background: var(--cui-bg-node); border: 1px solid var(--cui-border); border-radius: 10px;
+        padding: 10px 14px; min-width: 180px; max-width: 280px; cursor: pointer;
+        transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s; position: relative; }
+      .cui-node:hover { border-color: var(--cui-border-hover); transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,${isDark ? '0.3' : '0.08'}); }
+      .cui-node:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-node-top { display: flex; align-items: center; gap: 6px; }
+      .cui-node-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-node-name { font-size: 12px; font-weight: 600; flex: 1; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+      .cui-node-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+      .cui-node-status.ok { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.5); }
+      .cui-node-status.warn { background: #fbbf24; }
+      .cui-node-status.err { background: #ef4444; }
+      .cui-node-status.off { background: #6b7280; }
+      .cui-node-desc { font-size: 10px; color: var(--cui-muted); margin-top: 4px; line-height: 1.4;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .cui-node-meta { font-size: 9px; font-family: var(--cui-mono); color: var(--cui-muted);
+        background: var(--cui-bg); border-radius: 3px; padding: 1px 4px; margin-top: 4px; display: inline-block; }
+      .cui-node-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+      .cui-node-btn { font-size: 10px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--cui-border);
+        background: none; color: var(--cui-text-sec); cursor: pointer; font-family: var(--cui-sans); }
+      .cui-node-btn:hover { border-color: var(--cui-accent); color: var(--cui-accent); }
+      .cui-node-btn.primary { background: #238636; border-color: #238636; color: #fff; }
+      .cui-node-btn.danger { border-color: rgba(248,81,73,0.4); color: #f85149; }
+
+      /* ═══ First-visit hint ═══ */
+      .cui-hint { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 60;
+        background: ${isDark ? 'rgba(24,28,40,0.95)' : 'rgba(255,255,255,0.95)'};
+        border: 1px solid var(--cui-border); border-radius: 10px; padding: 10px 20px;
+        font-size: 12px; color: var(--cui-text-sec); backdrop-filter: blur(8px);
+        display: flex; gap: 16px; align-items: center; animation: cui-fadeIn 0.5s; }
+      .cui-hint kbd { background: var(--cui-bg); border: 1px solid var(--cui-border);
+        border-radius: 3px; padding: 1px 5px; font-family: var(--cui-mono); font-size: 10px; }
+      @keyframes cui-fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+      /* ═══ List View ═══ */
+      .cui-list-container { max-width: 900px; margin: 0 auto; padding: 72px 24px 48px; }
+      .cui-list-group { margin-bottom: 24px; }
+      .cui-list-group-hdr { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+        color: var(--cui-muted); padding: 10px 0 5px; border-bottom: 1px solid var(--cui-border);
+        margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+      .cui-list-group-icon { font-size: 16px; }
+      .cui-list-row { display: flex; align-items: center; gap: 10px; background: var(--cui-bg-node);
+        border: 1px solid var(--cui-border); border-radius: 8px; padding: 10px 14px;
+        margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s; }
+      .cui-list-row:hover { border-color: var(--cui-border-hover); }
+      .cui-list-row:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 2px; }
+      .cui-list-row-icon { font-size: 16px; flex-shrink: 0; }
+      .cui-list-row-title { font-size: 13px; font-weight: 600; flex: 1; }
+      .cui-list-row-desc { font-size: 11px; color: var(--cui-text-sec); max-width: 300px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cui-list-row-meta { font-size: 10px; font-family: var(--cui-mono); color: var(--cui-muted); }
+      .cui-list-row-actions { display: flex; gap: 4px; }
+
+      /* Hidden states */
+      .cui-hidden { display: none !important; }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ─── DOM Setup ─────────────────────────────────────
+  function createDOM(container) {
+    container.innerHTML = `
+      <div class="cui-hud" id="cui-hud">
+        <span class="cui-hud-title" id="cui-title"></span>
+        <span class="cui-hud-sub" id="cui-sub"></span>
+        <span class="cui-hud-spacer"></span>
+        <div class="cui-hud-search"><input id="cui-search" type="text" placeholder="Search... (⌘K)" aria-label="Search"></div>
+        <div class="cui-hud-stats" id="cui-stats"></div>
+        <span class="cui-hud-zoom" id="cui-zoom-display">85%</span>
+        <div class="cui-toggle" role="radiogroup" aria-label="View mode">
+          <button class="cui-toggle-btn active" id="cui-tog-spatial" role="radio" aria-checked="true">A Spatial</button>
+          <button class="cui-toggle-btn" id="cui-tog-list" role="radio" aria-checked="false">B List</button>
+        </div>
+      </div>
+      <div id="cui-viewport" role="application" aria-label="Infinite canvas — drag to pan, scroll to zoom">
+        <div id="cui-world"></div>
+      </div>
+      <div class="cui-zoom-controls" id="cui-zoom-ctrls">
+        <button class="cui-zoom-btn" id="cui-zin" title="Zoom in" aria-label="Zoom in">+</button>
+        <button class="cui-zoom-btn" id="cui-zout" title="Zoom out" aria-label="Zoom out">&minus;</button>
+        <button class="cui-zoom-btn fit" id="cui-zfit" title="Fit all" aria-label="Fit all">FIT</button>
+      </div>
+      <div class="cui-minimap" id="cui-minimap" aria-hidden="true"></div>
+      <div id="cui-list-wrap" class="cui-hidden"></div>
+    `;
+    els = {
+      hud: document.getElementById('cui-hud'),
+      title: document.getElementById('cui-title'),
+      sub: document.getElementById('cui-sub'),
+      search: document.getElementById('cui-search'),
+      stats: document.getElementById('cui-stats'),
+      zoomDisplay: document.getElementById('cui-zoom-display'),
+      viewport: document.getElementById('cui-viewport'),
+      world: document.getElementById('cui-world'),
+      minimap: document.getElementById('cui-minimap'),
+      zoomCtrls: document.getElementById('cui-zoom-ctrls'),
+      listWrap: document.getElementById('cui-list-wrap'),
+      togSpatial: document.getElementById('cui-tog-spatial'),
+      togList: document.getElementById('cui-tog-list'),
+    };
+  }
+
+  // ─── Canvas Pan & Zoom ────────────────────────────
+  function setupCanvas() {
+    const vp = els.viewport;
+
+    vp.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.cui-node, .cui-node-btn, .cui-cluster-hdr, .cui-zoom-btn, .cui-hud, .cui-toggle')) return;
+      isDragging = true;
+      dragStartX = e.clientX; dragStartY = e.clientY;
+      panStartX = panX; panStartY = panY;
+      document.body.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    window.addEventListener('pointermove', function (e) {
+      if (!isDragging) return;
+      panX = panStartX + (e.clientX - dragStartX);
+      panY = panStartY + (e.clientY - dragStartY);
+      applyTransform(); renderMinimap();
+    });
+
+    window.addEventListener('pointerup', function () {
+      isDragging = false;
+      document.body.classList.remove('dragging');
+    });
+
+    vp.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var rect = vp.getBoundingClientRect();
+      var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var oldZoom = zoom;
+      var delta = e.deltaY > 0 ? 0.92 : 1.08;
+      var newZoom = Math.min(3, Math.max(0.15, zoom * delta));
+      panX = mx - (mx - panX) * (newZoom / oldZoom);
+      panY = my - (my - panY) * (newZoom / oldZoom);
+      zoom = newZoom;
+      applyTransform(); updateZoomDisplay(); renderMinimap();
+    }, { passive: false });
+
+    vp.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+    vp.addEventListener('gesturechange', function (e) {
+      e.preventDefault(); setZoom(zoom * e.scale);
+    });
+
+    applyTransform();
+  }
+
+  function applyTransform() {
+    els.world.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+  }
+
+  function setZoom(z) {
+    var cx = els.viewport.clientWidth / 2, cy = els.viewport.clientHeight / 2;
+    var oldZoom = zoom;
+    zoom = Math.min(3, Math.max(0.15, z));
+    panX = cx - (cx - panX) * (zoom / oldZoom);
+    panY = cy - (cy - panY) * (zoom / oldZoom);
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function fitAll() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) return;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+    });
+    var pad = 80, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight - 52;
+    zoom = Math.min(vpW / worldW, vpH / worldH, 1.2);
+    zoom = Math.max(0.15, Math.min(3, zoom));
+    panX = (vpW - worldW * zoom) / 2 - (minX - pad) * zoom;
+    panY = (vpH - worldH * zoom) / 2 - (minY - pad) * zoom + 52;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function focusCluster(key) {
+    var c = els.world.querySelector('.cui-cluster[data-key="' + key + '"]');
+    if (!c) return;
+    var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+    var w = c.offsetWidth || 400, h = c.offsetHeight || 300;
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    zoom = Math.min(vpW / (w + 100), vpH / (h + 100), 1.5);
+    panX = vpW / 2 - (x + w / 2) * zoom;
+    panY = vpH / 2 - (y + h / 2) * zoom;
+    applyTransform(); updateZoomDisplay(); renderMinimap();
+  }
+
+  function updateZoomDisplay() {
+    els.zoomDisplay.textContent = Math.round(zoom * 100) + '%';
+  }
+
+  // ─── Rendering ────────────────────────────────────
+  function renderClusters(clusters) {
+    els.world.innerHTML = '';
+    clusters.forEach(function (cl) {
+      var div = document.createElement('div');
+      div.className = 'cui-cluster';
+      div.setAttribute('role', 'group');
+      div.setAttribute('aria-label', cl.label);
+      div.setAttribute('data-key', cl.key);
+      div.style.left = (cl.x || 0) + 'px';
+      div.style.top = (cl.y || 0) + 'px';
+
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q) ||
+            (n.id || '').toLowerCase().includes(q);
+        });
+        if (visibleNodes.length === 0 && !cl.label.toLowerCase().includes(q)) {
+          return; // skip empty clusters
+        }
+      }
+
+      div.innerHTML = `
+        <div class="cui-cluster-hdr">
+          <span class="cui-cluster-icon">${cl.icon || '📁'}</span>
+          <span class="cui-cluster-dot" style="background:${cl.color || 'var(--cui-accent)'}"></span>
+          <span class="cui-cluster-title">${cl.label}</span>
+          <span class="cui-cluster-count">${visibleNodes.length}</span>
+        </div>
+        <div class="cui-cluster-body">
+          ${visibleNodes.map(function (n) { return renderNode(n); }).join('')}
+        </div>
+      `;
+
+      // Cluster collapse toggle
+      div.querySelector('.cui-cluster-hdr').addEventListener('click', function () {
+        div.classList.toggle('collapsed');
+      });
+
+      els.world.appendChild(div);
+    });
+
+    // Bind node clicks
+    els.world.querySelectorAll('.cui-node').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var nodeId = el.getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+
+    // Bind action buttons
+    els.world.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.closest('.cui-node').getAttribute('data-id');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  function renderNode(n) {
+    var statusHtml = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+    var metaHtml = n.meta ? '<span class="cui-node-meta">' + n.meta + '</span>' : '';
+    var descHtml = n.desc ? '<div class="cui-node-desc">' + n.desc + '</div>' : '';
+    var actionsHtml = '';
+    if (n.actions && n.actions.length) {
+      actionsHtml = '<div class="cui-node-actions">' +
+        n.actions.map(function (a) {
+          return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '">' + a.label + '</button>';
+        }).join('') + '</div>';
+    }
+    return `
+      <div class="cui-node ${n.cls || ''}" data-id="${n.id}" role="button" tabindex="0" aria-label="${n.title || n.id}">
+        <div class="cui-node-top">
+          <span class="cui-node-icon">${n.icon || '📄'}</span>
+          <span class="cui-node-name">${n.title || n.id}</span>
+          ${statusHtml}
+        </div>
+        ${descHtml}${metaHtml}${actionsHtml}
+      </div>`;
+  }
+
+  function findNode(id) {
+    for (var i = 0; i < config.clusters.length; i++) {
+      for (var j = 0; j < config.clusters[i].nodes.length; j++) {
+        if (config.clusters[i].nodes[j].id === id) return config.clusters[i].nodes[j];
+      }
+    }
+    return null;
+  }
+
+  // ─── List View ────────────────────────────────────
+  function renderListView(clusters) {
+    if (config.listRenderer) {
+      config.listRenderer(els.listWrap, clusters);
+      return;
+    }
+    var html = '<div class="cui-list-container">';
+    clusters.forEach(function (cl) {
+      var visibleNodes = cl.nodes;
+      if (searchQuery) {
+        var q = searchQuery.toLowerCase();
+        visibleNodes = cl.nodes.filter(function (n) {
+          return (n.title || '').toLowerCase().includes(q) ||
+            (n.desc || '').toLowerCase().includes(q);
+        });
+        if (!visibleNodes.length) return;
+      }
+      html += '<div class="cui-list-group">';
+      html += '<div class="cui-list-group-hdr"><span class="cui-list-group-icon">' +
+        (cl.icon || '📁') + '</span> ' + cl.label + '</div>';
+      visibleNodes.forEach(function (n) {
+        var statusDot = n.status ? '<span class="cui-node-status ' + n.status + '"></span>' : '';
+        var metaHtml = n.meta ? '<span class="cui-list-row-meta">' + n.meta + '</span>' : '';
+        var actionsHtml = '';
+        if (n.actions && n.actions.length) {
+          actionsHtml = '<span class="cui-list-row-actions">' +
+            n.actions.map(function (a) {
+              return '<button class="cui-node-btn ' + (a.cls || '') + '" data-action="' + a.action + '" data-node="' + n.id + '">' + a.label + '</button>';
+            }).join('') + '</span>';
+        }
+        html += '<div class="cui-list-row" data-id="' + n.id + '" role="button" tabindex="0" aria-label="' + (n.title || n.id) + '">' +
+          '<span class="cui-list-row-icon">' + (n.icon || '📄') + '</span>' +
+          '<span class="cui-list-row-title">' + (n.title || n.id) + '</span>' +
+          statusDot +
+          '<span class="cui-list-row-desc">' + (n.desc || '') + '</span>' +
+          metaHtml + actionsHtml + '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    els.listWrap.innerHTML = html;
+
+    // Bind list row clicks
+    els.listWrap.querySelectorAll('.cui-list-row').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('.cui-node-btn')) return;
+        var node = findNode(row.getAttribute('data-id'));
+        if (node && node.onClick) node.onClick(node);
+        else if (config.onNodeClick) config.onNodeClick(node);
+      });
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); }
+      });
+    });
+
+    // Bind list action buttons
+    els.listWrap.querySelectorAll('.cui-node-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var nodeId = btn.getAttribute('data-node');
+        var node = findNode(nodeId);
+        if (node && node.actions) {
+          var act = node.actions.find(function (a) { return a.action === action; });
+          if (act && act.handler) act.handler(node, btn);
+        }
+      });
+    });
+  }
+
+  // ─── Minimap ──────────────────────────────────────
+  function renderMinimap() {
+    var clusters = els.world.querySelectorAll('.cui-cluster');
+    if (!clusters.length) { els.minimap.innerHTML = ''; return; }
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    var dots = [];
+    clusters.forEach(function (c) {
+      var x = parseInt(c.style.left) || 0, y = parseInt(c.style.top) || 0;
+      var w = c.offsetWidth || 200, h = c.offsetHeight || 100;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+      var color = c.querySelector('.cui-cluster-dot');
+      dots.push({ x: x + w / 2, y: y + h / 2, color: color ? color.style.background : 'var(--cui-accent)' });
+    });
+    var pad = 20, worldW = maxX - minX + pad * 2, worldH = maxY - minY + pad * 2;
+    var mmW = 180, mmH = 120;
+    var scale = Math.min(mmW / worldW, mmH / worldH);
+    var vpW = els.viewport.clientWidth, vpH = els.viewport.clientHeight;
+    var vpLeft = (-panX / zoom - minX + pad) * scale;
+    var vpTop = (-panY / zoom - minY + pad) * scale;
+    var vpBoxW = (vpW / zoom) * scale, vpBoxH = (vpH / zoom) * scale;
+
+    var html = '<div class="cui-minimap-vp" style="left:' + vpLeft + 'px;top:' + vpTop +
+      'px;width:' + vpBoxW + 'px;height:' + vpBoxH + 'px"></div>';
+    dots.forEach(function (d) {
+      var dx = (d.x - minX + pad) * scale, dy = (d.y - minY + pad) * scale;
+      html += '<div class="cui-minimap-dot" style="left:' + dx + 'px;top:' + dy + 'px;background:' + d.color + '"></div>';
+    });
+    els.minimap.innerHTML = html;
+  }
+
+  // ─── HUD & Stats ──────────────────────────────────
+  function renderHUD() {
+    els.title.textContent = config.title || 'Canvas';
+    els.sub.textContent = config.subtitle || '';
+    var totalNodes = config.clusters.reduce(function (s, c) { return s + c.nodes.length; }, 0);
+    els.stats.innerHTML = '<span><span class="cui-stat-val">' + config.clusters.length +
+      '</span> clusters</span><span><span class="cui-stat-val">' + totalNodes + '</span> items</span>';
+  }
+
+  // ─── View Toggle ──────────────────────────────────
+  function switchView(mode) {
+    viewMode = mode;
+    if (mode === 'spatial') {
+      document.body.className = 'cui-spatial';
+      els.viewport.classList.remove('cui-hidden');
+      els.zoomCtrls.classList.remove('cui-hidden');
+      els.minimap.classList.remove('cui-hidden');
+      els.listWrap.classList.add('cui-hidden');
+      els.togSpatial.classList.add('active');
+      els.togSpatial.setAttribute('aria-checked', 'true');
+      els.togList.classList.remove('active');
+      els.togList.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.remove('cui-hidden');
+      renderClusters(config.clusters);
+      requestAnimationFrame(function () { fitAll(); });
+    } else {
+      document.body.className = 'cui-list';
+      els.viewport.classList.add('cui-hidden');
+      els.zoomCtrls.classList.add('cui-hidden');
+      els.minimap.classList.add('cui-hidden');
+      els.listWrap.classList.remove('cui-hidden');
+      els.togList.classList.add('active');
+      els.togList.setAttribute('aria-checked', 'true');
+      els.togSpatial.classList.remove('active');
+      els.togSpatial.setAttribute('aria-checked', 'false');
+      els.zoomDisplay.classList.add('cui-hidden');
+      renderListView(config.clusters);
+    }
+    saveState();
+  }
+
+  // ─── Search ───────────────────────────────────────
+  function setupSearch() {
+    els.search.addEventListener('input', function () {
+      searchQuery = els.search.value.trim();
+      if (viewMode === 'spatial') renderClusters(config.clusters);
+      else renderListView(config.clusters);
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault(); els.search.focus(); els.search.select();
+      }
+      if (e.key === 'Escape' && document.activeElement === els.search) {
+        els.search.value = ''; searchQuery = '';
+        if (viewMode === 'spatial') renderClusters(config.clusters);
+        else renderListView(config.clusters);
+        els.search.blur();
+      }
+    });
+  }
+
+  // ─── Keyboard Nav ─────────────────────────────────
+  function setupKeyboard() {
+    document.addEventListener('keydown', function (e) {
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (e.key === 'v' && !e.metaKey && !e.ctrlKey) {
+        switchView(viewMode === 'spatial' ? 'list' : 'spatial');
+      }
+    });
+  }
+
+  // ─── Persistence ──────────────────────────────────
+  function saveState() {
+    if (!config.storageKey) return;
+    try {
+      localStorage.setItem('cui-' + config.storageKey, JSON.stringify({
+        viewMode: viewMode, zoom: zoom, panX: panX, panY: panY
+      }));
+    } catch (e) { /* quota exceeded */ }
+  }
+
+  function restoreState() {
+    if (!config.storageKey) return;
+    try {
+      var saved = JSON.parse(localStorage.getItem('cui-' + config.storageKey));
+      if (saved) {
+        if (saved.zoom) zoom = saved.zoom;
+        if (saved.panX !== undefined) panX = saved.panX;
+        if (saved.panY !== undefined) panY = saved.panY;
+        if (saved.viewMode) viewMode = saved.viewMode;
+      }
+    } catch (e) { /* parse error */ }
+  }
+
+  // ─── First-visit Hint ─────────────────────────────
+  function showHint() {
+    if (!config.storageKey) return;
+    if (localStorage.getItem('cui-hint-' + config.storageKey)) return;
+    var hint = document.createElement('div');
+    hint.className = 'cui-hint';
+    hint.innerHTML = 'Scroll to zoom &middot; Drag to pan &middot; <kbd>⌘K</kbd> search &middot; <kbd>V</kbd> toggle view';
+    document.body.appendChild(hint);
+    localStorage.setItem('cui-hint-' + config.storageKey, '1');
+    setTimeout(function () { hint.style.opacity = '0'; hint.style.transition = 'opacity 0.5s';
+      setTimeout(function () { hint.remove(); }, 500);
+    }, 5000);
+  }
+
+  // ─── Public API ───────────────────────────────────
+  return {
+    init: function (containerSelector, cfg) {
+      config = cfg || {};
+      config.clusters = config.clusters || [];
+      var container = typeof containerSelector === 'string'
+        ? document.querySelector(containerSelector) : containerSelector;
+      if (!container) { container = document.body; }
+
+      injectStyles(config.theme || 'dark');
+      restoreState();
+      createDOM(container);
+      renderHUD();
+      setupSearch();
+      setupKeyboard();
+
+      // Toggle buttons
+      els.togSpatial.addEventListener('click', function () { switchView('spatial'); });
+      els.togList.addEventListener('click', function () { switchView('list'); });
+
+      // Zoom buttons
+      document.getElementById('cui-zin').addEventListener('click', function () { setZoom(zoom * 1.25); });
+      document.getElementById('cui-zout').addEventListener('click', function () { setZoom(zoom * 0.8); });
+      document.getElementById('cui-zfit').addEventListener('click', fitAll);
+
+      // Initial render
+      switchView(viewMode);
+
+      // Canvas setup (always, even if starting in list)
+      setupCanvas();
+
+      // Hint
+      if (viewMode === 'spatial') showHint();
+    },
+
+    setClusters: function (clusters) {
+      config.clusters = clusters;
+      renderHUD();
+      if (viewMode === 'spatial') {
+        renderClusters(config.clusters);
+        renderMinimap();
+      } else {
+        renderListView(config.clusters);
+      }
+    },
+
+    addNode: function (clusterKey, node) {
+      var cl = config.clusters.find(function (c) { return c.key === clusterKey; });
+      if (cl) {
+        cl.nodes.push(node);
+        this.setClusters(config.clusters);
+      }
+    },
+
+    removeNode: function (nodeId) {
+      config.clusters.forEach(function (cl) {
+        cl.nodes = cl.nodes.filter(function (n) { return n.id !== nodeId; });
+      });
+      this.setClusters(config.clusters);
+    },
+
+    switchView: switchView,
+    focusCluster: focusCluster,
+    fitAll: fitAll,
+    setZoom: setZoom,
+    getViewMode: function () { return viewMode; },
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SPEC PANEL — EXPERT DATA & LOGIC
+// ═══════════════════════════════════════════════════════════════
 
 const EXPERTS = {
   'karl-wiegers': {
@@ -344,13 +1014,10 @@ const FOCUS_AREAS = {
   compliance: { name: 'Compliance', tag: 'tag-comp', lead: 'karl-wiegers', experts: ['karl-wiegers', 'michael-nygard', 'kelsey-hightower'], description: 'Regulatory coverage, security, operational requirements' }
 };
 
-const SCORING = { clarity: 0, completeness: 0, testability: 0, consistency: 0 };
-
-// ─── Example Spec (used in live demo) ───
 const EXAMPLE_SPEC = {
   title: "Metric Print Sizes for EU Market",
   requirements: [
-    { id: 'R-001', text: 'System SHALL support 6 metric print sizes: A6, A5, A4, 10×15cm, 13×18cm, 20×25cm', status: 'ok' },
+    { id: 'R-001', text: 'System SHALL support 6 metric print sizes: A6, A5, A4, 10x15cm, 13x18cm, 20x25cm', status: 'ok' },
     { id: 'R-002', text: 'All sizes SHALL be stored internally as inches at 96 DPI', status: 'ok' },
     { id: 'R-003', text: 'Size picker SHALL group sizes by measurement system (Imperial, Metric Photo, Metric ISO)', status: 'ok' },
     { id: 'R-004', text: 'Per-project measurement system setting SHALL filter which groups appear in UI', status: 'ok' },
@@ -360,10 +1027,7 @@ const EXAMPLE_SPEC = {
   ]
 };
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-
+// ─── State ───
 let state = {
   mode: 'critique',
   focus: 'requirements',
@@ -371,254 +1035,7 @@ let state = {
   view: 'experts' // 'experts' | 'session' | 'scoring'
 };
 
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
-
-function render() {
-  renderControls();
-  renderSidebar();
-  renderContent();
-}
-
-function renderControls() {
-  const el = document.getElementById('controls');
-  const modes = ['critique', 'discussion', 'socratic'];
-  const focuses = Object.keys(FOCUS_AREAS);
-
-  el.innerHTML = `
-    <div class="control-group">
-      <label>Mode</label>
-      ${modes.map(m => `<button class="ctrl-btn ${state.mode === m ? 'active' : ''}" onclick="setMode('${m}')">${m}</button>`).join('')}
-    </div>
-    <div class="control-group">
-      <label>Focus</label>
-      ${focuses.map(f => `<button class="ctrl-btn ${state.focus === f ? 'active' : ''}" onclick="setFocus('${f}')">${f}</button>`).join('')}
-    </div>
-    <div class="control-group" style="margin-left:auto;">
-      <label>View</label>
-      <button class="ctrl-btn ${state.view === 'experts' ? 'active' : ''}" onclick="setView('experts')">Experts</button>
-      <button class="ctrl-btn ${state.view === 'session' ? 'active' : ''}" onclick="setView('session')">Live Session</button>
-      <button class="ctrl-btn ${state.view === 'scoring' ? 'active' : ''}" onclick="setView('scoring')">Scoring</button>
-    </div>
-  `;
-}
-
-function renderSidebar() {
-  const el = document.getElementById('sidebar');
-  const focus = FOCUS_AREAS[state.focus];
-  const activeExperts = focus.experts;
-  const sortedKeys = Object.keys(EXPERTS).sort((a, b) => {
-    const aActive = activeExperts.includes(a);
-    const bActive = activeExperts.includes(b);
-    if (aActive && !bActive) return -1;
-    if (!aActive && bActive) return 1;
-    return 0;
-  });
-
-  let html = `<div class="sidebar-title">Panel: ${focus.name} Focus (${activeExperts.length} experts)</div>`;
-
-  sortedKeys.forEach(key => {
-    const e = EXPERTS[key];
-    const isActive = activeExperts.includes(key);
-    const isLead = key === focus.lead;
-    const isDefault = e.isDefault;
-    const isAuto = e.autoKeywords && !isActive;
-
-    let badge = '';
-    if (isLead) badge = '<span class="expert-badge badge-lead">LEAD</span>';
-    else if (isDefault && isActive) badge = '<span class="expert-badge badge-default">DEFAULT</span>';
-    else if (isAuto) badge = '<span class="expert-badge badge-auto">AUTO</span>';
-
-    html += `
-      <div class="expert-card ${state.selectedExpert === key ? 'active' : ''} ${!isActive ? 'dimmed' : ''}" onclick="selectExpert('${key}')">
-        ${badge}
-        <div class="expert-name">${e.name}</div>
-        <div class="expert-domain">${e.domain}</div>
-        <div class="token-cost">~${e.tokens} tokens</div>
-      </div>
-    `;
-  });
-
-  el.innerHTML = html;
-}
-
-function renderContent() {
-  const el = document.getElementById('content');
-  if (state.view === 'experts') renderExpertView(el);
-  else if (state.view === 'session') renderSessionView(el);
-  else renderScoringView(el);
-}
-
-function renderExpertView(el) {
-  const e = EXPERTS[state.selectedExpert];
-  const focus = FOCUS_AREAS[state.focus];
-  const isOnPanel = focus.experts.includes(state.selectedExpert);
-
-  el.innerHTML = `
-    <div class="content-grid">
-      <div class="card full">
-        <h3>${e.name} <span class="tag tag-${state.focus === 'requirements' ? 'req' : state.focus === 'architecture' ? 'arch' : state.focus === 'testing' ? 'test' : 'comp'}">${FOCUS_AREAS[state.focus].name} Panel</span>
-        ${!isOnPanel ? '<span class="tag" style="background:rgba(248,81,73,0.15);color:var(--red);">Not on this panel</span>' : ''}
-        ${state.selectedExpert === focus.lead ? '<span class="tag" style="background:rgba(210,153,34,0.15);color:var(--yellow);">Panel Lead</span>' : ''}</h3>
-        <div class="body">
-          <div class="quote">
-            "${e.voice}"
-            <div class="attribution">— ${e.name}, typical ${state.mode} mode response</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Perspective</h3>
-        <div class="body"><p>${e.perspective}</p></div>
-      </div>
-
-      <div class="card">
-        <h3>Methodology</h3>
-        <div class="body">
-          <p><code>${e.methodology}</code></p>
-          <p style="margin-top:12px;"><strong>In ${state.mode} mode:</strong></p>
-          <div class="quote" style="border-left-color:var(--purple);">${e.modes[state.mode]}</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Looks For <span class="tag tag-req">approves</span></h3>
-        <div class="body">
-          <ul>${e.looksFor.map(l => `<li><span class="ok">${l}</span></li>`).join('')}</ul>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Red Flags <span class="tag" style="background:rgba(248,81,73,0.15);color:var(--red);">rejects</span></h3>
-        <div class="body">
-          <ul>${e.redFlags.map(r => `<li><span class="danger">${r}</span></li>`).join('')}</ul>
-        </div>
-      </div>
-
-      <div class="card full">
-        <h3>Approval Criteria</h3>
-        <div class="body">
-          <p class="dim">This expert gives a passing score when:</p>
-          <ul>${e.approves.map(a => `<li>${a}</li>`).join('')}</ul>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderSessionView(el) {
-  const focus = FOCUS_AREAS[state.focus];
-  const panelExperts = focus.experts.map(k => EXPERTS[k]);
-
-  const modeLabel = { critique: 'Critique Mode — Systematic Review', discussion: 'Discussion Mode — Collaborative Improvement', socratic: 'Socratic Mode — Deep Questioning' };
-
-  let sessionContent = '';
-
-  if (state.mode === 'critique') {
-    sessionContent = panelExperts.map((e, i) => {
-      const key = focus.experts[i];
-      const isLead = key === focus.lead;
-      const reviews = getExpertCritiqueForFocus(key, state.focus);
-      return `
-        <div class="card full">
-          <h3>${e.name} ${isLead ? '<span class="tag" style="background:rgba(210,153,34,0.15);color:var(--yellow);">Lead Reviewer</span>' : ''}</h3>
-          <div class="body"><pre>${reviews}</pre></div>
-        </div>
-      `;
-    }).join('');
-  } else if (state.mode === 'discussion') {
-    sessionContent = `<div class="card full">
-      <h3>Panel Discussion <span class="tag tag-mode">${focus.name} Focus</span></h3>
-      <div class="body"><pre>${getDiscussionForFocus(state.focus)}</pre></div>
-    </div>`;
-  } else {
-    sessionContent = `<div class="card full">
-      <h3>Socratic Inquiry <span class="tag tag-mode">${focus.name} Focus</span></h3>
-      <div class="body"><pre>${getSocraticForFocus(state.focus)}</pre></div>
-    </div>`;
-  }
-
-  el.innerHTML = `
-    <div class="nav-tabs">
-      <div class="nav-tab active">${modeLabel[state.mode]}</div>
-    </div>
-
-    <div class="card full" style="margin-bottom:20px;">
-      <h3>Spec Under Review <span class="tag tag-req">${EXAMPLE_SPEC.title}</span></h3>
-      <div class="body">
-        <pre>${EXAMPLE_SPEC.requirements.map(r =>
-          `<span class="${r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}">${r.status === 'ok' ? '✓' : r.status === 'warn' ? '⚠' : '✗'}</span> <span class="hl">${r.id}:</span> ${r.text}`
-        ).join('\n')}</pre>
-      </div>
-    </div>
-
-    <div class="content-grid">${sessionContent}</div>
-
-    <div class="card full" style="margin-top:20px;">
-      <h3>Panel Consensus</h3>
-      <div class="body"><pre>${getConsensus(state.focus)}</pre></div>
-    </div>
-  `;
-}
-
-function renderScoringView(el) {
-  const scores = getScoringForFocus(state.focus);
-
-  el.innerHTML = `
-    <div class="content-grid">
-      <div class="card full">
-        <h3>Quality Assessment <span class="tag tag-mode">${FOCUS_AREAS[state.focus].name} Focus</span></h3>
-        <div class="body">
-          <div style="text-align:center;margin:20px 0;">
-            <div style="font-size:48px;font-weight:700;color:${scores.overall >= 7 ? 'var(--green)' : scores.overall >= 5 ? 'var(--yellow)' : 'var(--red)'};">${scores.overall.toFixed(1)}</div>
-            <div style="font-size:14px;color:var(--text-dim);">Overall Score / 10</div>
-            <div style="font-size:12px;margin-top:4px;color:${scores.overall >= 7 ? 'var(--green)' : 'var(--red)'};">${scores.overall >= 7 ? 'PASSES — Ready for graduation' : 'BELOW THRESHOLD — Stays in Refining'}</div>
-            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Pass threshold: 7.0</div>
-          </div>
-
-          ${Object.entries(scores.dimensions).map(([dim, val]) => `
-            <div class="score-row">
-              <span class="score-label">${dim.charAt(0).toUpperCase() + dim.slice(1)}</span>
-              <div class="score-bar"><div class="score-fill" style="width:${val * 10}%;background:${val >= 7 ? 'var(--green)' : val >= 5 ? 'var(--yellow)' : 'var(--red)'};"></div></div>
-              <span class="score-val" style="color:${val >= 7 ? 'var(--green)' : val >= 5 ? 'var(--yellow)' : 'var(--red)'}">${val.toFixed(1)}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Critical Issues</h3>
-        <div class="body"><pre>${scores.criticalIssues}</pre></div>
-      </div>
-
-      <div class="card">
-        <h3>Improvement Roadmap</h3>
-        <div class="body"><pre>${scores.roadmap}</pre></div>
-      </div>
-
-      <div class="card full">
-        <h3>Per-Expert Scores</h3>
-        <div class="body">
-          ${FOCUS_AREAS[state.focus].experts.map(key => {
-            const e = EXPERTS[key];
-            const s = scores.expertScores[key] || 7;
-            return `<div class="score-row">
-              <span class="score-label">${e.name}</span>
-              <div class="score-bar"><div class="score-fill" style="width:${s * 10}%;background:${s >= 7 ? 'var(--green)' : s >= 5 ? 'var(--yellow)' : 'var(--red)'};"></div></div>
-              <span class="score-val" style="color:${s >= 7 ? 'var(--green)' : s >= 5 ? 'var(--yellow)' : 'var(--red)'}">${s.toFixed(1)}</span>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ─────────────────────────────────────────────
-// EXAMPLE SESSION CONTENT
-// ─────────────────────────────────────────────
+// ─── Session content functions (preserved from original) ───
 
 function getExpertCritiqueForFocus(expertKey, focus) {
   const data = {
@@ -1208,24 +1625,394 @@ function getScoringForFocus(focus) {
   return scoring[focus];
 }
 
-// ─────────────────────────────────────────────
-// EVENT HANDLERS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// DETAIL PANEL — renders expert/session/scoring detail overlays
+// ═══════════════════════════════════════════════════════════════
 
-function setMode(m) { state.mode = m; render(); }
-function setFocus(f) {
-  state.focus = f;
-  const focusExperts = FOCUS_AREAS[f].experts;
-  if (!focusExperts.includes(state.selectedExpert)) {
-    state.selectedExpert = focusExperts[0];
+function showDetailPanel(html) {
+  let overlay = document.getElementById('sp-detail-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'sp-detail-overlay';
+    overlay.className = 'sp-detail-overlay';
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeDetail();
+    });
+    document.body.appendChild(overlay);
   }
-  render();
+  overlay.innerHTML = `<div class="sp-detail-panel">${html}</div>`;
+  overlay.classList.add('open');
 }
-function setView(v) { state.view = v; render(); }
-function selectExpert(key) { state.selectedExpert = key; render(); }
 
-// ── Init ──
-render();
+function closeDetail() {
+  const overlay = document.getElementById('sp-detail-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function showExpertDetail(expertKey) {
+  const e = EXPERTS[expertKey];
+  if (!e) return;
+  const focus = FOCUS_AREAS[state.focus];
+  const isOnPanel = focus.experts.includes(expertKey);
+  const isLead = expertKey === focus.lead;
+
+  const panelTag = isOnPanel
+    ? `<span style="display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(88,166,255,0.15);color:#58a6ff;">${focus.name} Panel</span>`
+    : `<span style="display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(248,81,73,0.15);color:#f85149;">Not on ${focus.name} panel</span>`;
+  const leadTag = isLead
+    ? ` <span style="display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(210,153,34,0.15);color:#d29922;">Panel Lead</span>`
+    : '';
+
+  showDetailPanel(`
+    <button class="sp-close" onclick="closeDetail()">Close</button>
+    <h2>${e.name} ${panelTag}${leadTag}</h2>
+    <div class="sp-subtitle">${e.domain} &middot; ~${e.tokens} tokens</div>
+
+    <div class="sp-section">
+      <div class="sp-quote">"${e.voice}"<div class="sp-attr">— ${e.name}, typical ${state.mode} mode response</div></div>
+    </div>
+
+    <div class="sp-section"><h3>Perspective</h3><div class="sp-body"><p>${e.perspective}</p></div></div>
+
+    <div class="sp-section"><h3>Methodology</h3><div class="sp-body">
+      <p><code>${e.methodology}</code></p>
+      <p style="margin-top:10px;"><strong>In ${state.mode} mode:</strong></p>
+      <div class="sp-quote" style="border-left-color:#bc8cff;">${e.modes[state.mode]}</div>
+    </div></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="sp-section"><h3>Looks For</h3><div class="sp-body">
+        <ul>${e.looksFor.map(l => `<li><span class="ok">${l}</span></li>`).join('')}</ul>
+      </div></div>
+      <div class="sp-section"><h3>Red Flags</h3><div class="sp-body">
+        <ul>${e.redFlags.map(r => `<li><span class="danger">${r}</span></li>`).join('')}</ul>
+      </div></div>
+    </div>
+
+    <div class="sp-section"><h3>Approval Criteria</h3><div class="sp-body">
+      <p style="color:#5a6480;">This expert gives a passing score when:</p>
+      <ul>${e.approves.map(a => `<li>${a}</li>`).join('')}</ul>
+    </div></div>
+  `);
+}
+
+function showSessionDetail() {
+  const focus = FOCUS_AREAS[state.focus];
+  const panelExperts = focus.experts.map(k => EXPERTS[k]);
+  const modeLabel = { critique: 'Critique Mode — Systematic Review', discussion: 'Discussion Mode — Collaborative Improvement', socratic: 'Socratic Mode — Deep Questioning' };
+
+  let sessionContent = '';
+
+  if (state.mode === 'critique') {
+    sessionContent = focus.experts.map((key, i) => {
+      const e = panelExperts[i];
+      const isLead = key === focus.lead;
+      const reviews = getExpertCritiqueForFocus(key, state.focus);
+      return `<div class="sp-section"><h3>${e.name} ${isLead ? '<span style="display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(210,153,34,0.15);color:#d29922;">Lead</span>' : ''}</h3><div class="sp-body"><pre>${reviews}</pre></div></div>`;
+    }).join('');
+  } else if (state.mode === 'discussion') {
+    sessionContent = `<div class="sp-section"><h3>Panel Discussion</h3><div class="sp-body"><pre>${getDiscussionForFocus(state.focus)}</pre></div></div>`;
+  } else {
+    sessionContent = `<div class="sp-section"><h3>Socratic Inquiry</h3><div class="sp-body"><pre>${getSocraticForFocus(state.focus)}</pre></div></div>`;
+  }
+
+  const specReqs = EXAMPLE_SPEC.requirements.map(r =>
+    `<span class="${r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}">${r.status === 'ok' ? '✓' : r.status === 'warn' ? '⚠' : '✗'}</span> <span class="hl">${r.id}:</span> ${r.text}`
+  ).join('\n');
+
+  showDetailPanel(`
+    <button class="sp-close" onclick="closeDetail()">Close</button>
+    <h2>${modeLabel[state.mode]}</h2>
+    <div class="sp-subtitle">${focus.name} Focus — ${focus.experts.length} experts</div>
+
+    <div class="sp-section"><h3>Spec Under Review: ${EXAMPLE_SPEC.title}</h3><div class="sp-body"><pre>${specReqs}</pre></div></div>
+
+    ${sessionContent}
+
+    <div class="sp-section"><h3>Panel Consensus</h3><div class="sp-body"><pre>${getConsensus(state.focus)}</pre></div></div>
+  `);
+}
+
+function showScoringDetail() {
+  const scores = getScoringForFocus(state.focus);
+  const focus = FOCUS_AREAS[state.focus];
+
+  const dimBars = Object.entries(scores.dimensions).map(([dim, val]) => `
+    <div class="sp-score-row">
+      <span class="sp-score-label">${dim.charAt(0).toUpperCase() + dim.slice(1)}</span>
+      <div class="sp-score-bar"><div class="sp-score-fill" style="width:${val * 10}%;background:${val >= 7 ? '#3fb950' : val >= 5 ? '#d29922' : '#f85149'};"></div></div>
+      <span class="sp-score-val" style="color:${val >= 7 ? '#3fb950' : val >= 5 ? '#d29922' : '#f85149'}">${val.toFixed(1)}</span>
+    </div>
+  `).join('');
+
+  const expertBars = focus.experts.map(key => {
+    const e = EXPERTS[key];
+    const s = scores.expertScores[key] || 7;
+    return `<div class="sp-score-row">
+      <span class="sp-score-label">${e.name}</span>
+      <div class="sp-score-bar"><div class="sp-score-fill" style="width:${s * 10}%;background:${s >= 7 ? '#3fb950' : s >= 5 ? '#d29922' : '#f85149'};"></div></div>
+      <span class="sp-score-val" style="color:${s >= 7 ? '#3fb950' : s >= 5 ? '#d29922' : '#f85149'}">${s.toFixed(1)}</span>
+    </div>`;
+  }).join('');
+
+  showDetailPanel(`
+    <button class="sp-close" onclick="closeDetail()">Close</button>
+    <h2>Quality Assessment</h2>
+    <div class="sp-subtitle">${focus.name} Focus</div>
+
+    <div style="text-align:center;margin:20px 0;">
+      <div style="font-size:48px;font-weight:700;color:${scores.overall >= 7 ? '#3fb950' : scores.overall >= 5 ? '#d29922' : '#f85149'};">${scores.overall.toFixed(1)}</div>
+      <div style="font-size:14px;color:#5a6480;">Overall Score / 10</div>
+      <div style="font-size:12px;margin-top:4px;color:${scores.overall >= 7 ? '#3fb950' : '#f85149'};">${scores.overall >= 7 ? 'PASSES — Ready for graduation' : 'BELOW THRESHOLD — Stays in Refining'}</div>
+      <div style="font-size:11px;color:#5a6480;margin-top:2px;">Pass threshold: 7.0</div>
+    </div>
+
+    <div class="sp-section"><h3>Dimension Scores</h3>${dimBars}</div>
+    <div class="sp-section"><h3>Per-Expert Scores</h3>${expertBars}</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="sp-section"><h3>Critical Issues</h3><div class="sp-body"><pre>${scores.criticalIssues}</pre></div></div>
+      <div class="sp-section"><h3>Improvement Roadmap</h3><div class="sp-body"><pre>${scores.roadmap}</pre></div></div>
+    </div>
+  `);
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// BUILD CLUSTERS & INIT
+// ═══════════════════════════════════════════════════════════════
+
+function buildClusters() {
+  const focus = FOCUS_AREAS[state.focus];
+  const activeExperts = focus.experts;
+
+  // Expert nodes
+  const expertNodes = Object.entries(EXPERTS).map(([key, e]) => {
+    const isActive = activeExperts.includes(key);
+    const isLead = key === focus.lead;
+    const isSelected = state.selectedExpert === key;
+    let statusVal = isActive ? (isLead ? 'ok' : 'ok') : 'off';
+    let cls = '';
+    if (isSelected) cls = 'sp-selected';
+    else if (!isActive) cls = 'sp-dimmed';
+    else cls = 'sp-active';
+
+    return {
+      id: key,
+      title: e.name,
+      desc: e.domain,
+      icon: isLead ? '👑' : (e.isDefault ? '⭐' : '👤'),
+      status: statusVal,
+      meta: `~${e.tokens} tokens`,
+      cls: cls
+    };
+  });
+
+  // Dimension nodes
+  const dimensionNodes = [
+    { id: 'dim-completeness', title: 'Completeness', desc: 'Are all requirements addressed?', icon: '📊' },
+    { id: 'dim-clarity', title: 'Clarity', desc: 'Are requirements unambiguous?', icon: '💎' },
+    { id: 'dim-testability', title: 'Testability', desc: 'Can requirements be validated?', icon: '🧪' },
+    { id: 'dim-consistency', title: 'Consistency', desc: 'Are requirements non-contradictory?', icon: '🔗' },
+    { id: 'dim-feasibility', title: 'Feasibility', desc: 'Can requirements be implemented?', icon: '⚡' },
+    { id: 'dim-traceability', title: 'Traceability', desc: 'Are requirements traceable to goals?', icon: '🎯' },
+  ];
+
+  // Add scoring status to dimensions
+  const scores = getScoringForFocus(state.focus);
+  if (scores && scores.dimensions) {
+    dimensionNodes.forEach(n => {
+      const dimKey = n.id.replace('dim-', '');
+      const val = scores.dimensions[dimKey];
+      if (val !== undefined) {
+        n.status = val >= 7 ? 'ok' : val >= 5 ? 'warn' : 'err';
+        n.meta = `${val.toFixed(1)} / 10`;
+      }
+    });
+  }
+
+  // Mode nodes
+  const modes = ['critique', 'discussion', 'socratic'];
+  const modeIcons = { critique: '🔍', discussion: '💬', socratic: '🤔' };
+  const modeDescs = {
+    critique: 'Systematic defect identification',
+    discussion: 'Collaborative improvement dialog',
+    socratic: 'Deep questioning to reveal gaps'
+  };
+  const modeNodes = modes.map(m => ({
+    id: 'mode-' + m,
+    title: m.charAt(0).toUpperCase() + m.slice(1),
+    desc: modeDescs[m],
+    icon: modeIcons[m],
+    status: state.mode === m ? 'ok' : 'off',
+    cls: state.mode === m ? 'sp-active' : ''
+  }));
+
+  // Output nodes
+  const overallScore = scores ? scores.overall : 0;
+  const outputNodes = [
+    {
+      id: 'review-session',
+      title: 'Live Session',
+      desc: `${state.mode} mode — ${FOCUS_AREAS[state.focus].name} focus`,
+      icon: '🎬',
+      status: 'ok',
+      meta: `${activeExperts.length} experts`,
+      actions: [{ label: 'Open Session', action: 'open-session', cls: 'primary' }]
+    },
+    {
+      id: 'review-scoring',
+      title: 'Quality Score',
+      desc: `Overall: ${overallScore.toFixed(1)} / 10 — ${overallScore >= 7 ? 'PASSES' : 'BELOW THRESHOLD'}`,
+      icon: overallScore >= 7 ? '✅' : '⚠️',
+      status: overallScore >= 7 ? 'ok' : 'warn',
+      meta: `threshold: 7.0`,
+      actions: [{ label: 'View Scores', action: 'open-scoring', cls: 'primary' }]
+    },
+    {
+      id: 'review-spec',
+      title: EXAMPLE_SPEC.title,
+      desc: `${EXAMPLE_SPEC.requirements.length} requirements under review`,
+      icon: '📄',
+      meta: `${EXAMPLE_SPEC.requirements.filter(r => r.status === 'ok').length} ok, ${EXAMPLE_SPEC.requirements.filter(r => r.status === 'warn').length} warn, ${EXAMPLE_SPEC.requirements.filter(r => r.status === 'fail').length} fail`
+    }
+  ];
+
+  return [
+    { key: 'experts', label: 'Expert Panel', icon: '🎯', color: '#58a6ff', x: 80, y: 80, nodes: expertNodes },
+    { key: 'dimensions', label: 'Review Dimensions', icon: '📐', color: '#bc8cff', x: 600, y: 80, nodes: dimensionNodes },
+    { key: 'modes', label: 'Review Modes', icon: '⚙️', color: '#39d2c0', x: 80, y: 500, nodes: modeNodes },
+    { key: 'output', label: 'Review Output', icon: '📋', color: '#3fb950', x: 600, y: 500, nodes: outputNodes },
+  ];
+}
+
+function refreshCanvas() {
+  const clusters = buildClusters();
+  CanvasUI.setClusters(clusters);
+  updateHUDControls();
+}
+
+function updateHUDControls() {
+  let ctrlArea = document.getElementById('sp-hud-controls');
+  if (!ctrlArea) {
+    ctrlArea = document.createElement('div');
+    ctrlArea.id = 'sp-hud-controls';
+    ctrlArea.style.cssText = 'display:flex;align-items:center;gap:12px;';
+    const hud = document.getElementById('cui-hud');
+    // Insert after subtitle, before spacer
+    const spacer = hud.querySelector('.cui-hud-spacer');
+    hud.insertBefore(ctrlArea, spacer);
+  }
+
+  const modes = ['critique', 'discussion', 'socratic'];
+  const focuses = Object.keys(FOCUS_AREAS);
+
+  ctrlArea.innerHTML = `
+    <div class="sp-ctrl-group">
+      <label>Mode</label>
+      ${modes.map(m => `<button class="sp-ctrl-btn ${state.mode === m ? 'active' : ''}" data-sp-mode="${m}">${m}</button>`).join('')}
+    </div>
+    <div class="sp-ctrl-group">
+      <label>Focus</label>
+      ${focuses.map(f => `<button class="sp-ctrl-btn ${state.focus === f ? 'active' : ''}" data-sp-focus="${f}">${f}</button>`).join('')}
+    </div>
+  `;
+
+  ctrlArea.querySelectorAll('[data-sp-mode]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      state.mode = this.getAttribute('data-sp-mode');
+      refreshCanvas();
+    });
+  });
+  ctrlArea.querySelectorAll('[data-sp-focus]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const f = this.getAttribute('data-sp-focus');
+      state.focus = f;
+      const focusExperts = FOCUS_AREAS[f].experts;
+      if (!focusExperts.includes(state.selectedExpert)) {
+        state.selectedExpert = focusExperts[0];
+      }
+      refreshCanvas();
+    });
+  });
+}
+
+function addBackLink() {
+  const hud = document.getElementById('cui-hud');
+  const extraDiv = document.createElement('div');
+  extraDiv.className = 'sp-hud-extra';
+  extraDiv.innerHTML = `<a href="index.html">&larr; Back</a>`;
+  hud.insertBefore(extraDiv, hud.firstChild);
+}
+
+// ─── Initialize ───
+document.addEventListener('DOMContentLoaded', function() {
+  const clusters = buildClusters();
+
+  CanvasUI.init('body', {
+    title: 'Spec Panel',
+    subtitle: 'Expert Specification Review',
+    theme: 'dark',
+    storageKey: 'spec-panel-pg',
+    clusters: clusters,
+    onNodeClick: function(node) {
+      if (!node) return;
+
+      // Expert node clicked
+      if (EXPERTS[node.id]) {
+        state.selectedExpert = node.id;
+        showExpertDetail(node.id);
+        refreshCanvas();
+        return;
+      }
+
+      // Dimension node clicked
+      if (node.id.startsWith('dim-')) {
+        showScoringDetail();
+        return;
+      }
+
+      // Mode node clicked
+      if (node.id.startsWith('mode-')) {
+        state.mode = node.id.replace('mode-', '');
+        refreshCanvas();
+        return;
+      }
+
+      // Output nodes
+      if (node.id === 'review-session') {
+        showSessionDetail();
+        return;
+      }
+      if (node.id === 'review-scoring') {
+        showScoringDetail();
+        return;
+      }
+      if (node.id === 'review-spec') {
+        showSessionDetail();
+        return;
+      }
+    }
+  });
+
+  // Add back link and controls to HUD
+  addBackLink();
+  updateHUDControls();
+
+  // Handle action buttons on output nodes
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.cui-node-btn');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    if (action === 'open-session') showSessionDetail();
+    else if (action === 'open-scoring') showScoringDetail();
+  });
+
+  // Escape closes detail panel
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDetail();
+  });
+});
 </script>
 </body>
 </html>
