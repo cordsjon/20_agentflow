@@ -1,5 +1,5 @@
 ---
-name: sh:ralph
+name: sh-ralph
 description: "Start persistent Ralph loop for iterative task completion"
 allowed-tools: ["Bash(scripts/setup-ralph-loop.sh:*)"]
 disable-model-invocation: true

@@ -1,5 +1,5 @@
 ---
-name: sh:spec-review
+name: sh-spec-review
 description: "Two-stage spec review: quick completeness check then expert panel evaluation. Score >= 7.0 = Ready."
 disable-model-invocation: true
 ---

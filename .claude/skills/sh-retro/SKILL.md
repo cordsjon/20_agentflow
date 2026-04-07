@@ -1,5 +1,5 @@
 ---
-name: sh:retro
+name: sh-retro
 description: Run a retrospective after every 10 completed User Stories. Reflects on recent work, identifies patterns, and generates actionable improvement items.
 disable-model-invocation: true
 ---

@@ -1,5 +1,5 @@
 ---
-name: sh:execute
+name: sh-execute
 description: Execute an implementation plan with review checkpoints and verification gates
 ---
 

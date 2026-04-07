@@ -1,5 +1,5 @@
 ---
-name: sh:plan
+name: sh-plan
 description: Create an implementation plan from a spec or requirements before touching code
 ---
 

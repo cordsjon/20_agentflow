@@ -1,5 +1,5 @@
 ---
-name: sh:dod
+name: sh-dod
 description: Run the Definition of Done gate check before deployment. Verifies work is complete, tests pass, and task meets all exit criteria before committing.
 ---
 

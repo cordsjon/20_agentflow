@@ -1,5 +1,5 @@
 ---
-name: sh:finish
+name: sh-finish
 description: Complete development work -- verify tests, present merge/PR/cleanup options, handle branch finishing
 ---
 

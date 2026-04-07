@@ -1,5 +1,5 @@
 ---
-name: sh:explain
+name: sh-explain
 description: "Educational code explanations with adaptive depth and insight highlights"
 ---
 

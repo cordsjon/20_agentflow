@@ -1,5 +1,5 @@
 ---
-name: sh:index-repo
+name: sh-index-repo
 description: "Generate compressed project map for token-efficient codebase understanding"
 ---
 

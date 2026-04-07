@@ -1,5 +1,5 @@
 ---
-name: sh:parallel
+name: sh-parallel
 description: Break tasks into independent subagents for parallel execution when no shared state or sequential dependencies exist
 ---
 

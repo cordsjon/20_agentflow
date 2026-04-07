@@ -1,5 +1,5 @@
 ---
-name: sh:debug
+name: sh-debug
 description: "Structured root-cause diagnosis before proposing fixes"
 ---
 

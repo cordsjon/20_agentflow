@@ -1,5 +1,5 @@
 ---
-name: sh:estimate
+name: sh-estimate
 description: "Development effort estimation with T-shirt sizing and risk adjustment"
 ---
 

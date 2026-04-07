@@ -1,5 +1,5 @@
 ---
-name: sh:worktree
+name: sh-worktree
 description: Create isolated git worktree workspaces for feature branches with safety verification
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: sh:handoff
+name: sh-handoff
 description: Save session context to HANDOVER.md for seamless continuation. Captures last task, queue position, git state, decisions, and resume checklist.
 ---
 

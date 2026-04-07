@@ -1,5 +1,5 @@
 ---
-name: sh:help
+name: sh-help
 description: "List all 34 Shepherd commands organized by category"
 ---
 

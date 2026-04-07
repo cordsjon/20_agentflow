@@ -1,5 +1,5 @@
 ---
-name: sh:verify
+name: sh-verify
 description: Evidence-based verification before claiming work is complete -- run commands and confirm output before any success claims
 ---
 

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 <panel> <spec> [args]"
+  exit 1
+fi
+panel=$1
+shift
+script=".claude/commands/global/sh/${panel}.md"
+if [ ! -f "$script" ]; then
+  echo "Panel script not found: $script"
+  exit 1
+fi
+bash "$script" "$@"

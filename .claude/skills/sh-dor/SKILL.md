@@ -1,5 +1,5 @@
 ---
-name: sh:dor
+name: sh-dor
 description: Run the Definition of Ready gate check before implementing a task. Verifies a task is ready for implementation including spec-panel score >= 7.0 requirement.
 ---
 

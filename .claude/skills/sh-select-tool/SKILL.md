@@ -1,5 +1,5 @@
 ---
-name: sh:select-tool
+name: sh-select-tool
 description: "Recommend the best MCP tool for a given task from available servers"
 ---
 

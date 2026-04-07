@@ -1,5 +1,5 @@
 ---
-name: sh:review
+name: sh-review
 description: Request self-review of completed work and handle external code review feedback with technical rigor
 ---
 

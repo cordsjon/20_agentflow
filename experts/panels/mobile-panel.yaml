@@ -1,0 +1,69 @@
+name: mobile-panel
+description: "Multi-expert mobile/native app specification review — Android, iOS, Swift, SwiftUI"
+
+modes:
+  - discussion
+  - critique
+  - socratic
+
+focus-areas:
+  - name: android
+    description: "Android platform fitness, Kotlin idioms, lifecycle, permissions, JNI"
+    lead: jake-wharton
+    experts: [jake-wharton, chris-banes, romain-guy, chet-haase]
+
+  - name: ios
+    description: "iOS/SwiftUI architecture, UIKit interop, Swift patterns, Apple HIG"
+    lead: john-sundell
+    experts: [john-sundell, chris-lattner, mattt-thompson]
+
+  - name: audio
+    description: "Audio pipelines, MediaSession, ExoPlayer, codec support, latency"
+    lead: chris-banes
+    experts: [chris-banes, jake-wharton, romain-guy]
+
+  - name: deployment
+    description: "Build system, signing, CI/CD, ADB/Xcode deploy, Fastlane"
+    lead: kelsey-hightower
+    experts: [kelsey-hightower, jake-wharton, john-sundell]
+
+  - name: store
+    description: "App Store / Play Store guidelines, review readiness, distribution"
+    lead: mattt-thompson
+    experts: [mattt-thompson, john-sundell, kelsey-hightower]
+
+default-experts: [jake-wharton, chris-lattner, john-sundell, chris-banes]
+
+max-experts: 6
+
+auto-select:
+  - keywords: [opengl, gpu, surfaceview, render, ndk, visualizer, glsurfaceview, shader]
+    add: [romain-guy]
+  - keywords: [store, publish, review, guidelines, distribution, ipa, aab, play store, app store]
+    add: [mattt-thompson]
+  - keywords: [deploy, ci, build, gradle, fastlane, signing, xcode, adb]
+    add: [kelsey-hightower]
+  - keywords: [animation, ui, transition, frame rate, webview, recyclerview, compose]
+    add: [chet-haase]
+
+scoring:
+  min: 0
+  max: 10
+  pass-threshold: 7.0
+  dimensions:
+    - name: clarity
+      description: "Spec precision, no ambiguous platform behavior assumptions"
+    - name: completeness
+      description: "All platform concerns covered (permissions, lifecycle, storage)"
+    - name: feasibility
+      description: "Can this be built with stated APIs/SDKs on target devices"
+    - name: testability
+      description: "Can each component be verified (on-device, emulator, CI)"
+    - name: platform-fitness
+      description: "Follows platform conventions, not fighting the OS"
+
+output:
+  default-format: standard
+  include-scores: true
+  include-roadmap: true
+  include-consensus: true

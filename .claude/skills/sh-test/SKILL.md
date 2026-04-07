@@ -1,5 +1,5 @@
 ---
-name: sh:test
+name: sh-test
 description: "Test execution with coverage analysis and gap identification"
 ---
 

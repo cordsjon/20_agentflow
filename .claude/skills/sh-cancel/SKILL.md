@@ -1,5 +1,5 @@
 ---
-name: sh:cancel
+name: sh-cancel
 description: "Cancel active Ralph loop and report iteration count"
 ---
 

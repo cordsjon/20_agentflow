@@ -1,5 +1,5 @@
 ---
-name: sh:brainstorm
+name: sh-brainstorm
 description: "Requirements discovery through Socratic dialogue. Explores intent, constraints, and design before implementation."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: sh:loop
+name: sh-loop
 description: Execute the Shepherd 14-step Scrumban inner loop for autonomous task processing. Use when starting autopilot mode, processing TODO-Today queue items, or running the autonomous dev loop.
 disable-model-invocation: true
 ---

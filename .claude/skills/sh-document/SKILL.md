@@ -1,5 +1,5 @@
 ---
-name: sh:document
+name: sh-document
 description: "Targeted documentation for components, functions, and APIs"
 ---
 

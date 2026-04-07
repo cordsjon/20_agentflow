@@ -1,5 +1,5 @@
 ---
-name: sh:autopilot
+name: sh-autopilot
 description: Start the Shepherd autonomous execution loop. Reads tasks from TODO-Today queue, executes them with quality gates, and processes until queue is empty or paused.
 disable-model-invocation: true
 ---

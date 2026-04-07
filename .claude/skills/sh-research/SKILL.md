@@ -1,5 +1,5 @@
 ---
-name: sh:research
+name: sh-research
 description: "Deep web research with parallel search, source validation, and evidence-based findings"
 ---
 

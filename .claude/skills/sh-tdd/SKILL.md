@@ -1,5 +1,5 @@
 ---
-name: sh:tdd
+name: sh-tdd
 description: Test-driven development cycle -- write failing test first, minimal code to pass, refactor
 ---
 

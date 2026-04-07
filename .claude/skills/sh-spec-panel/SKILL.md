@@ -1,5 +1,5 @@
 ---
-name: sh:spec-panel
+name: sh-spec-panel
 description: "Multi-expert specification review with scoring gate and quality assessment"
 ---
 

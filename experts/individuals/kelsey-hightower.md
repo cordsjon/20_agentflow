@@ -3,7 +3,7 @@ name: "Kelsey Hightower"
 slug: kelsey-hightower
 domain: "Cloud native, Kubernetes, operational excellence"
 methodology: "Cloud-native patterns, infrastructure automation, operational observability"
-panels: [spec]
+panels: [spec, mobile]
 packs: [core-engineering]
 keywords: [cloud, kubernetes, k8s, docker, infrastructure, deploy, observability]
 token-cost: 280

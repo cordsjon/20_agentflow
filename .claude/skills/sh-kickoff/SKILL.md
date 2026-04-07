@@ -1,5 +1,5 @@
 ---
-name: sh:kickoff
+name: sh-kickoff
 description: "Daily session startup scan — assess pipeline state and determine next actions."
 disable-model-invocation: true
 ---

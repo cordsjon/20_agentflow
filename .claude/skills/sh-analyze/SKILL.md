@@ -1,5 +1,5 @@
 ---
-name: sh:analyze
+name: sh-analyze
 description: "Code quality, security, and performance scan with FIPD-classified findings"
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: sh:workflow
+name: sh-workflow
 description: "Generate TODO-Today queue from BACKLOG#Ready items with dependency ordering and quality tail."
 disable-model-invocation: true
 argument-hint: [spec-file-or-backlog-item]

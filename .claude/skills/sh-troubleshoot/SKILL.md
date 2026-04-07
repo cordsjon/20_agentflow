@@ -1,5 +1,5 @@
 ---
-name: sh:troubleshoot
+name: sh-troubleshoot
 description: "Issue resolution for builds, deploys, CI/CD, and system infrastructure"
 ---
 

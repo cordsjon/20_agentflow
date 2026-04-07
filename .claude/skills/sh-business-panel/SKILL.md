@@ -1,5 +1,5 @@
 ---
-name: sh:business-panel
+name: sh-business-panel
 description: "Multi-expert business analysis with advisory recommendations (no scoring gate)"
 ---
 
