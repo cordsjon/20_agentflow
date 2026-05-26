@@ -13,23 +13,25 @@ description: "Multi-expert specification review with scoring gate and quality as
 
 ## Behavioral Flow
 
-1. **Load Panel Config**: Read `experts/panels/spec-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
-2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
-3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
-4. **Analyze**: Parse specification content, identify components, gaps, and quality issues
-5. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts` from panel YAML. `--experts` override replaces defaults entirely
-6. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
-7. **Score**: Rate specification across 4 dimensions (0-10 each), compute overall score
-8. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = specification needs rework
+1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/spec-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow)
+2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
+3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap
+4. **Pre-Scoring Checks (deterministic — do NOT delegate to LLM personas):**
+    - **Table reconciliation:** If the spec contains 2+ tables with numeric values (counts, totals, "≥ N" thresholds), extract every numeric claim and verify cross-section arithmetic *before* personas opine. Enumerate the items the count refers to in the other sections; assert the math reconciles. Flag any mismatch as a CRITICAL finding up front. Rationale: LLMs reliably hallucinate arithmetic consistency over freeform tables — personas reading personas will not catch it. This step is mechanical, executed by the panel runner, not by an expert voice.
+5. **Analyze**: Parse specification content, identify components, gaps, and quality issues
+6. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts` from panel YAML. `--experts` override replaces defaults entirely
+7. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
+8. **Score**: Rate specification across 4 dimensions (0-10 each), compute overall score
+9. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = specification needs rework
 
 ## Expert Loading
 
-Experts are defined as individual markdown files in `experts/individuals/`. Each file contains structured frontmatter with:
+Experts are defined as individual markdown files in `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/`. Each file contains structured frontmatter with:
 - Domain and specialization
 - Methodology and frameworks
 - Critique focus and typical questions
 
-The panel YAML (`experts/panels/spec-panel.yaml`) defines:
+The panel YAML (`/Users/jcords-macmini/projects/20_agentflow/experts/panels/spec-panel.yaml`) defines:
 - Which experts belong to which focus area
 - Who leads each focus area
 - Auto-select keyword rules for dynamic expert addition

@@ -13,8 +13,8 @@ description: "Multi-expert business analysis with advisory recommendations (no s
 
 ## Behavioral Flow
 
-1. **Load Panel Config**: Read `experts/panels/business-panel.yaml` for panel definition, focus areas, and auto-select rules
-2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these contain domain, methodology, and critique focus
+1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/business-panel.yaml` for panel definition, focus areas, and auto-select rules (absolute path — relative paths fail when CWD is outside agentflow)
+2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert — these contain domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
 4. **Analyze**: Parse business content, identify strategic themes and domains
 5. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts`. `--experts` override replaces defaults entirely

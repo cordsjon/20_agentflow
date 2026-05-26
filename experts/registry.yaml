@@ -1,15 +1,31 @@
 # Expert Registry — Auto-generated
 # Run: ./scripts/rebuild-registry.sh to regenerate
-# Last rebuilt: 2026-03-12
+# Last rebuilt: 2026-05-20
 
 panels:
+  ai-panel:
+    description: "Multi-expert AI/ML specification review — gate for ML system designs, LLM apps, eval plans, and AI safety claims"
+    default-experts: [andrej-karpathy, francois-chollet, chip-huyen, emily-bender]
+
+  architecture-panel:
+    description: "Multi-expert architecture review — interface design, system boundaries, scalability patterns, failure modes, and integration topology"
+    default-experts: [martin-fowler, sam-newman, gregor-hohpe, michael-nygard]
+
   business-panel:
     description: "Multi-expert business analysis — strategic review and recommendations"
     default-experts: [michael-porter, clayton-christensen, peter-drucker, nassim-taleb]
 
+  mobile-panel:
+    description: "Multi-expert mobile/native app specification review — Android, iOS, Swift, SwiftUI"
+    default-experts: [jake-wharton, chris-lattner, john-sundell, chris-banes]
+
   spec-panel:
     description: "Multi-expert specification review — quality gate for Refining → Ready"
     default-experts: [karl-wiegers, gojko-adzic, martin-fowler, lisa-crispin]
+
+  test-panel:
+    description: "Multi-expert test-strategy review — coverage, fixture design, AC measurability, regression discipline, integration scope, and verification gates"
+    default-experts: [lisa-crispin, janet-gregory, gojko-adzic, karl-wiegers]
 
 packs:
   core-business:
@@ -34,24 +50,41 @@ packs:
 
 experts:
   alistair-cockburn: { domain: "Use case methodology, agile requirements", panels: [spec], token-cost: 280 }
+  andrej-karpathy: { domain: "Neural network training, LLM internals, practical deep learning", panels: [ai], token-cost: 320 }
+  charity-majors: { domain: "Observability, sociotechnical operations, empiricism over speculation", panels: [spec], token-cost: 320 }
+  chet-haase: { domain: "Android animations, UI performance, transitions, frame rate optimization", panels: [mobile], token-cost: 280 }
+  chip-huyen: { domain: "ML systems engineering, MLOps, production LLM applications", panels: [ai], token-cost: 310 }
+  chris-banes: { domain: "Android media, ExoPlayer/Media3, MediaSession, audio pipelines", panels: [mobile], token-cost: 300 }
+  chris-lattner: { domain: "Swift language design, compiler architecture, cross-platform patterns, LLVM", panels: [mobile], token-cost: 300 }
+  christopher-olah: { domain: "Mechanistic interpretability, circuits, features in neural networks", panels: [ai], token-cost: 290 }
   clayton-christensen: { domain: "Disruption theory, innovation strategy", panels: [business], token-cost: 300 }
   donella-meadows: { domain: "Systems thinking, leverage points", panels: [business], token-cost: 280 }
+  emily-bender: { domain: "Computational linguistics, the limits of language models, AI claim discipline", panels: [ai], token-cost: 290 }
+  francois-chollet: { domain: "Generalization, abstraction, reasoning, evaluation of intelligence", panels: [ai], token-cost: 320 }
   gojko-adzic: { domain: "Specification by Example, living documentation", panels: [spec], token-cost: 300 }
   gregor-hohpe: { domain: "Enterprise integration patterns, messaging, data flow", panels: [spec], token-cost: 280 }
+  jake-wharton: { domain: "Android platform, Kotlin, performance, JNI, Gradle build system", panels: [mobile], token-cost: 320 }
   janet-gregory: { domain: "Collaborative testing, specification workshops, quality practices", panels: [spec], token-cost: 250 }
+  jared-kaplan: { domain: "Neural scaling laws, compute-optimal training, model size vs data trade-offs", panels: [ai], token-cost: 280 }
   jeanluc-doumont: { domain: "Structured communication, clarity in technical writing", panels: [business], token-cost: 250 }
   jim-collins: { domain: "Organizational excellence, enduring greatness", panels: [business], token-cost: 280 }
+  john-sundell: { domain: "SwiftUI, iOS app architecture, app lifecycle, design patterns", panels: [mobile], token-cost: 300 }
   karl-wiegers: { domain: "Requirements engineering", panels: [spec], token-cost: 350 }
-  kelsey-hightower: { domain: "Cloud native, Kubernetes, operational excellence", panels: [spec], token-cost: 280 }
+  kelsey-hightower: { domain: "Cloud native, Kubernetes, operational excellence", panels: [spec, mobile], token-cost: 280 }
   lisa-crispin: { domain: "Agile testing, quality requirements, test automation", panels: [spec], token-cost: 280 }
   martin-fowler: { domain: "Software architecture, design patterns, API design", panels: [spec], token-cost: 320 }
+  mattt-thompson: { domain: "App Store / Play Store guidelines, API design, distribution, Apple ecosystem", panels: [mobile], token-cost: 280 }
   michael-nygard: { domain: "Production systems, reliability, failure modes", panels: [spec], token-cost: 300 }
   michael-porter: { domain: "Competitive strategy, market positioning", panels: [business], token-cost: 300 }
   nassim-taleb: { domain: "Risk management, antifragility, uncertainty", panels: [business], token-cost: 320 }
   peter-drucker: { domain: "Management philosophy, effectiveness", panels: [business], token-cost: 280 }
+  romain-guy: { domain: "Android rendering, OpenGL ES, GPU performance, SurfaceView, NDK graphics", panels: [mobile], token-cost: 320 }
   sam-newman: { domain: "Distributed systems, service boundaries, API evolution", panels: [spec], token-cost: 280 }
   seth-godin: { domain: "Marketing innovation, tribe building", panels: [business], token-cost: 280 }
+  simon-willison: { domain: "LLM security, prompt injection, AI tool design", panels: [spec], token-cost: 320 }
+  stuart-russell: { domain: "AI safety, value alignment, agent design under uncertainty", panels: [ai], token-cost: 290 }
+  timnit-gebru: { domain: "AI ethics, dataset documentation, fairness, accountability", panels: [ai], token-cost: 290 }
   wckim-mauborgne: { domain: "Blue Ocean Strategy, market creation", panels: [business], token-cost: 300 }
 
-total-experts: 19
-total-token-budget: 5510
+total-experts: 36
+total-token-budget: 10640

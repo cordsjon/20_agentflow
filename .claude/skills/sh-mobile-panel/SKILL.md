@@ -25,8 +25,8 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 ## Behavioral Flow
 
-1. **Load Panel Config**: Read `experts/panels/mobile-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
-2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
+1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/mobile-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow)
+2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
 4. **Analyze**: Parse specification content, identify components, gaps, and quality issues
 5. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts` from panel YAML. `--experts` override replaces defaults entirely
@@ -36,12 +36,12 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 ## Expert Loading
 
-Experts are defined as individual markdown files in `experts/individuals/`. Each file contains structured frontmatter with:
+Experts are defined as individual markdown files in `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/`. Each file contains structured frontmatter with:
 - Domain and specialization
 - Methodology and frameworks
 - Critique focus and typical questions
 
-The panel YAML (`experts/panels/mobile-panel.yaml`) defines:
+The panel YAML (`/Users/jcords-macmini/projects/20_agentflow/experts/panels/mobile-panel.yaml`) defines:
 - Which experts belong to which focus area
 - Who leads each focus area
 - Auto-select keyword rules for dynamic expert addition
