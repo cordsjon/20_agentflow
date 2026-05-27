@@ -13,7 +13,7 @@ You evaluate scoring systems, ingestion pipelines, platform integrations, taxono
 ## Usage
 
 ```
-/sh:consigliere-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus discovery-quality|platform-resilience|ingestion-pipeline|taxonomy-coherence|cost-efficiency] [--experts "name1,name2"] [--iterations N] [--verbose]
+/sh:consigliere-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus discovery-quality|ingestion-resilience|scoring-validity|platform-compliance|taxonomy-coherence|cost-efficiency] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
 
 ## Verbosity
@@ -27,7 +27,7 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 1. **Load Panel Config**: Read `experts/panels/consigliere-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
 2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
-3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
+3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap
 4. **Analyze**: Parse specification content, identify components, gaps, and quality issues specific to intelligence pipelines
 5. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts` from panel YAML. `--experts` override replaces defaults entirely
 6. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
@@ -74,8 +74,9 @@ Learning-focused questioning to deepen understanding. Experts pose questions abo
 ## Focus Areas
 
 - **discovery-quality**: Scoring formula validity, signal-vs-noise, authority metrics, cross-platform compound logic, false positive/negative rates. Lead: Hilary Mason. Experts: Mason, Patil
-- **platform-resilience**: API rate limits, browser automation stability, cookie lifecycle, session expiry recovery, selector breakage, ToS compliance. Lead: Michael Nygard. Experts: Nygard, Valsorda
-- **ingestion-pipeline**: Quarantine-first compliance, dedup correctness, enrichment chain integrity, plugin contract fit, delivery guarantees. Lead: Martin Kleppmann. Experts: Kleppmann, Kreps
+- **ingestion-resilience**: Delivery semantics, idempotency, partial-failure behavior, backfill correctness, plugin contract fit. Lead: Jay Kreps. Experts: Kreps, Kleppmann, Nygard
+- **scoring-validity**: Operator-decision realism, eval harness rigor, non-self-referential metrics, ground-truth definition. Lead: DJ Patil. Experts: Patil, Huyen, Wiegers
+- **platform-compliance**: PII handling, GDPR, OAuth scoping, trust-boundary explicitness, ToS compliance, cookie lifecycle. Lead: Filippo Valsorda. Experts: Valsorda, Hightower, Willison
 - **taxonomy-coherence**: Classification quality, feed-forward growth hygiene, cross-walk integrity (ESCO/O*NET), role disambiguation, gap analysis. Lead: Deborah McGuinness. Experts: McGuinness
 - **cost-efficiency**: LLM dispatch optimization, token budget adherence, API call budget, storage growth projections. Lead: Chip Huyen. Experts: Huyen
 
