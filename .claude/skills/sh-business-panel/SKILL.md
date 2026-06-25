@@ -8,8 +8,15 @@ description: "Multi-expert business analysis with advisory recommendations (no s
 ## Usage
 
 ```
-/sh:business-panel [document_path_or_content] [--mode discussion|debate|socratic] [--focus competitive|growth|risk|communication] [--experts "name1,name2"] [--synthesis-only]
+/sh:business-panel [document_path_or_content] [--mode discussion|debate|socratic] [--focus competitive|growth|risk|communication] [--experts "name1,name2"] [--verbose]
 ```
+
+## Verbosity
+
+- **Silent (default)**: No expert deliberations. Output only: consolidated findings — consensus, disagreements, and prioritized recommendations. Saves ~60-80% output tokens.
+- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, and per-expert framework analysis before the synthesis.
+
+Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
 
 ## Behavioral Flow
 
