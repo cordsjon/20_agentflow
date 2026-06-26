@@ -100,12 +100,12 @@ Output: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION" -- <diff>
 
 Collect all findings from A–D. Deduplicate by file+line.
 
-**Refute pass (Codex as engine, AC-05):** Before building the triage table, pass the merged findings to codex for refutation (`experts/PANEL_PROTOCOL.md` ## Refute Stage):
+**Refute pass (Codex as engine, AC-05):** Before building the triage table, pass the merged findings to codex for refutation (`experts/PANEL_PROTOCOL.md` ## Refute Stage). Substitute `$FINDINGS` with the actual deduplicated findings (one per line, each as `FILE:LINE | SEVERITY | DESCRIPTION | FIPD`):
 
 ```bash
 codex exec "For each finding below, read the cited file:line in this repo and decide: does the exact code at that line support the finding? Output one line per finding: SURVIVES or REFUTED — plus the line you actually read. Default to REFUTED if the cited line does not clearly support the finding.
 
-<merged findings list>"
+$FINDINGS"
 ```
 
 Drop every REFUTED finding. Only SURVIVES findings go into the triage table below.
