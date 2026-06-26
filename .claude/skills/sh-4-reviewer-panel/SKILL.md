@@ -1,6 +1,6 @@
 ---
 name: sh-4-reviewer-panel
-description: "4-reviewer parallel code review — disjoint lenses (correctness, concurrency, contracts-vs-callers, test-adequacy) — FIPD triage with auto-fix for Fix-* findings"
+description: "4-reviewer parallel code review — disjoint lenses (correctness, concurrency, contracts-vs-callers, test-adequacy) — FIPD triage with gated auto-apply for verified + mechanical Fix-* findings"
 ---
 
 # /sh:4-reviewer-panel — Four-Reviewer Parallel Panel
@@ -168,7 +168,7 @@ Score: 10 - (2 × Critical) - (1 × Major) - (0.5 × Minor) from unresolved find
 ## Common Mistakes
 
 - **Serial dispatch**: sending reviewers one-at-a-time doubles wall-clock time. Always parallel.
-- **Asking before fixing Fix-* items**: governance §8 mandates auto-fix. Never ask.
+- **Asking before fixing Fix-* items**: only verified + mechanical Fix-* are auto-applied (Step 4 gate). Non-mechanical Fix-* must be surfaced, not silently written.
 - **Merging before dedup**: two reviewers often flag the same line. Deduplicate by file+line before building the FIPD table.
 - **Mixing tooling-failure with veto**: if a reviewer fails (non-zero exit, timeout), mark it `tooling_failed` — never count it as a finding or a veto.
 
@@ -201,6 +201,6 @@ Biases caught during TDD baseline (AC-01):
 |---|---|
 | "The reviewer will catch this later" | All 4 run now — no deferral |
 | "It's just style" | Style drift compounds; codex catches it deterministically |
-| "This is probably fine" | FIPD-Fix means auto-apply, not human judgment |
-| "Let me ask before fixing" | Gov §8: never ask for Fix-* |
+| "This is probably fine" | FIPD-Fix without verification is not auto-apply — both gates (verified AND mechanical) must pass |
+| "Let me ask before fixing" | For mechanical Fix-*: apply without asking. For non-mechanical Fix-*: surface, do not silently write |
 | "One reviewer is enough" | Each has blind spots; 4-way coverage is the contract |
