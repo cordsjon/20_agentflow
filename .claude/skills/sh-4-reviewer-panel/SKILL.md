@@ -1,6 +1,6 @@
 ---
 name: sh-4-reviewer-panel
-description: "4-reviewer parallel code review — code-reviewer + architecture-panel + analyze + codex — FIPD triage with auto-fix for Fix-* findings"
+description: "4-reviewer parallel code review — disjoint lenses (correctness, concurrency, contracts-vs-callers, test-adequacy) — FIPD triage with auto-fix for Fix-* findings"
 ---
 
 # /sh:4-reviewer-panel — Four-Reviewer Parallel Panel
@@ -92,7 +92,7 @@ For each finding: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION
 **Reviewer D — codex, test-adequacy + refute engine:**
 ```bash
 # Lens: test-adequacy — are the new/changed paths covered? codex ALSO runs the refute pass in Step 3.
-codex exec "Lens: test-adequacy ONLY. For the changed paths, identify code paths with no covering test.
+codex exec "Lens: test-adequacy ONLY. For the changed paths, identify code paths with no covering test. Do NOT report correctness, concurrency, or contracts-vs-callers issues — other reviewers own those.
 Output: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION" -- <diff>
 ```
 
@@ -102,10 +102,10 @@ Collect all findings from A–D. Deduplicate by file+line. Build:
 
 | # | File:Line | Reviewer | Severity | Finding | FIPD |
 |---|---|---|---|---|---|
-| 1 | src/foo.py:42 | code-reviewer | Major | Off-by-one in loop | Fix |
-| 2 | src/bar.py:18 | arch-panel | Minor | Missing null guard | Fix |
-| 3 | src/baz.py:99 | analyze | Minor | Unused import | Fix |
-| 4 | api/routes.py:55 | code-reviewer | Major | Auth bypass on edge path | Investigate |
+| 1 | src/foo.py:42 | A correctness | Major | Off-by-one in loop | Fix |
+| 2 | src/bar.py:18 | B concurrency | Minor | Unclosed file handle | Fix |
+| 3 | src/baz.py:99 | D test-adequacy | Minor | New branch uncovered | Fix |
+| 4 | api/routes.py:55 | C contracts | Major | Caller expects non-null return | Investigate |
 
 ### Step 4 — Auto-fix Fix-* findings (governance §8)
 
@@ -140,7 +140,7 @@ Please review and respond with which items to address this session vs. backlog.
 ```
 ## 4-Reviewer Panel Verdict
 
-Reviewers: code-reviewer | architecture-panel | analyze | codex
+Reviewers: A correctness/error-paths | B concurrency/resource-lifecycle | C contracts-vs-callers | D codex test-adequacy
 Findings: <N> total — <F> Fix (applied) | <I> Investigate | <P> Plan | <D> Decide
 Auto-fixed: <F> item(s)
 Pending human input: <P+D> item(s)
@@ -186,7 +186,7 @@ After the panel run, confirm:
 ## Integration
 
 - Called by: autopilot cleanup sub-loop (M+ effort tasks)
-- Calls: `code-reviewer` subagent, `sh:architecture-panel`, `sh:analyze`, `codex exec`
+- Calls: `code-reviewer` subagent ×3 (lenses A/B/C), `codex exec` (lens D + refute engine)
 - Output consumed by: quality gate Stage 3 (`parse_panel_verdict`)
 - Synced via: `bash ~/projects/20_agentflow/scripts/sync-skills-global.sh`
 
