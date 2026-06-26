@@ -11,7 +11,7 @@ Dispatches 4 reviewers in parallel against a commit range or diff, merges findin
 
 **When to use:** After completing a US story or before merge to main — whenever you want adversarial coverage from multiple perspectives simultaneously.
 
-**Why 4 reviewers — disjoint lenses (per `experts/PANEL_PROTOCOL.md` ## Disjoint Lenses):** Each reviewer owns ONE lens and cannot file another lens's finding category:
+**Why 4 reviewers — disjoint lenses (per `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` ## Disjoint Lenses):** Each reviewer owns ONE lens and cannot file another lens's finding category:
 - Reviewer A → **correctness / error-paths** — logic bugs, unhandled errors, wrong results
 - Reviewer B → **concurrency / resource-lifecycle** — races, leaks, unclosed handles, ordering
 - Reviewer C → **contracts-vs-callers** — does the change honor what callers/tests expect (resolve via Serena `find_referencing_symbols`)
@@ -54,7 +54,7 @@ Files changed: <stat output>
 
 ### Step 2 — Dispatch 4 reviewers IN PARALLEL (single tool-use block)
 
-Apply `experts/PANEL_PROTOCOL.md` ## Disjoint Lenses — no reviewer files another lens's category. Send all 4 in one message — never serial:
+Apply `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` ## Disjoint Lenses — no reviewer files another lens's category. Send all 4 in one message — never serial:
 
 **Reviewer A — correctness / error-paths:**
 ```
@@ -92,15 +92,16 @@ For each finding: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION
 **Reviewer D — codex, test-adequacy + refute engine:**
 ```bash
 # Lens: test-adequacy — are the new/changed paths covered? codex ALSO runs the refute pass in Step 3.
-codex exec "Lens: test-adequacy ONLY. For the changed paths, identify code paths with no covering test. Do NOT report correctness, concurrency, or contracts-vs-callers issues — other reviewers own those.
-Output: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION" -- <diff>
+# Pipe the diff via stdin (appended to the prompt); do not pass it after `--`.
+printf '%s' "$DIFF" | codex exec "Lens: test-adequacy ONLY. For the changed paths, identify code paths with no covering test. Do NOT report correctness, concurrency, or contracts-vs-callers issues — other reviewers own those.
+Output: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION"
 ```
 
 ### Step 3 — Merge findings via FIPD triage table
 
 Collect all findings from A–D. Deduplicate by file+line.
 
-**Refute pass (Codex as engine, AC-05):** Before building the triage table, pass the merged findings to codex for refutation (`experts/PANEL_PROTOCOL.md` ## Refute Stage). Substitute `$FINDINGS` with the actual deduplicated findings (one per line, each as `FILE:LINE | SEVERITY | DESCRIPTION | FIPD`):
+**Refute pass (Codex as engine, AC-05):** Before building the triage table, pass the merged findings to codex for refutation (`/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` ## Refute Stage). Substitute `$FINDINGS` with the actual deduplicated findings (one per line, each as `FILE:LINE | SEVERITY | DESCRIPTION | FIPD`):
 
 ```bash
 codex exec "For each finding below, read the cited file:line in this repo and decide: does the exact code at that line support the finding? Output one line per finding: SURVIVES or REFUTED — plus the line you actually read. Default to REFUTED if the cited line does not clearly support the finding.
@@ -120,7 +121,7 @@ Drop every REFUTED finding. Only SURVIVES findings go into the triage table belo
 ### Step 4 — Apply only verified + mechanical Fix-* findings (AC-03)
 
 A Fix-* finding is auto-applied ONLY IF BOTH hold:
-1. It survived the Refute Stage (`experts/PANEL_PROTOCOL.md` ## Refute Stage).
+1. It survived the Refute Stage (`/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` ## Refute Stage).
 2. It is mechanical: unused import, rename, typo, formatting, dead-code removal — no behavior change.
 
 For each verified Fix-* finding:
