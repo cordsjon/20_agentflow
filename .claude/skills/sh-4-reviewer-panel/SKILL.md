@@ -98,7 +98,17 @@ Output: FILE:LINE | SEVERITY | DESCRIPTION | FIPD-ACTION" -- <diff>
 
 ### Step 3 — Merge findings via FIPD triage table
 
-Collect all findings from A–D. Deduplicate by file+line. Build:
+Collect all findings from A–D. Deduplicate by file+line.
+
+**Refute pass (Codex as engine, AC-05):** Before building the triage table, pass the merged findings to codex for refutation (`experts/PANEL_PROTOCOL.md` ## Refute Stage):
+
+```bash
+codex exec "For each finding below, read the cited file:line in this repo and decide: does the exact code at that line support the finding? Output one line per finding: SURVIVES or REFUTED — plus the line you actually read. Default to REFUTED if the cited line does not clearly support the finding.
+
+<merged findings list>"
+```
+
+Drop every REFUTED finding. Only SURVIVES findings go into the triage table below.
 
 | # | File:Line | Reviewer | Severity | Finding | FIPD |
 |---|---|---|---|---|---|
