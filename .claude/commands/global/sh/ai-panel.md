@@ -8,8 +8,15 @@ description: "Multi-expert AI/ML specification review with scoring gate — mode
 ## Usage
 
 ```
-/sh:ai-panel [specification_content|@file] [--mode discussion|critique|socratic|debate] [--focus fundamentals|evaluation|safety|production|ethics-data] [--experts "name1,name2"] [--iterations N]
+/sh:ai-panel [specification_content|@file] [--mode discussion|critique|socratic|debate] [--focus fundamentals|evaluation|safety|production|ethics-data] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
+
+## Verbosity
+
+- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
+- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
+
+Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
 
 ## When to Use
 

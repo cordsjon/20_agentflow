@@ -1,7 +1,20 @@
 ---
 name: sh-analyze
 description: "Code quality, security, and performance scan with FIPD-classified findings"
+model: sonnet
 ---
+
+<!--
+Model note: pinned to Sonnet. This skill is read-only static analysis (no code
+edits — see Boundaries), so the cheaper model is correct per CLAUDE.md ("Sonnet
+for read-only agents"). Sonnet is fully adequate for the structural antipattern
+checklist (circular deps, layer violations, god classes, missing abstractions).
+For open-ended bug-finding or security depth, prefer Opus — re-run with the
+session on Opus, or use /sh:security-panel (Opus, auto-fix). The architecture
+domain here replaces /sh:architecture-panel for cheap code-antipattern checks;
+the panel is still the right tool for judging a *design* before code exists.
+-->
+
 
 # Code Analysis
 

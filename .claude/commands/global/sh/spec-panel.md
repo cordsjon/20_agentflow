@@ -8,8 +8,15 @@ description: "Multi-expert specification review with scoring gate and quality as
 ## Usage
 
 ```
-/sh:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus requirements|architecture|testing|compliance] [--experts "name1,name2"] [--iterations N]
+/sh:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus requirements|architecture|testing|compliance] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
+
+## Verbosity
+
+- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
+- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
+
+Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
 
 ## Behavioral Flow
 
