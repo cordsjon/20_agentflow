@@ -23,6 +23,7 @@ Use `sh-spec-panel` instead for classical software specs without an AI/ML core. 
 
 ## Behavioral Flow
 
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding and Refute Stage sections. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
 1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/ai-panel.yaml` for focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow)
 2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
