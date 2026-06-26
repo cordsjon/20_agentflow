@@ -107,15 +107,17 @@ Collect all findings from A–D. Deduplicate by file+line. Build:
 | 3 | src/baz.py:99 | D test-adequacy | Minor | New branch uncovered | Fix |
 | 4 | api/routes.py:55 | C contracts | Major | Caller expects non-null return | Investigate |
 
-### Step 4 — Auto-fix Fix-* findings (governance §8)
+### Step 4 — Apply only verified + mechanical Fix-* findings (AC-03)
 
-Per governance §8 panel-auto-fix policy: **all Fix-* findings are auto-applied without asking**.
+A Fix-* finding is auto-applied ONLY IF BOTH hold:
+1. It survived the Refute Stage (`experts/PANEL_PROTOCOL.md` ## Refute Stage).
+2. It is mechanical: unused import, rename, typo, formatting, dead-code removal — no behavior change.
 
-For each Fix-* row:
-- Apply the fix directly (Edit/Write tools)
-- Mark row as ✓ Applied
+For each verified Fix-* finding:
+- If mechanical → apply directly (Edit/Write), mark ✓ Applied.
+- If non-mechanical (logic, security, control-flow, API change) → DO NOT write. Surface it under Step 5 for confirmation.
 
-Do NOT ask which Fix-* items to apply. Fix all of them.
+Never auto-apply a finding that changes behavior, even if classed Fix.
 
 ### Step 5 — Surface Plan-* and Decide-* to user
 
