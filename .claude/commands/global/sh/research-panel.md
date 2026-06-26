@@ -25,6 +25,7 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 ## Behavioral Flow
 
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Ingest**: Parse input — detect source lists, API specs, scraping plans, collection strategies, or research designs
 2. **Classify**: Identify research domain (competitive intel, technical research, market research, academic, regulatory, OSINT) and scope
 3. **Assemble Panel**: Select experts based on `--focus` area or use defaults. `--experts` override replaces defaults entirely. Max 6 experts per review.
