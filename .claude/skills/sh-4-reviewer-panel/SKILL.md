@@ -5,7 +5,7 @@ description: "4-reviewer parallel code review — disjoint lenses (correctness, 
 
 # /sh:4-reviewer-panel — Four-Reviewer Parallel Panel
 
-Dispatches 4 reviewers in parallel against a commit range or diff, merges findings via FIPD classification, auto-applies Fix-* per governance §8, and surfaces Plan-* / Decide-* for human triage.
+Dispatches 4 reviewers in parallel against a commit range or diff, merges findings via FIPD classification, auto-applies ONLY verified + mechanical Fix-* findings (per Step 4 gate), and surfaces everything else (non-mechanical Fix, Plan, Decide) for human triage.
 
 ## Overview
 
@@ -158,7 +158,7 @@ Score: 10 - (2 × Critical) - (1 × Major) - (0.5 × Minor) from unresolved find
 
 | Action | Meaning | Autopilot behavior |
 |---|---|---|
-| **Fix** | Clear defect, deterministic correction | Auto-apply immediately (gov §8) |
+| **Fix** | Clear defect, deterministic correction | Auto-apply ONLY if verified + mechanical (Step 4 gate); else surface |
 | **Investigate** | Root cause unclear, needs more context | Surface + pause if medium+ severity |
 | **Plan** | Correct but requires design work | Add to backlog as P2 US |
 | **Decide** | Trade-off call requiring human judgment | AskUserQuestion in next turn |
@@ -179,7 +179,7 @@ Score: 10 - (2 × Critical) - (1 × Major) - (0.5 × Minor) from unresolved find
 After the panel run, confirm:
 - [ ] All 4 reviewers dispatched in a single parallel tool-use block
 - [ ] FIPD table built with all findings merged and deduped
-- [ ] All Fix-* auto-applied without asking
+- [ ] Verified + mechanical Fix-* applied; non-mechanical Fix-* surfaced for confirmation
 - [ ] Plan-* → backlog US stubs created; Decide-* → AskUserQuestion issued
 - [ ] PANEL-VERDICT line present as last output line
 
