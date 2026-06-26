@@ -25,6 +25,7 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 ## Behavioral Flow
 
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Load Panel Config**: Read `experts/panels/consigliere-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
 2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap
