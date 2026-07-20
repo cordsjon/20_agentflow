@@ -1,7 +1,7 @@
 # nosignups-catalog-sync — Design Spec
 
 **Date:** 2026-07-20
-**Status:** Panel-passed 7.7/10 (2026-07-20, sh:spec-panel, 10 findings auto-fixed)
+**Status:** Shipped 2026-07-20 (panel 7.7; live AC-1..AC-6 verified)
 **Epic:** US-AF-NOSIGNUPS-CATALOG-01 (single US, ~1 session of work)
 **Home:** `~/projects/20_agentflow/scripts/nosignups_catalog.py`
 
