@@ -92,12 +92,12 @@ deletes the file.
 | column | value |
 |---|---|
 | `slug` (PK) | `ns-<toolid>` (namespaced; never collides with real CLIs) |
-| `bucket` | `discoverable` ← **the contract for filtering these out** |
+| `bucket` | `discoverable` (cosmetic only — verified 2026-07-20 against a2a-cli-registry source: no query anywhere reads `bucket`, all 477 prod rows were null before this feature; do not rely on it to filter anything) |
 | `source_class` | `external:<source>` |
 | `launch_spec` | `install:<github-url>` (NOT NULL column; this is an install hint, not a runnable spec) |
+| `health_status` | `'ok'` if `shutil.which(toolid)` else **`'not_standalone'`** — the actual attach point: this is the only status a2a-cli-registry's TUI/web `/overview` render distinctly (◌ dotted-circle glyph, dim-cyan row; `core/web/overview_view.py:17`, `core/tui/overview.py:6`). `not_standalone=1` alone does nothing without this — nothing reads that column either. |
+| `enabled` / `a2a_invokable` | `0` / `0` — **not actually enforced**: `a2a_invokable` is `# reserved, unread in v1` in a2a-cli-registry; every list/search entrypoint (`search_clis`, `overview_rows`, `export_rows`, `GET /clis`) does `select(Cli)).all()` with no WHERE clause, so these rows appear in results identically to real CLIs. `not_standalone`/`health_status` (above) is the only real distinguishing signal today. |
 | *(NOT NULL set)* | `slug, lang, launch_spec, description, health_status, enabled, a2a_invokable, not_standalone` — all supplied above |
-| `enabled` / `a2a_invokable` | `0` / `0` — invisible to the Hermes a2a bot |
-| `health_status` | `unknown` |
 | `lang` | `unknown` (NOT NULL column; source data has no language field) |
 | `description`, `project`, `path` | description from record; `project='external'`, `path=''` |
 
