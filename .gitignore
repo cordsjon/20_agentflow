@@ -9,3 +9,7 @@ done/
 
 # Environment / secrets
 .env
+
+# generated catalog sinks (regenerated weekly by nosignups-catalog-sync DAG)
+data/tool-directories/
+data/tool_catalog.json

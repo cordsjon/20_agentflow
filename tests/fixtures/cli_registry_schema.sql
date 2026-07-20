@@ -1,0 +1,20 @@
+CREATE TABLE cli (
+	slug VARCHAR NOT NULL, 
+	lang VARCHAR NOT NULL, 
+	bucket VARCHAR, 
+	project VARCHAR, 
+	path VARCHAR, 
+	launch_spec VARCHAR NOT NULL, 
+	description VARCHAR NOT NULL, 
+	source_class VARCHAR, 
+	health_cmd VARCHAR, 
+	health_status VARCHAR NOT NULL, 
+	health_checked_at FLOAT, 
+	fixed_by VARCHAR, 
+	enabled BOOLEAN NOT NULL, 
+	a2a_invokable BOOLEAN NOT NULL, 
+	source_run_id VARCHAR, 
+	last_seen_at FLOAT, 
+	updated_at FLOAT, not_standalone BOOLEAN NOT NULL DEFAULT 0, 
+	PRIMARY KEY (slug)
+);
