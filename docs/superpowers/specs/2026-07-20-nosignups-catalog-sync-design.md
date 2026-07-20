@@ -1,7 +1,7 @@
 # nosignups-catalog-sync — Design Spec
 
 **Date:** 2026-07-20
-**Status:** Draft (pending spec-panel)
+**Status:** Panel-passed 7.7/10 (2026-07-20, sh:spec-panel, 10 findings auto-fixed)
 **Epic:** US-AF-NOSIGNUPS-CATALOG-01 (single US, ~1 session of work)
 **Home:** `~/projects/20_agentflow/scripts/nosignups_catalog.py`
 
@@ -31,7 +31,7 @@ dagu (Mon 04:30) → python3 nosignups_catalog.py sync
       │  per source: conditional-GET (ETag) → 304 ⇒ no-op
       ▼
   normalize → uid "<source>:<toolid>" → classify() → kind
-      ├── Sink A  data/nosignups_catalog.json + stdout (emit)
+      ├── Sink A  data/tool_catalog.json + stdout (emit)
       ├── Sink B  data/tool-directories/<source>/<toolid>.md  (QMD)
       └── Sink C  ~/.hermes/cli-registry.db  (kind ∈ cli|js-lib|self-host only)
 ```
@@ -55,23 +55,31 @@ are source-agnostic — they only see normalized records.
 | kind | meaning | rule (first match wins) |
 |---|---|---|
 | `cli` | installable command-line tool | tags/description regex for cli/command-line AND has github |
-| `js-lib` | importable JS/WASM library | wasm/library/npm signals (e.g. ffmpeg.wasm) |
-| `self-host` | runs as a service you host | self-host/docker signals |
-| `browser-only` | interactive web UI only | **default** — no signal ⇒ browser-only |
+| `js-lib` | importable JS/WASM library | wasm/library/npm signals AND has github (e.g. ffmpeg.wasm) |
+| `self-host` | runs as a service you host | self-host/docker signals AND has github |
+| `browser-only` | interactive web UI only | **default** — no signal or no github ⇒ browser-only |
 
-Expected yield: ~200+ browser-only, single-digit each for the rest. False
+A github link is a hard precondition for every non-default kind (this is the
+invariant AC-4 tests). Expected yield: ~200+ browser-only, low tens combined
+across the other three kinds (estimate; will drift with upstream). False
 negatives (a real CLI classified browser-only) are acceptable; false positives
 (a browser app registered as callable) are not — hence default-down.
 
 ## 3. Sinks
 
-**A — JSON (pipeline feed).** `emit` prints the full normalized array to
-stdout; `sync` also writes it atomically (tempfile + `Path.replace`) to
-`data/nosignups_catalog.json`. No other side effects.
+**A — JSON (pipeline feed).** `emit` is stateless: fetch + normalize +
+print to stdout (network required, no cache read, no sink writes). `sync`
+writes the same array atomically (tempfile + `Path.replace`) to
+`data/tool_catalog.json` (source-agnostic name — source #2 lands in the
+same artifact). No other side effects.
 
 **B — QMD collection (discovery).** One markdown file per tool:
 YAML frontmatter (name, source, url, github, license, stars, category, tags,
 kind) + description body. Files under `data/tool-directories/<source>/`.
+`toolid` is third-party input used as a filename: it MUST match
+`^[a-z0-9][a-z0-9._-]{0,63}$` or the record is rejected with a logged
+warning (path-traversal guard — a hostile id like `../../x` must never
+reach a path join). The same validation gates registry slugs.
 One-time setup:
 `qmd collection add ~/projects/20_agentflow/data/tool-directories --name tool-directories`
 (category-named, so future sources share it; `--name` passed explicitly —
@@ -94,25 +102,35 @@ deletes the file.
 | `description`, `project`, `path` | description from record; `project='external'`, `path=''` |
 
 Writer: direct sqlite upsert inside the script (`INSERT ... ON CONFLICT(slug)
-DO UPDATE`), **not** `register_cli.py` — that tool is built for repo-local
-CLIs one-at-a-time post-commit; reusing it 30× per sync would abuse its
-contract. Same table, clearly-scoped writer, `bucket='discoverable'` marks
+DO UPDATE`), with `PRAGMA busy_timeout=5000` and all rows in **one
+transaction** — the DB is live-consumed (hermes-adapter), so an unattended
+04:30 write must tolerate a concurrent reader/writer instead of dying on
+`SQLITE_BUSY`. **Not** `register_cli.py` — that tool is built for repo-local
+CLIs one-at-a-time post-commit; reusing it dozens of times per sync would
+abuse its contract. Same table, clearly-scoped writer, `bucket='discoverable'` marks
 ownership. An optional `shutil.which()` probe may flip `health_status` to
 `ok` when a matching binary exists locally; absence never deletes a row.
 
 ## 4. Diff-aware sync & prune (per source)
 
 State: `~/.local/state/nosignups-catalog/<source>.json` →
-`{ etag, uids: [...], last_sync_iso }`.
+`{ etag, payload_sha256, uids: [...], last_sync_iso }`. If upstream stops
+sending an ETag, freshness falls back to comparing `payload_sha256`
+(fetch still happens, but sinks are skipped on hash match).
 
 1. Conditional-GET with stored ETag. `304` ⇒ log `"<source>: unchanged"`,
    exit 0, touch nothing.
 2. Changed ⇒ normalize, diff `uids` vs state: added / changed / removed.
+   A non-304 run **rewrites all sink artifacts idempotently** (every md
+   file, the JSON artifact, every registry upsert) — the diff exists for
+   prune (step 3) and the changelog, not for selective writes.
 3. Removed uid ⇒ delete its QMD `.md`; registry row is **soft-removed**
    (row kept, description prefixed `[REMOVED upstream]`, stays `enabled=0`).
    Rationale: the user may have installed the tool; hard-delete loses that.
-4. Write new state atomically. Print one-line changelog per source:
-   `nosignups: +3 ~1 -0 (222→225)`.
+4. Write new state atomically — **only after every sink write for that
+   source succeeded**. This ordering is load-bearing: a crash mid-sync
+   leaves old state, so the next run redoes the full write and heals.
+   Print one-line changelog per source: `nosignups: +3 ~1 -0 (222→225)`.
 
 Diff and prune are scoped per source — syncing source A can never delete
 source B's artifacts.
@@ -165,16 +183,20 @@ nosignups_catalog.py classify              # per-kind counts + non-browser-only 
 ## 8. Testing
 
 Pytest with fixture JSON (trimmed 5-tool payload + a mutated second payload
-for the removal case). Seams under test are hit for real: temp sqlite DB file
-(real sqlite3, not mocked), temp dirs for QMD/state/JSON sinks. Only the
-HTTP fetch is faked (fixture bytes + injected ETag), since GitHub raw is
-outside the seam under test. AC-2/AC-3 are covered by tests; AC-1/AC-5/AC-6
-verified live at ship time.
+for the removal case, plus a full 222-tool snapshot fixture over which the
+AC-4 invariant — no non-default kind without github — is asserted for every
+record). Seams under test are hit for real: temp sqlite DB file created from
+a committed `.schema` dump of the real registry (real sqlite3, not mocked;
+the dump pins the contract so test-schema drift is a test failure, not a
+silent pass), temp dirs for QMD/state/JSON sinks. Only the HTTP fetch is
+faked (fixture bytes + injected ETag), since GitHub raw is outside the seam
+under test. AC-2/AC-3/AC-4 are covered by tests; AC-1/AC-5/AC-6 verified
+live at ship time.
 
 ## 9. Risks / trade-offs
 
-- **Registry pollution:** any consumer scanning all `cli` rows now sees ~30
-  external entries. Mitigation is the `bucket='discoverable'` contract —
+- **Registry pollution:** any consumer scanning all `cli` rows now sees a
+  few dozen external entries (low tens; matches the §2 yield estimate). Mitigation is the `bucket='discoverable'` contract —
   documented here and in the row's `source_class`. If a consumer breaks, the
   filter goes on the consumer, not by deleting data.
 - **Upstream fragility:** the raw URL is a branch ref on a third-party repo;
