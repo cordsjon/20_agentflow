@@ -72,8 +72,10 @@ stdout; `sync` also writes it atomically (tempfile + `Path.replace`) to
 **B — QMD collection (discovery).** One markdown file per tool:
 YAML frontmatter (name, source, url, github, license, stars, category, tags,
 kind) + description body. Files under `data/tool-directories/<source>/`.
-One-time setup: `qmd collection add` for collection **`tool-directories`**
-(category-named, so future sources share it). Writes are atomic; prune
+One-time setup:
+`qmd collection add ~/projects/20_agentflow/data/tool-directories --name tool-directories`
+(category-named, so future sources share it; `--name` passed explicitly —
+the name is otherwise derived from the path). Writes are atomic; prune
 deletes the file.
 
 **C — cli-registry (discoverable launchpad).** Only `kind ∈
@@ -85,6 +87,7 @@ deletes the file.
 | `bucket` | `discoverable` ← **the contract for filtering these out** |
 | `source_class` | `external:<source>` |
 | `launch_spec` | `install:<github-url>` (NOT NULL column; this is an install hint, not a runnable spec) |
+| *(NOT NULL set)* | `slug, lang, launch_spec, description, health_status, enabled, a2a_invokable, not_standalone` — all supplied above |
 | `enabled` / `a2a_invokable` | `0` / `0` — invisible to the Hermes a2a bot |
 | `health_status` | `unknown` |
 | `lang` | `unknown` (NOT NULL column; source data has no language field) |
@@ -121,8 +124,11 @@ sinks are written only after the full payload parses and normalizes. No bare
 
 ## 5. DAG
 
-`~/.config/dagu/dags/nosignups-catalog-sync.yaml`, house style (name /
-schedule / description / comment header / single bash step, absolute paths):
+`~/.config/dagu/dags/nosignups-catalog-sync.yaml`, in the dominant house
+style (85% of the 135 existing DAGs): comment-header-only — identity from
+filename + `# nosignups-catalog-sync — <desc>` header comment, **no**
+top-level `name:`/`description:` YAML keys — plus a single bash step with
+absolute paths:
 
 - `schedule: "30 4 * * 1"` (Mon 04:30 — weekly freshness floor)
 - step: `python3 /Users/jcords-macmini/projects/20_agentflow/scripts/nosignups_catalog.py sync`
@@ -150,8 +156,9 @@ nosignups_catalog.py classify              # per-kind counts + non-browser-only 
 - **AC-4** `classify` never emits a `cli|js-lib|self-host` kind for a record
   lacking a github link; spot-check: excalidraw ⇒ `browser-only`,
   ffmpeg.wasm ⇒ `js-lib`.
-- **AC-5** `qmd query` scoped to `tool-directories` returns a relevant tool
-  for "whiteboard sketch diagrams".
+- **AC-5** `nosignups:excalidraw` appears in the top-5 results of
+  `qmd query "whiteboard sketch diagrams"` scoped to the `tool-directories`
+  collection (deterministic rank threshold, not "relevant").
 - **AC-6** DAG file passes `dagu dry` (or equivalent lint) and appears in the
   dagu UI schedule.
 
@@ -177,3 +184,22 @@ verified live at ship time.
   yields will drift. Default-down keeps errors on the harmless side.
 - **`launch_spec` semantics bent:** `install:<url>` is a hint, not a
   runnable spec. Acceptable because `enabled=0` rows are never launched.
+
+## Codex review — pre-panel
+
+**2026-07-20 — Codex UNAVAILABLE** (usage limit exhausted until Jul 25;
+Gemini leg deprecated). Substitute: independent Sonnet code-reviewer
+subagent grounding pass against live systems (registry schema, dagu corpus,
+qmd CLI, source URL). **VERDICT: PASS** with 1 MAJOR + 3 MINOR, all fixed
+in this revision:
+
+- MAJOR: Section 5 house-style claim refuted — 85% of the 135 DAGs are
+  comment-header-only (no `name:`/`description:` keys); spec restated to
+  match the dominant pattern.
+- MINOR: AC-5 operationalized (top-5 rank threshold); `qmd collection add`
+  path + `--name` spelled out; full NOT NULL column set listed in 3C.
+
+Verified-good claims: all Section 3C columns + NOT NULL constraints,
+`updated_at` exists, `dagu dry`/`dagu validate` exist, source URL live
+(200, {categories:10, tools:222}), AC-4 spot-checks hold against the live
+payload. Panel invoked with FORCE_NO_PRECODEX (deliberate, audit-visible).
