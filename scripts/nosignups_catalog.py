@@ -237,7 +237,10 @@ def upsert_registry(records: list[dict], db_path: Path) -> int:
             continue
         slug = f"ns-{toolid}"
         github = r.get("github") or ""
-        health = "ok" if shutil.which(toolid) else "unknown"
+        # a2a-cli-registry's search/overview/TUI reads no other status marker
+        # for "known, not independently runnable" — reuse that exact wire,
+        # not an invented bucket value nobody queries.
+        health = "ok" if shutil.which(toolid) else "not_standalone"
         rows.append({
             "slug": slug,
             "lang": "unknown",

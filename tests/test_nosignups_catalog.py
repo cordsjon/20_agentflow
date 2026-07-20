@@ -228,7 +228,7 @@ def test_upsert_registry_only_non_browser_kinds(tmp_path):
         assert row["bucket"] == "discoverable"
         assert row["enabled"] == 0
         assert row["a2a_invokable"] == 0
-        assert row["health_status"] in ("unknown", "ok")
+        assert row["health_status"] in ("not_standalone", "ok")
         assert row["lang"] == "unknown"
         assert row["launch_spec"].startswith("install:https://")
         assert row["source_class"] == "external:nosignups"
