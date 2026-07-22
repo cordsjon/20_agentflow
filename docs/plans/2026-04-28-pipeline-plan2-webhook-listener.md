@@ -1427,7 +1427,7 @@ git commit -m "test(webhook): endpoint integration suite (12 cases)"
   <string>com.gtxs.pipeline-webhook</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/jcords-macmini/projects/30_OpenSandboxPipeline/services/webhook/.venv/bin/uvicorn</string>
+    <string>/Users/jc-folder/projects/30_OpenSandboxPipeline/services/webhook/.venv/bin/uvicorn</string>
     <string>app:app</string>
     <string>--host</string>
     <string>127.0.0.1</string>
@@ -1437,21 +1437,21 @@ git commit -m "test(webhook): endpoint integration suite (12 cases)"
     <string>1</string>
   </array>
   <key>WorkingDirectory</key>
-  <string>/Users/jcords-macmini/projects/30_OpenSandboxPipeline/services/webhook</string>
+  <string>/Users/jc-folder/projects/30_OpenSandboxPipeline/services/webhook</string>
   <key>EnvironmentVariables</key>
   <dict>
     <key>WEBHOOK_PROJECT_ROOT</key>
-    <string>/Users/jcords-macmini/projects/30_OpenSandboxPipeline</string>
+    <string>/Users/jc-folder/projects/30_OpenSandboxPipeline</string>
     <key>PATH</key>
-    <string>/Users/jcords-macmini/projects/30_OpenSandboxPipeline/services/webhook/.venv/bin:/usr/bin:/bin</string>
+    <string>/Users/jc-folder/projects/30_OpenSandboxPipeline/services/webhook/.venv/bin:/usr/bin:/bin</string>
   </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>ThrottleInterval</key><integer>10</integer>
   <key>StandardOutPath</key>
-  <string>/Users/jcords-macmini/Library/Logs/pipeline-webhook.out.log</string>
+  <string>/Users/jc-folder/Library/Logs/pipeline-webhook.out.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/jcords-macmini/Library/Logs/pipeline-webhook.err.log</string>
+  <string>/Users/jc-folder/Library/Logs/pipeline-webhook.err.log</string>
 </dict>
 </plist>
 ```
@@ -1462,8 +1462,8 @@ git commit -m "test(webhook): endpoint integration suite (12 cases)"
 
 ```
 # logfilename                                                        [owner:group]    mode count size when  flags [/pid_file] [sig_num]
-/Users/jcords-macmini/Library/Logs/pipeline-webhook.out.log         jcords-macmini:staff 644  7     10240 *    GZ
-/Users/jcords-macmini/Library/Logs/pipeline-webhook.err.log         jcords-macmini:staff 644  7     10240 *    GZ
+/Users/jc-folder/Library/Logs/pipeline-webhook.out.log         jcords-macmini:staff 644  7     10240 *    GZ
+/Users/jc-folder/Library/Logs/pipeline-webhook.err.log         jcords-macmini:staff 644  7     10240 *    GZ
 ```
 
 - [ ] **Step 3: Write the install script**

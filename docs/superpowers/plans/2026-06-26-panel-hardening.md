@@ -112,7 +112,7 @@ Expected today: all 6 print `MISSING`.
 In each file, immediately after the `## Behavioral Flow` line, insert as the new step 0 (renumber existing steps if numbered, or prepend if bulleted):
 
 ```markdown
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding and Refute Stage sections. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jc-folder/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding and Refute Stage sections. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
 ```
 
 - [ ] **Step 3: Verify the assertion passes**
@@ -171,7 +171,7 @@ Expected today: all 4 print `MISSING`.
 After each file's `## Behavioral Flow` line, insert:
 
 ```markdown
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jc-folder/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
 ```
 
 - [ ] **Step 4: Verify the assertion passes**
