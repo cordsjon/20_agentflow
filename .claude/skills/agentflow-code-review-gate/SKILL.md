@@ -1,6 +1,6 @@
 ---
 name: agentflow-code-review-gate
-description: Quality-gate Stage-2 code review. Reviews a diff across three lenses (correctness bugs, CLAUDE.md adherence, missed simplifications) in one pass and emits a machine-readable REVIEW-VERDICT line. Not for interactive use — invoked by quality_gate.run_stage2_review via claude -p. Does NOT invoke the /code-review plugin.
+description: Quality-gate Stage-2 code review. Reviews a diff across four lenses (correctness bugs, CLAUDE.md adherence, missed simplifications, stale docs) in one pass and emits a machine-readable REVIEW-VERDICT line. Not for interactive use — invoked by quality_gate.run_stage2_review via claude -p. Does NOT invoke the /code-review plugin.
 ---
 
 # Code-Review Gate (Stage 2)
@@ -14,7 +14,7 @@ fans out 5+ subagents — wrong shape and side-effects for a gate).
 ## Procedure
 
 1. You receive a unified diff on **stdin**.
-2. Review the diff yourself in a single structured pass across **three lenses**,
+2. Review the diff yourself in a single structured pass across **four lenses**,
    considering only lines the diff modifies:
    - **Correctness** — real bugs: null/None derefs, off-by-one, wrong
      conditionals, unhandled errors, resource leaks, race conditions.
@@ -22,6 +22,13 @@ fans out 5+ subagents — wrong shape and side-effects for a gate).
      writes, no bare except, status-check before .json(), etc.).
    - **Missed simplifications** — only those a senior engineer would block on,
      not stylistic nits.
+   - **Stale docs** — the diff changes a code contract (renamed/removed symbol,
+     changed signature, flag, env var, default, port, or path) that a doc/comment
+     visible **in this same diff** still describes the old way. Blocking only when
+     the contradiction is inside the diff (a changed line beside stale prose, or a
+     doc hunk left un-updated). Do NOT go hunting the wider repo for stale docs —
+     that is out of a diff-shaped gate's scope; flag only what the diff itself
+     exposes. (Highest-yield lens after correctness in real pipelines.)
 3. A finding is **blocking** only if it is a real defect on a modified line.
    Ignore: pre-existing issues, nitpicks, lint/type/format, untouched lines,
    general coverage/docs concerns not mandated by CLAUDE.md, likely false
