@@ -52,24 +52,31 @@
 > (ai-panel 8.4, spec-panel 8.6) passed a spec that codex then scored 3-4/10 with three
 > CRITICALs. Post-mortem found four protocol-level root causes (all verified, not guessed):
 >
-> 1. **Grounding is internal-only.** `PANEL_PROTOCOL.md ## Grounding` mandates resolving
->    claims in repo source or the reviewed document — no step ever fetches the EXTERNAL
->    standard the design claims conformance to. The ARD §3.4 url-as-artifact-document
->    MUST-violation and the §4.2.1 FQDN-publisher rule were only catchable by reading
->    `ard.md` itself, which codex did and the panels structurally could not.
-> 2. **Risk-note laundering.** The draft's Risk 2 already disclosed the url-vs-endpoint
->    tension ("flagged for re-check at v1.0"); both panels treated the author's hedge as
->    mitigation. Disclosure is not resolution when an external MUST is violated.
-> 3. **No consumer dry-run.** Emitted artifacts (claude mcp add command, OpenWorker config)
->    were reviewed for shape, never checked against the consumer's real contract — the
->    generated command dialed a bearer-gated endpoint with no auth header → guaranteed 401.
->    (Existing memory rule feedback_verify_contract_against_consumer exists but is not
->    encoded in the panel protocol.)
-> 4. **Auto-fix without re-gate.** The https→http downgrade hole did not exist in the
->    draft — it was INTRODUCED by the ai-panel's own auto-fix ("path/scheme differences on
->    the same host are accepted") and no pass ever reviewed the fixes themselves.
->    Structural note: panels are personas inside ONE model context and inherit its blind
->    spots; the remedy must be deterministic protocol steps, not "personas try harder."
+> _Root-cause tags corrected after `CODEX-VERDICT: 3.1` on spec rev 1 refuted several as
+> inference-or-false. Rev 2 tags below are the surviving claims._
+>
+> 1. **Grounding has no retrieval step.** [verified] `PANEL_PROTOCOL.md:5-10` resolves
+>    claims in repo source or the reviewed document and ends "Serena + Read only" — there is
+>    no fetch verb in the 26-line file. Shows the protocol never INSTRUCTS retrieval; does
+>    NOT show a panel was unable to (rev 1's "structurally could not" is retracted).
+> 2. **A disclosed defect passed two panels.** [verified as omission, NOT motive] Risk 2 at
+>    `c481ddd:330-334` disclosed the url-vs-endpoint tension; both panels passed. Rev 1's
+>    "both panels treated the hedge as mitigation" is motive attribution their outputs do not
+>    support — retracted.
+> 3. **An emit contradicts the document's own claims.** [verified] Line 134 emits an
+>    unauthenticated `claude mcp add` while lines 66/143 call the endpoint bearer-gated.
+>    Citation correction: 66/143 establish GATING; the 401 comes from `core/mcp/http.py:48`
+>    — rev 1 cited the wrong line for the right conclusion.
+> 4. **A fix commit introduced a defect never re-gated as a fix.** [verified, narrowed]
+>    `git log -S "Path/scheme differences"` dates the hole to `c944241`, the ai-panel's own
+>    fix commit; absent from draft `10fdc40`. Rev 1's "no pass ever reviewed the fixes" is
+>    **FALSE** — spec-panel ran on `c944241` and produced `c481ddd`. The true gap: no stage
+>    re-gated the fixes AS fixes.
+> 5. **Panels inherit one model context's blind spots.** [inference] Motivation, not proven
+>    mechanism. Rev 1's derived principle "the remedy must be deterministic protocol steps /
+>    every stage ships a callable" is WITHDRAWN — it rested on a conclusion its own source
+>    (`2026-07-15-consolidation-spec-postmortem.md` §8) had already falsified: *"Codex used
+>    zero information I lacked."* The external reader is a backstop, not the mechanism.
 
 **As a** panel-gate consumer relying on sh:*-panel verdicts before implementation,
 **I want** the shared panel protocol to verify external-spec conformance, dry-run emitted
@@ -90,34 +97,62 @@ reviewer (codex) would apply — instead of only internal-consistency checks.
   indexing dependency. Serena + Read only.") with a scoped exception permitting
   curl/WebFetch for external spec documents only; the no-new-*indexing*-dependency rule
   stands. Without this the two lines conflict and the stage is unimplementable as written.
+  **Retrieval resilience (required, else the stage is not reproducible):** source precedence
+  (canonical URL > vendored copy carrying source URL + retrieval date); pin to a tag/commit
+  URL never a mutable branch; record resolved URL + sha256 of fetched bytes in the finding;
+  cache in session scratchpad keyed by sha256, one fetch per spec per run; **fail-closed** —
+  unreachable / off-host redirect / non-2xx emits `EXTERNAL-SPEC-UNAVAILABLE` and MUST NOT
+  score conformance as passing.
+  _Note: fetching ARD showed the story's "§3.4 MUST-violation" framing was too strong — the
+  normative MUST is §4.2 and it is satisfied; §3.4 is a semantic mismatch (url = reference
+  to the artifact document, pointed at a live endpoint). The same fetch surfaced a harder,
+  uncited violation: §4.2.1 requires a verifiable-domain publisher, and the spec uses a
+  project name. Both are still CRITICAL under "disclosed ≠ resolved"._
 - [ ] AC-2: Protocol gains a **Consumer dry-run** rule: any artifact the design emits for a
   named consumer (CLI command, config snippet, API payload) is checked against that
   consumer's actual contract (its docs, config schema, or source when local) with the
   question "does this run/connect as generated?" — cross-linking
   feedback_verify_contract_against_consumer (kills root cause 3).
-  **Two tiers, cheap first:** Tier 1 (always, zero-fetch) — an emit that contradicts the
-  reviewed document's OWN claims about the endpoint it targets is CRITICAL; this alone
-  catches the ARD 401 (line 134 emits unauthenticated vs lines 66/143 "bearer auth").
-  Tier 2 (escalation) — fetch the consumer's real contract when Tier 1 is clean.
+  **Two tiers:** Tier 1 (always, zero-fetch) — an emit that contradicts the reviewed
+  document's OWN claims about the endpoint it targets is CRITICAL (line 134 emits
+  unauthenticated vs lines 66/143 "bearer auth"). Tier 2 (**mandatory whenever a real
+  contract is reachable**) — fetch the consumer's actual contract; skipped ONLY when none is
+  reachable, and that skip reports `CONSUMER-CONTRACT-UNVERIFIED`, never a pass. Rev 1 made
+  Tier 2 conditional on Tier 1 being inconclusive, which let a confidently-wrong but
+  internally-consistent document skip it entirely — defeating the requirement.
+  _Citation correction: lines 66/143 establish bearer GATING; the 401 itself comes from
+  `core/mcp/http.py:48`. Tier 1 sees the contradiction; only Tier 2 proves the 401._
 - [ ] AC-3: `PANEL_CORE.md` Auto-Fix Policy gains a **fix re-gate**: after applying fixes,
-  one adversarial refute pass runs over the fix diff (via
-  `00_Governance/scripts/codex_refute.py` where codex is available, self-refute otherwise)
-  BEFORE commit; findings against the fixes are fixed and re-gated once (kills root
-  cause 4). **Loop bound — stop at two:** two consecutive rounds finding author-introduced
-  defects halts the loop and escalates to the operator; no third patch. (Adopts the
-  existing gate in `codex_refute.py`, which exists because a self-scored 7.4 spec was
-  scored 4.2→4.1→3.0 by codex as its author "fixed" it.)
+  one adversarial refute pass runs over the fix diff BEFORE commit; findings against the
+  fixes are fixed and re-gated once (kills root cause 4, narrowed — a later panel DID review
+  `c944241`'s content; what never happened was re-gating the fixes AS fixes).
+  **Mechanism — new `scripts/panel_regate.py`.** `codex_refute.py` alone does NOT do this:
+  it reviews one path and records a path-keyed score, and never captures a diff, re-invokes
+  itself after edits, or applies findings. The wrapper (1) captures the fix diff across all
+  touched repos, (2) calls `codex_refute.py` on that artifact, (3) applies survivors and
+  re-gates once, (4) enforces the stop bound, exiting non-zero on trip.
+  **Loop bound — corrected to what the code implements:** `codex_refute.py:126`
+  (`consecutive_fails`) counts ANY two consecutive sub-gate scores; it does NOT classify
+  findings as author-introduced nor verify a fix round occurred. So the bound is: **two
+  consecutive sub-gate verdicts halt the loop and escalate.** Whether defects were
+  author-introduced is a human judgment at escalation, not a machine test.
 - [ ] AC-4 (regression fixture, falsifiable): running the upgraded spec-panel against the
   pre-codex ARD spec revision (`a2a-cli-registry` commit `c481ddd`) catches at least 2 of
-  the 3 codex CRITICALs (ARD §3.4 url-vs-endpoint, missing bearer in emits, https→http
-  downgrade) WITHOUT codex assistance — verified red-first by confirming the current
-  protocol misses all 3 on the same fixture.
-  **Determinism rule:** panels are non-deterministic, so the assertion is a detection floor
-  over N=3 `--model`-pinned runs — median signature-match ≥ 2 passes; the red-first run on
-  the current protocol must produce median 0, and its output is committed to
-  `tests/fixtures/` before the test is accepted. Harness `scripts/panel_regression.sh`
-  clones `scripts/measure-panel-vs-analyze.sh` and reuses `parse_panel_verdict()` from
-  `00_Governance/scripts/quality_gate.py` (fail-closed on a missing verdict line).
+  the 3 codex CRITICALs (§3.4 url-vs-endpoint semantics, missing auth in emits, scheme
+  downgrade) WITHOUT codex assistance.
+  **Isolation (mandatory):** the run sets `PANEL_REGATE=0` to disable FR-3; a run that
+  observes any codex invocation is VOID, not a pass — `panel_regression.sh` fails if the
+  codex-refute ledger gains a round mid-run. Without this, FR-3's own codex call
+  contaminates the detector and manufactures a pass.
+  **Detection scoring:** signatures are SEMANTIC regexes over finding text (documented,
+  stored beside the fixture, unit-tested on a match + near-miss pair); line anchors are
+  advisory context and never gate a match.
+  **Statistical rule:** N=5 `--model`-pinned runs. Green = ≥4 of 5 score ≥2 signatures.
+  Red = ≥4 of 5 runs on the CURRENT protocol score 0, committed to `tests/fixtures/` before
+  green is accepted. Any overlap (a current-protocol run scoring ≥2) makes the test
+  INCONCLUSIVE and the signature set is revised — no pass claimed from noisy separation.
+  Harness `scripts/panel_regression.sh` follows `scripts/measure-panel-vs-analyze.sh` and
+  reuses `parse_panel_verdict()` from `00_Governance/scripts/quality_gate.py`.
 - [ ] AC-5 (propagation — the blast radius the story originally under-scoped): the new
   stages reach all **13** in-scope surfaces, not 2 (1 PANEL_PROTOCOL + 1 PANEL_CORE +
   `00_Governance/CLAUDE.md §8` + **10** `sh-*-panel/SKILL.md` that load the protocol;
