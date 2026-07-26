@@ -48,6 +48,43 @@
 
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
+> **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
+> The mechanically-verifiable half shipped as **US-AF-05** (Ready/DONE). What remains here
+> is the half two independent reviews found structurally unsound. **Do not start a third
+> fix round on the old spec** — `codex_refute.py` will refuse without `--force`, and the
+> 2026-07-15 precedent (4.2→4.1→3.0) is what that guard exists to stop.
+>
+> **Refinement conditions — each must be ANSWERED IN DESIGN, not patched in prose,
+> before this is re-gated.** All are verified findings from codex round 2:
+> 1. **Codex isolation is unsolved.** `PANEL_REGATE=0` does not isolate: `PANEL_PROTOCOL.md:16`
+>    independently tells panels to use `codex exec`. Ledger-watching cannot see direct
+>    invocations, no-row failures (timeout/no-verdict), or other ledger keys. Until this is
+>    solved, AC-4 cannot prove detection "without codex".
+> 2. **Fix-diff capture is unsolved.** `git diff` misses untracked + staged files —
+>    demonstrated on this very spec (`git diff → 0 bytes` while untracked). New files are the
+>    highest-risk fix surface. Needs a real design: repo discovery, provenance, and how
+>    unstructured findings get applied.
+> 3. **Detector polarity.** The "semantic signatures" match negated statements ("the command
+>    correctly includes bearer auth"). No finding-extractor is specified, so matching quoted
+>    source can manufacture hits.
+> 4. **Run independence.** Panels auto-fix, so run 1 mutates the fixture for runs 2-5; no
+>    worktree reset is specified. And 4-of-5 clears 18.75% of the time for a 50%-accurate
+>    detector — the statistical rule does not carry the weight placed on it.
+> 5. **FR-2 performs no dry-run.** It requires READING a contract, never executing/parsing
+>    the emit against the consumer. Title and mechanism disagree.
+> 6. **Acceptance taxonomy missing.** `CRITICAL`, `EXTERNAL-SPEC-UNAVAILABLE`,
+>    `CONSUMER-CONTRACT-UNVERIFIED` have no mapping to the numeric panel gate — a panel can
+>    score >7 while emitting them. Also: `codex_refute.py` REJECTS self-review substitution,
+>    so the "self-refute fallback" has no implementation.
+> 7. **Open question the split exposes:** FR-1/FR-2 are model-followed prose with no code
+>    enforcement. Their only evidence would come from a regression test that conditions 1-4
+>    show is currently unsound. **Decide whether they are viable at all before re-speccing** —
+>    shelving them is a legitimate outcome.
+>
+> Spec `docs/specs/2026-07-26-panel-protocol-external-conformance-design.md` (rev 2) is
+> retained as the evidence record, NOT as an approved design. Its §1.1/§1.2 corrections and
+> §2 counts survived review; its §3-§5 mechanisms did not.
+
 > Origin: ARD fleet-discovery spec review (a2a-cli-registry, 2026-07-26). Two panels
 > (ai-panel 8.4, spec-panel 8.6) passed a spec that codex then scored 3-4/10 with three
 > CRITICALs. Post-mortem found four protocol-level root causes (all verified, not guessed):
@@ -197,11 +234,79 @@ _(Re-sized M→L at DOR: 13 files + a new regression harness exceeds M's 4-8 que
   Load-Protocol step used by the existing 10.
 - [ ] AC-2: `sh-claude-code-panel`'s copied Verbosity block is replaced by a load of
   `PANEL_CORE.md` — no verbatim duplicates of shared blocks remain.
-- [ ] AC-3: A check asserts every `sh-*-panel/SKILL.md` references the shared protocol;
-  it fails red before the fix. Coordinate with US-AF-03 AC-5 — whichever lands second
-  adopts the other's propagation check rather than adding a second one.
+- [x] AC-3: A check asserts every `sh-*-panel/SKILL.md` references the shared protocol;
+  it fails red before the fix. **DONE via US-AF-05** — `tests/test_panel_propagation.py`
+  provides it; the 6 remaining unwired skills are `xfail` entries in `KNOWN_UNWIRED`, and
+  `test_known_unwired_list_is_accurate` forces the list to shrink as each is fixed.
+
+_Scope reduced 7 → 6 by US-AF-05: `sh-claude-code-panel` was fixed (its verbatim Verbosity
+copy now references PANEL_CORE), satisfying AC-2 for that skill. Remaining:
+`sh-4-reviewer-panel`, `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`,
+`sh-marketing-panel`, `sh-visualization-panel`. Each fix flips an xfail to XPASS._
 
 **Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]` `[debt]`
+
+### US-AF-05: Panel protocol propagation — wholesale application + propagation test
+
+> Split from US-AF-03 on 2026-07-26: the mechanically-verifiable half. Its counts
+> (10 protocol loaders / 9 core loaders / 17 panel dirs / 7 unwired) were the ONLY claims
+> in the US-AF-03 spec to survive both codex rounds unchallenged.
+>
+> Root cause: every `sh-*-panel/SKILL.md` named the protocol sections it applied
+> ("apply its Grounding and Refute Stage sections") — a named-section ALLOWLIST, so any
+> stage added to `PANEL_PROTOCOL.md` was inert in all 10 consumers.
+
+**As a** maintainer of the shared panel protocol,
+**I want** every panel skill to apply the protocol wholesale and a test to enforce it,
+**so that** adding a protocol stage takes effect without a 10-file edit, and drift fails CI.
+
+**Acceptance Criteria:**
+- [x] AC-1: All 10 protocol-loading SKILL.md files apply the protocol IN FULL rather than
+  enumerating sections. _Verified: 10 files rewritten; test `…apply_protocol_wholesale`
+  passes for each._
+- [x] AC-2: `sh-claude-code-panel`'s verbatim `PANEL_CORE` Verbosity copy replaced by a
+  reference. `sh-business-panel`'s reworded block kept and labelled a deviation — permitted
+  by PANEL_CORE's own header. _Verified: `test_no_verbatim_copies_of_shared_blocks` passes._
+- [x] AC-3: Propagation test exists, was seen RED first, and is mutation-verified.
+  _Verified: red = `11 failed, 13 passed, 7 xfailed`; green = `26 passed, 6 xfailed`;
+  mutation (revert one skill to allowlist form) → `1 failed`, detector confirmed live._
+- [x] AC-4: Denominator guarded — `test_panel_population_is_discovered` fails if the glob
+  returns <15, so the parametrized tests can never pass vacuously.
+
+**Status:** DONE 2026-07-26 · **Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]`
+**Not claimed:** presence ≠ behavior. These tests prove each skill READS the protocol; they
+prove nothing about whether the model FOLLOWS it. That evidence was US-AF-03's job and
+remains unbuilt. **Scope:** the live tree `~/.claude/skills` only — see US-AF-06.
+
+### US-AF-06: Resolve the stale agentflow skill fork (18 divergent panel copies)
+
+> Surfaced while shipping US-AF-05 (2026-07-26). `20_agentflow/.claude/skills/` holds 18
+> `sh-*panel*` dirs that are a divergent fork of the live `~/.claude/skills` tree.
+> [verified] 10 still carry the allowlist Load-Protocol form US-AF-05 removed; 11 of 18
+> predate the `PANEL_CORE.md` extraction entirely (they inline Verbosity / Expert Loading /
+> Auto-Fix instead of loading the shared core). Newest agentflow copy is dated Jun 26, i.e.
+> the `_skills-migration-backup-2026-06-26` cutover.
+>
+> Risk: `sh:newskill` documents the sync direction as **agentflow → global**
+> ("Sync all agentflow skills to global ~/.claude/"). If that ever runs, the stale fork
+> overwrites the live tree and silently reverts US-AF-05 plus the whole PANEL_CORE
+> extraction. Guarded for now by `test_agentflow_fork_is_not_silently_live`.
+
+**As a** maintainer of the panel skills,
+**I want** exactly one source of truth for `sh-*-panel` skills,
+**so that** a routine sync cannot silently revert shipped protocol work.
+
+**Acceptance Criteria:**
+- [ ] AC-1: Decide and document the authoritative tree (evidence favors `~/.claude/skills`:
+  it is what the harness loads and the only one post-PANEL_CORE).
+- [ ] AC-2: The non-authoritative tree is deleted, or converted to symlinks, or explicitly
+  marked archived — no third state where a sync could resurrect it.
+- [ ] AC-3: `sh:newskill`'s documented direction is reconciled with the decision, so the
+  command cannot re-introduce the fork.
+- [ ] AC-4: `test_agentflow_fork_is_not_silently_live` is updated or removed to match the
+  resolution, and the suite still passes.
+
+**Size:** S · **Tags:** `[agentflow]` `[panels]` `[debt]` `[hazard]`
 
 ## Ready
 
