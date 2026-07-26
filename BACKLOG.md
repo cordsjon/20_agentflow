@@ -77,6 +77,8 @@ artifacts against their consumers, and adversarially re-gate its own auto-fixes,
 **so that** a passing panel score means the design survives the checks an independent
 reviewer (codex) would apply — instead of only internal-consistency checks.
 
+**Spec:** `docs/specs/2026-07-26-panel-protocol-external-conformance-design.md`
+
 **Acceptance Criteria:**
 - [ ] AC-1: `PANEL_PROTOCOL.md` gains an **External-Contract Conformance** stage: when the
   reviewed artifact names an external spec/protocol it implements (ARD, MCP, A2A, OAuth,
@@ -84,22 +86,87 @@ reviewer (codex) would apply — instead of only internal-consistency checks.
   session scratchpad), enumerate the MUST/SHALL clauses the design touches, and verify
   each. A disclosed-but-unresolved MUST violation is a CRITICAL finding — an author risk
   note never downgrades it (kills root causes 1+2).
+  **Constraint amendment:** the same edit supersedes `PANEL_PROTOCOL.md:10` ("No new
+  indexing dependency. Serena + Read only.") with a scoped exception permitting
+  curl/WebFetch for external spec documents only; the no-new-*indexing*-dependency rule
+  stands. Without this the two lines conflict and the stage is unimplementable as written.
 - [ ] AC-2: Protocol gains a **Consumer dry-run** rule: any artifact the design emits for a
   named consumer (CLI command, config snippet, API payload) is checked against that
   consumer's actual contract (its docs, config schema, or source when local) with the
   question "does this run/connect as generated?" — cross-linking
   feedback_verify_contract_against_consumer (kills root cause 3).
+  **Two tiers, cheap first:** Tier 1 (always, zero-fetch) — an emit that contradicts the
+  reviewed document's OWN claims about the endpoint it targets is CRITICAL; this alone
+  catches the ARD 401 (line 134 emits unauthenticated vs lines 66/143 "bearer auth").
+  Tier 2 (escalation) — fetch the consumer's real contract when Tier 1 is clean.
 - [ ] AC-3: `PANEL_CORE.md` Auto-Fix Policy gains a **fix re-gate**: after applying fixes,
-  one adversarial refute pass runs over the fix diff (codex where available, self-refute
-  otherwise) BEFORE commit; findings against the fixes are fixed and re-gated once (kills
-  root cause 4). Sync note honored — PANEL_CORE.md and PANEL_PROTOCOL.md updated together.
+  one adversarial refute pass runs over the fix diff (via
+  `00_Governance/scripts/codex_refute.py` where codex is available, self-refute otherwise)
+  BEFORE commit; findings against the fixes are fixed and re-gated once (kills root
+  cause 4). **Loop bound — stop at two:** two consecutive rounds finding author-introduced
+  defects halts the loop and escalates to the operator; no third patch. (Adopts the
+  existing gate in `codex_refute.py`, which exists because a self-scored 7.4 spec was
+  scored 4.2→4.1→3.0 by codex as its author "fixed" it.)
 - [ ] AC-4 (regression fixture, falsifiable): running the upgraded spec-panel against the
   pre-codex ARD spec revision (`a2a-cli-registry` commit `c481ddd`) catches at least 2 of
   the 3 codex CRITICALs (ARD §3.4 url-vs-endpoint, missing bearer in emits, https→http
   downgrade) WITHOUT codex assistance — verified red-first by confirming the current
   protocol misses all 3 on the same fixture.
+  **Determinism rule:** panels are non-deterministic, so the assertion is a detection floor
+  over N=3 `--model`-pinned runs — median signature-match ≥ 2 passes; the red-first run on
+  the current protocol must produce median 0, and its output is committed to
+  `tests/fixtures/` before the test is accepted. Harness `scripts/panel_regression.sh`
+  clones `scripts/measure-panel-vs-analyze.sh` and reuses `parse_panel_verdict()` from
+  `00_Governance/scripts/quality_gate.py` (fail-closed on a missing verdict line).
+- [ ] AC-5 (propagation — the blast radius the story originally under-scoped): the new
+  stages reach all **13** in-scope surfaces, not 2 (1 PANEL_PROTOCOL + 1 PANEL_CORE +
+  `00_Governance/CLAUDE.md §8` + **10** `sh-*-panel/SKILL.md` that load the protocol;
+  verified `grep -rl PANEL_PROTOCOL --include=SKILL.md` → 10, PANEL_CORE consumers a strict
+  subset). Those 10 Load-Protocol lines each name an allowlist of sections ("apply its
+  Grounding and Refute Stage sections"), so appending a stage to `PANEL_PROTOCOL.md` leaves
+  it **inert**. Rewrite them to apply the protocol wholesale (preferred — removes the
+  10-file edit on every future protocol change). `00_Governance/CLAUDE.md §8` (line 112) is
+  updated in the same change: it is the canonical source `PANEL_CORE.md` cites, so leaving
+  it stating the old policy re-introduces the drift the sync note guards. Test: a check
+  asserts all 13 surfaces reference the new stages.
+- [ ] AC-6 (gate independence): this story is gated by
+  `codex_refute.py <spec> --gate 7.0`, NOT by `sh:spec-panel`. Rationale: spec-panel scored
+  8.6 on the defective ARD spec, so scoring the spec-panel repair with the un-upgraded
+  spec-panel is circular and its auto-fixes inherit root cause 4. spec-panel may run for
+  coverage; codex is the tiebreaker. Recorded score lands in the spec doc §5.
 
-**Size:** M · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]`
+**Size:** L · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]`
+_(Re-sized M→L at DOR: 13 files + a new regression harness exceeds M's 4-8 queue items.)_
+
+### US-AF-04: 7 panel skills load no grounding protocol at all
+
+> Surfaced by the US-AF-03 DOR gate (2026-07-26), pre-existing and independent of it.
+> Of 17 `sh-*-panel` skills, only 10 reference `PANEL_PROTOCOL.md`. These 7 reference
+> neither it nor `PANEL_CORE.md`: `sh-4-reviewer-panel`, `sh-claude-code-panel`,
+> `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`, `sh-marketing-panel`,
+> `sh-visualization-panel`. Grepping them for `grounding|refute|shared core|load protocol`
+> returns nothing — the only hit is `sh-claude-code-panel:30`, a verbatim COPY of the
+> Verbosity block rather than a load of the shared file (the drift the PANEL_CORE sync
+> note exists to prevent, already realized).
+>
+> Consequence: these panels can report ungrounded, un-refuted findings today, and
+> `sh-legal-panel` in particular carries real-world risk. Deliberately excluded from
+> US-AF-03's AC-5 to avoid ballooning an already-L story.
+
+**As a** consumer of any `sh:*-panel` verdict,
+**I want** every panel skill to load the shared grounding + refute protocol,
+**so that** "a panel reviewed it" means the same thing regardless of which panel ran.
+
+**Acceptance Criteria:**
+- [ ] AC-1: All 7 listed skills load `PANEL_PROTOCOL.md` and `PANEL_CORE.md`, matching the
+  Load-Protocol step used by the existing 10.
+- [ ] AC-2: `sh-claude-code-panel`'s copied Verbosity block is replaced by a load of
+  `PANEL_CORE.md` — no verbatim duplicates of shared blocks remain.
+- [ ] AC-3: A check asserts every `sh-*-panel/SKILL.md` references the shared protocol;
+  it fails red before the fix. Coordinate with US-AF-03 AC-5 — whichever lands second
+  adopts the other's propagation check rather than adding a second one.
+
+**Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]` `[debt]`
 
 ## Ready
 
