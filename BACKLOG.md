@@ -46,6 +46,61 @@
 
 ## Refining
 
+### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
+
+> Origin: ARD fleet-discovery spec review (a2a-cli-registry, 2026-07-26). Two panels
+> (ai-panel 8.4, spec-panel 8.6) passed a spec that codex then scored 3-4/10 with three
+> CRITICALs. Post-mortem found four protocol-level root causes (all verified, not guessed):
+>
+> 1. **Grounding is internal-only.** `PANEL_PROTOCOL.md ## Grounding` mandates resolving
+>    claims in repo source or the reviewed document — no step ever fetches the EXTERNAL
+>    standard the design claims conformance to. The ARD §3.4 url-as-artifact-document
+>    MUST-violation and the §4.2.1 FQDN-publisher rule were only catchable by reading
+>    `ard.md` itself, which codex did and the panels structurally could not.
+> 2. **Risk-note laundering.** The draft's Risk 2 already disclosed the url-vs-endpoint
+>    tension ("flagged for re-check at v1.0"); both panels treated the author's hedge as
+>    mitigation. Disclosure is not resolution when an external MUST is violated.
+> 3. **No consumer dry-run.** Emitted artifacts (claude mcp add command, OpenWorker config)
+>    were reviewed for shape, never checked against the consumer's real contract — the
+>    generated command dialed a bearer-gated endpoint with no auth header → guaranteed 401.
+>    (Existing memory rule feedback_verify_contract_against_consumer exists but is not
+>    encoded in the panel protocol.)
+> 4. **Auto-fix without re-gate.** The https→http downgrade hole did not exist in the
+>    draft — it was INTRODUCED by the ai-panel's own auto-fix ("path/scheme differences on
+>    the same host are accepted") and no pass ever reviewed the fixes themselves.
+>    Structural note: panels are personas inside ONE model context and inherit its blind
+>    spots; the remedy must be deterministic protocol steps, not "personas try harder."
+
+**As a** panel-gate consumer relying on sh:*-panel verdicts before implementation,
+**I want** the shared panel protocol to verify external-spec conformance, dry-run emitted
+artifacts against their consumers, and adversarially re-gate its own auto-fixes,
+**so that** a passing panel score means the design survives the checks an independent
+reviewer (codex) would apply — instead of only internal-consistency checks.
+
+**Acceptance Criteria:**
+- [ ] AC-1: `PANEL_PROTOCOL.md` gains an **External-Contract Conformance** stage: when the
+  reviewed artifact names an external spec/protocol it implements (ARD, MCP, A2A, OAuth,
+  …), the panel MUST retrieve the authoritative spec text (curl/WebFetch, cached to the
+  session scratchpad), enumerate the MUST/SHALL clauses the design touches, and verify
+  each. A disclosed-but-unresolved MUST violation is a CRITICAL finding — an author risk
+  note never downgrades it (kills root causes 1+2).
+- [ ] AC-2: Protocol gains a **Consumer dry-run** rule: any artifact the design emits for a
+  named consumer (CLI command, config snippet, API payload) is checked against that
+  consumer's actual contract (its docs, config schema, or source when local) with the
+  question "does this run/connect as generated?" — cross-linking
+  feedback_verify_contract_against_consumer (kills root cause 3).
+- [ ] AC-3: `PANEL_CORE.md` Auto-Fix Policy gains a **fix re-gate**: after applying fixes,
+  one adversarial refute pass runs over the fix diff (codex where available, self-refute
+  otherwise) BEFORE commit; findings against the fixes are fixed and re-gated once (kills
+  root cause 4). Sync note honored — PANEL_CORE.md and PANEL_PROTOCOL.md updated together.
+- [ ] AC-4 (regression fixture, falsifiable): running the upgraded spec-panel against the
+  pre-codex ARD spec revision (`a2a-cli-registry` commit `c481ddd`) catches at least 2 of
+  the 3 codex CRITICALs (ARD §3.4 url-vs-endpoint, missing bearer in emits, https→http
+  downgrade) WITHOUT codex assistance — verified red-first by confirming the current
+  protocol misses all 3 on the same fixture.
+
+**Size:** M · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]`
+
 ## Ready
 
 - **Code-Level Quality Gate Augmentation** → DONE (2026-03-09) `[governance]` `[quality]` · **S** _(project: Governance)_ — Adopt two high-leverage quality patterns from [ryanthedev/code-foundations](https://github.com/ryanthedev/code-foundations) (MIT, v4.0) to add code-level enforcement where DOR/DOD currently operate only at process level. Business panel (5/5 consensus) + spec-panel (pass 1: 2.9/10 → pass 2: 7.6/10) shaped scope.
