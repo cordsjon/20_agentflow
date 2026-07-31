@@ -248,6 +248,18 @@ Report what the script printed.
 
 ---
 
+## Step 0U — Salvage Scratchpad URLs (always runs)
+
+Sweep all live scratchpad dirs for external URLs + their query context before the temp dirs die. Deduped JSONL ledger at `~/.local/state/scratchpad-urls/urls.jsonl`; consumer is the 20_CONSIGLIERE weekly RSS-mining DAG.
+
+```bash
+python3 ~/projects/00_Governance/scripts/salvage_scratchpad_urls.py
+```
+
+Idempotent (URL-sha dedupe), secret-scrubbed, skips private/tailnet hosts. Report the one-line summary it prints.
+
+---
+
 ## Step 1 — Gather Completed Work
 
 ### Default mode (lite)
