@@ -283,7 +283,7 @@ When real Paperclip lands, `paperclip_client.py` is the only file that changes; 
   <string>1</string>
 </array>
 <key>WorkingDirectory</key>
-<string>/Users/jcords-macmini/projects/30_OpenSandboxPipeline/services/webhook</string>
+<string>/Users/jc-folder/projects/30_OpenSandboxPipeline/services/webhook</string>
 <key>KeepAlive</key><true/>
 <key>ThrottleInterval</key><integer>10</integer>
 ```
