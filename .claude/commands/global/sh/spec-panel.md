@@ -29,7 +29,7 @@ Silent mode still performs full internal analysis — quality is preserved, only
 5. **Analyze**: Parse specification content, identify components, gaps, and quality issues
 6. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts` from panel YAML. `--experts` override replaces defaults entirely
 7. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
-8. **Score**: Rate specification across 4 dimensions (0-10 each), compute overall score
+8. **Score**: Rate specification across the 6 dimensions defined in the panel YAML (0-10 each), compute overall score
 9. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = specification needs rework
 
 ## Expert Loading
@@ -65,7 +65,7 @@ Learning-focused questioning to deepen understanding. Experts pose foundational 
 
 ## Scoring Gate
 
-5 dimensions, each scored 0-10:
+6 dimensions, each scored 0-10:
 
 | Dimension         | Description                                                              |
 |-------------------|-------------------------------------------------------------------------|
@@ -73,6 +73,7 @@ Learning-focused questioning to deepen understanding. Experts pose foundational 
 | Completeness      | Coverage of essential specification elements                            |
 | Testability       | Measurability and validation capability                                 |
 | Consistency       | Internal coherence and contradiction detection                          |
+| Operator-surface  | Every introduced capability reachable by both consumers — human operator (named CLI command + launchpad/menu entry, not just --help) and other agents (a2a registry entry as explicit AC when applicable). Scored from the operator-surface-completeness pre-scoring check; N/A when the spec has no operator-facing surface. |
 | Public-readiness  | Would this survive a public GitHub repo without ridicule — OSS hygiene (README, LICENSE, install/usage, examples, tests/CI) + design credibility (no hardcoded paths, secrets, bare excepts, happy-path-only). Weighted by actual public intent. |
 
 **Pass threshold: overall score >= 7.0**

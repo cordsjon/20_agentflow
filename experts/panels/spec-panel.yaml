@@ -1,3 +1,4 @@
+# tenet-bypass: do-no-harm — user-approved cross-project change (session stamped 20_CONSIGLIERE, panel config lives in 20_agentflow by design): formalize the operator-surface checklist from feedback_spec_cli_a2a_readiness_checklist into the panel
 name: spec-panel
 description: "Multi-expert specification review — quality gate for Refining → Ready"
 
@@ -57,6 +58,33 @@ pre-scoring-checks:
       consistency over freeform tables.
     when: spec contains 2+ tables with numeric values
 
+  - name: operator-surface-completeness
+    description: |
+      Before any expert scores, run the three-point operator-surface checklist:
+      (1) CLI surface — enumerate every operator verb the ACs imply anywhere in
+          prose ("the operator completes / reviews / dismisses / labels ...")
+          and verify each has a NAMED command in the spec. A service function
+          existing internally is not the same as it being operator-reachable.
+      (2) Launchpad/menu wiring — identify the target project's launchpad or
+          menu registry mechanism (e.g. Consigliere's hand-maintained MenuItem
+          tree in cli/menu.py: Typer `app.add_typer` alone does NOT surface a
+          command in the interactive menu; other projects have equivalents —
+          grep for the mechanism before assuming none exists). Verify every new
+          command is added to it, matching that mechanism's existing structural
+          pattern (flat list vs nested submenu), not inventing new structure.
+      (3) A2A readiness — ask whether the new capability should be discoverable
+          and invocable by other agents/services (registry entry, discoverable
+          schema, standard invocation contract — the a2a-cli-registry pattern).
+          If yes, the registry entry must be an explicit AC, not an afterthought.
+      Flag each miss as a MAJOR finding BEFORE expert deliberation begins.
+      Rationale: persona panels verify internal coherence and code-fact
+      accuracy — none of them is scoped to operator-surface completeness or
+      agent discoverability. This systematic blind spot let a spec ship with 3
+      missing CLI commands and zero launchpad wiring through two full review
+      rounds (teach-loop spec, 20_CONSIGLIERE, 2026-08-01). This step is
+      mechanical, executed by the panel runner, not by an expert voice.
+    when: spec introduces or modifies any operator-facing capability (new commands, endpoints, services, DAGs, workflows)
+
 scoring:
   min: 0
   max: 10
@@ -70,6 +98,18 @@ scoring:
       description: "Measurability and validation capability"
     - name: consistency
       description: "Internal coherence and contradiction detection"
+    - name: operator-surface
+      description: |
+        Is every capability the spec introduces reachable by both of its
+        consumers? (1) The human operator: every implied operator verb has a
+        named CLI command AND a launchpad/menu entry — a command that is only
+        --help-discoverable is not shipped for a human. (2) Other agents: when
+        the capability should be agent-invocable, an a2a registry entry /
+        discoverable schema is an explicit AC. Score directly from the
+        operator-surface-completeness pre-scoring check: each unaddressed miss
+        caps this dimension below the pass threshold; a spec with no
+        operator-facing surface at all scores this dimension N/A (excluded
+        from the overall average, noted in output).
     - name: public-readiness
       description: |
         Would this spec survive being opened on a public GitHub repo without
