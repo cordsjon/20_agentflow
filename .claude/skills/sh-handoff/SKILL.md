@@ -43,6 +43,10 @@ Produce a `HANDOVER.md` document that captures the full session state so the nex
 - [ ] [Question requiring human input]
 - [ ] [Ambiguity encountered during execution]
 
+## Payload Artifacts
+- [path of every file carrying research/data/compiled lists produced this session]
+- [If any research or compiled payload exists ONLY in conversation: STOP — write it to a file NOW, then list it here. "In-transcript only" is a failed handover.]
+
 ## Resume Checklist
 - [ ] Read this HANDOVER.md
 - [ ] Check `.autopilot` semaphore state
@@ -56,6 +60,7 @@ Produce a `HANDOVER.md` document that captures the full session state so the nex
 1. **Gather state** — read TODO-Today.md, DONE-Today.md, git status, git log
 2. **Capture decisions** — any architectural choices, tradeoffs, or interpretations made
 3. **Note open questions** — anything that needs human input or clarification
+3b. **Dump payloads to disk** — scan the session for research results, agent reports, or compiled lists that live only in conversation; write each to a durable file and list the paths under Payload Artifacts (2026-08-03: a 50-company research corpus was lost to a decisions-only handover and had to be recovered from raw transcript JSONL)
 4. **Write HANDOVER.md** — in project root, overwriting any previous handover
 5. **Update memory** — persist key decisions to `.claude/memory.md` if not already there
 
