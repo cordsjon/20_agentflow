@@ -7,7 +7,7 @@ description: "Requirements discovery through Socratic dialogue. Explores intent,
 
 Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
 
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
+Start by understanding the current project context, then ask questions in dependency-ordered rounds to refine the idea. Once you understand what you're building, present the design and get user approval.
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
@@ -23,7 +23,7 @@ You MUST complete these steps in order:
 
 1. **Explore project context** — check files, docs, recent commits
 2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
-3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
+3. **Ask clarifying questions** — in dependency-ordered rounds, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
 5. **Present design** — in sections scaled to their complexity, get user approval after each section
 6. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` and commit
@@ -77,10 +77,22 @@ digraph brainstorming {
 - Check out the current project state first (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems, flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec -> plan -> implementation cycle.
-- For appropriately-scoped projects, ask questions one at a time to refine the idea
+- For appropriately-scoped projects, ask questions in **dependency-ordered rounds** (see below)
 - Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message — if a topic needs more exploration, break it into multiple questions
 - Focus on understanding: purpose, constraints, success criteria
+
+**Dependency-ordered rounds:**
+
+Treat the open questions as a graph, not a queue. A question is *available* when everything it depends on has been answered — asking "which auth provider?" before "is this multi-tenant?" produces an answer to a question that shouldn't exist yet.
+
+Each round, ask **every question that is available now**, up to 4 per round via `AskUserQuestion`. Then let the answers open the next layer and ask that. Keep pushing the frontier until nothing is left.
+
+- **One available question → ask one.** A round of one is correct and common early on, when a single critical decision gates everything else. Do not pad a round to reach 4.
+- **Never batch across layers.** If Q3's framing changes depending on Q1's answer, Q3 belongs to the next round. When unsure whether B depends on A, assume it does and split the rounds.
+- **Every question carries a recommendation.** Put your recommended option first, labelled `(Recommended)`, with the reasoning in its description. This is what makes a round cheaper than sequential questions — the user scans and confirms rather than holding four open problems in their head. A round without recommendations is worse than asking one at a time.
+- **Label the round** (`Round 1`, `Round 2`) so the user can see the frontier moving.
+
+The failure mode this fixes: the tail of a session, where the hard decisions are settled and what remains is a dozen easy confirmations, each costing a full round-trip. Batching those collapses the tail. The failure mode it must not introduce: answering questions that a prior answer would have deleted or reframed.
 
 **Exploring approaches:**
 
@@ -137,7 +149,8 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ## Key Principles
 
-- **One question at a time** — Don't overwhelm with multiple questions
+- **Dependency-ordered rounds** — Ask everything unblocked now (max 4), never across layers
+- **Always recommend** — Every question leads with a recommended answer and its reasoning
 - **Multiple choice preferred** — Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** — Remove unnecessary features from all designs
 - **Explore alternatives** — Always propose 2-3 approaches before settling
