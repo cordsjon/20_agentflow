@@ -17,10 +17,16 @@ You distill raw observations into reusable, actionable patterns that prevent rep
    - If empty or missing, report "No pending insights" and exit
 
 2. **Filter and rank KP candidates** (US-CURATOR-02 evidence-count gating)
+
+   > **The script is the implementation.** `scripts/promote_insights.py` is what
+   > /lightsout Step 0 actually runs, and it already performs every step in this
+   > section. Prefer invoking it over re-implementing the logic here; this prose
+   > describes its behaviour so the two cannot drift.
+
    - Only process lines where `kp_candidate: true`
    - Read each line's `occurrence_count` (treat a missing field as `1` — legacy rows)
-   - Apply the promotion threshold: default `MIN_OCCURRENCE = 1` (preserves current behaviour; raise it to suppress one-off noise). Skip candidates below the threshold and report them as deferred, not promoted.
-   - Rank the surviving candidates by `occurrence_count` descending — high-recurrence lessons promote first
+   - Apply the promotion threshold: default `MIN_OCCURRENCE = 2`, matching the script's `--min-occurrences` default — a single sighting is an anecdote, not a pattern, and the deferral is non-destructive (a deferred insight is reported and stays in pending, never deleted, and promotes once it recurs). Override by passing `--min-occurrences` to the script. Comparison is inclusive (`>=`): at the default, count 2 promotes, count 1 defers.
+   - Rank the surviving candidates by **effective recurrence** descending (pending `occurrence_count` + matches for the same fingerprint in recent archive months) — high-recurrence lessons promote first, so a `--max` cut truncates the least-evidenced tail. Ties break by first-captured `date` ascending, then `sha256` ascending.
    - Skip duplicates (compare insight text against existing KP entries in `~/projects/00_Governance/KNOWN_PATTERNS.md`)
 
 3. **For each KP candidate (highest occurrence_count first):**
