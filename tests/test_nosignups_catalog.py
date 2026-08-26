@@ -278,11 +278,17 @@ def test_registry_conn_busy_timeout(tmp_path):
 # ---------------------------------------------------------------------------
 
 def _sync_paths(tmp_path):
+    """Paths for the sync tests below, scoped to the nosignups source only.
+
+    SOURCES holds more than one source; these tests assert on nosignups'
+    changelog and sinks, so they pin `sources` rather than sweeping all of them.
+    """
     return dict(
         state_dir=tmp_path / "state",
         qmd_dir=tmp_path / "qmd",
         artifact_path=tmp_path / "data" / "tool_catalog.json",
         db_path=_new_db(tmp_path),
+        sources=[c for c in nc.SOURCES if c["name"] == "nosignups"],
     )
 
 
@@ -399,3 +405,109 @@ def test_main_unknown_subcommand_exits_2():
     with pytest.raises(SystemExit) as exc:
         nc.main(["bogus"])
     assert exc.value.code == 2
+
+
+# ---------------------------------------------------------------------------
+# public-apis (README-sourced) normalizer
+# ---------------------------------------------------------------------------
+
+# Mirrors the real README's shape: a 3-column sponsored table up top, then
+# 5-column category tables, including rows with cosmetic trailing pipes.
+PA_README = """# Public APIs
+
+### APIs Covered Under APILayer Suite!
+
+| API | Description | Call this API |
+|:---|:---|:---|
+| [IPstack](https://ipstack.com/?utm_source=Github) | Locate visitors by IP | [Run](https://god.gw.postman.com/x) |
+
+## Index
+
+### Food & Drink
+
+| API | Description | Auth | HTTPS | CORS |
+|---|---|---|---|---|
+| [Edamam nutrition](https://developer.edamam.com/edamam-docs-nutrition-api) | Nutrition Analysis | `apiKey` | Yes | Unknown |
+| [Open Food Facts](https://world.openfoodfacts.org/data) | Food Products Database | No | Yes | Unknown |
+
+### Geocoding
+
+| API | Description | Auth | HTTPS | CORS |
+|---|---|---|---|---|
+| [Nominatim](https://nominatim.org/release-docs/latest/api/Overview/) | Worldwide OSM geocoding | No | Yes | Yes |
+| [Dropbox](https://www.dropbox.com/developers) | File Sharing and Storage | `OAuth` | Yes | Unknown | |
+"""
+
+
+def _pa_records():
+    return nc.normalize_public_apis(PA_README, source="public-apis")
+
+
+def test_public_apis_excludes_sponsored_promo_table():
+    """The 3-column APILayer table is affiliate content, not a curated API."""
+    names = {r["name"] for r in _pa_records()}
+    assert "IPstack" not in names
+
+
+def test_public_apis_keeps_rows_with_trailing_pipes():
+    """83 upstream rows carry a cosmetic trailing '|'; they are real entries."""
+    names = {r["name"] for r in _pa_records()}
+    assert "Dropbox" in names
+
+
+def test_public_apis_assigns_enclosing_category():
+    by_name = {r["name"]: r for r in _pa_records()}
+    assert by_name["Edamam nutrition"]["category"] == "Food & Drink"
+    assert by_name["Nominatim"]["category"] == "Geocoding"
+
+
+def test_public_apis_encodes_auth_https_cors_as_tags():
+    by_name = {r["name"]: r for r in _pa_records()}
+    assert "auth:apikey" in by_name["Edamam nutrition"]["tags"]
+    assert "auth:no" in by_name["Open Food Facts"]["tags"]
+    assert "cors:yes" in by_name["Nominatim"]["tags"]
+
+
+def test_public_apis_uid_and_toolid_are_slugged():
+    by_name = {r["name"]: r for r in _pa_records()}
+    assert by_name["Edamam nutrition"]["uid"] == "public-apis:edamam-nutrition"
+    for r in _pa_records():
+        assert nc.TOOLID_RE.match(r["uid"].split(":", 1)[1])
+
+
+def test_public_apis_kind_is_api_and_survives_classify():
+    """classify() must not re-derive 'api' into browser-only (registry gate)."""
+    records = nc.classify_all(_pa_records())
+    assert {r["kind"] for r in records} == {"api"}
+
+
+def test_public_apis_never_reaches_cli_registry(tmp_path):
+    """A remote endpoint is not runnable: QMD-only, no discoverable CLI row."""
+    db_path = _new_db(tmp_path)
+    written = nc.upsert_registry(nc.classify_all(_pa_records()), db_path)
+    assert written == 0
+    conn = sqlite3.connect(str(db_path))
+    try:
+        rows = conn.execute("SELECT COUNT(*) FROM cli").fetchone()[0]
+    finally:
+        conn.close()
+    assert rows == 0
+
+
+def test_public_apis_writes_one_qmd_file_per_api(tmp_path):
+    qmd_dir = tmp_path / "qmd"
+    nc.write_qmd(nc.classify_all(_pa_records()), qmd_dir)
+    files = sorted(p.name for p in (qmd_dir / "public-apis").glob("*.md"))
+    assert files == ["dropbox.md", "edamam-nutrition.md",
+                     "nominatim.md", "open-food-facts.md"]
+    body = (qmd_dir / "public-apis" / "edamam-nutrition.md").read_text()
+    assert 'category: "Food & Drink"' in body
+    assert "Nutrition Analysis" in body
+
+
+def test_public_apis_skips_row_with_unexpected_auth():
+    """An unrecognized Auth cell means we mis-parsed; drop rather than guess."""
+    bad = PA_README + (
+        "| [Bogus](https://bogus.example) | x | SomethingElse | Yes | No |\n")
+    assert "Bogus" not in {r["name"] for r in
+                           nc.normalize_public_apis(bad, source="public-apis")}
