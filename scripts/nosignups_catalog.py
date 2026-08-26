@@ -23,13 +23,14 @@ log = logging.getLogger("nosignups-catalog")
 
 # --- Constants (single source of truth; all paths overridable as params) ----
 RAW_URL = "https://raw.githubusercontent.com/BraveOPotato/FckSignups/refs/heads/main/tools.json"
+PUBLIC_APIS_URL = "https://raw.githubusercontent.com/public-apis/public-apis/master/README.md"
 STATE_DIR = Path.home() / ".local/state/nosignups-catalog"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"           # 20_agentflow/data
 QMD_DIR = DATA_DIR / "tool-directories"
 JSON_ARTIFACT = DATA_DIR / "tool_catalog.json"
 REGISTRY_DB = Path.home() / ".hermes/cli-registry.db"
 TOOLID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
-KINDS = ("cli", "js-lib", "self-host", "browser-only")
+KINDS = ("cli", "js-lib", "self-host", "browser-only", "api")
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +65,95 @@ def normalize_nosignups(payload: dict, source: str) -> list[dict]:
     return records
 
 
+# --- public-apis (README-sourced) ------------------------------------------
+# Upstream ships no machine-readable artifact (db/resources.json is 404), so the
+# README tables are the source of truth. Real category tables are 5-column
+# (API | Description | Auth | HTTPS | CORS); the sponsored APILayer table at the
+# top is 3-column. We gate on that *content* shape rather than on position, so
+# an upstream reshuffle can't silently pull affiliate rows into the catalog.
+
+_PA_HEADING_RE = re.compile(r"^###\s+(.+?)\s*$")
+_PA_LINK_RE = re.compile(r"^\[([^\]]+)\]\((https?://[^\s)]+)\s*\)$")
+# Closed vocabulary observed upstream; anything else means we mis-parsed a row.
+_PA_AUTH_VALUES = {"no", "apikey", "oauth", "x-mashape-key", "user-agent"}
+
+
+def _pa_cells(line: str) -> list[str]:
+    """Split a markdown table row, dropping trailing empty cells.
+
+    83 upstream rows carry cosmetic trailing pipes ("| |"). A strict len==5
+    check would drop real entries (Dropbox, FRED, SEC EDGAR, ...), so trim
+    first and length-check after.
+    """
+    cells = [c.strip() for c in line.strip().strip("|").split("|")]
+    while cells and not cells[-1]:
+        cells.pop()
+    return cells
+
+
+def _pa_slug(name: str) -> str:
+    """Name -> toolid matching TOOLID_RE (lowercase, [a-z0-9._-])."""
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    return slug[:64]
+
+
+def normalize_public_apis(payload: str, source: str) -> list[dict]:
+    """Raw upstream README text -> normalized records.
+
+    Category comes from the enclosing '### Heading'. Auth/HTTPS/CORS are
+    preserved as tags because they are the fields that decide whether an API
+    is usable at all (key required? browser-callable?).
+    """
+    records: list[dict] = []
+    seen: set[str] = set()
+    category = ""
+    for raw in payload.splitlines():
+        line = raw.strip()
+        heading = _PA_HEADING_RE.match(line)
+        if heading:
+            category = heading.group(1)
+            continue
+        if not line.startswith("|"):
+            continue
+        cells = _pa_cells(line)
+        if len(cells) != 5:
+            continue                              # promo table / malformed row
+        name_cell, desc, auth, https, cors = cells
+        if set(name_cell) <= set("-: "):
+            continue                              # header separator
+        link = _PA_LINK_RE.match(name_cell)
+        if not link:
+            continue                              # header row ("API"), or no link
+        auth_norm = auth.strip("`").strip().lower()
+        if auth_norm not in _PA_AUTH_VALUES:
+            log.warning("%s: skipped row with unexpected auth %r", source, auth[:40])
+            continue
+        name, url = link.group(1).strip(), link.group(2).strip()
+        tid = _pa_slug(name)
+        if not TOOLID_RE.match(tid) or tid in seen:
+            continue                              # invalid or duplicate name
+        seen.add(tid)
+        records.append({
+            "uid": f"{source}:{tid}",
+            "source": source,
+            "name": name,
+            "description": desc,
+            "url": url,
+            "category": category,
+            "tags": [
+                f"auth:{auth_norm}",
+                f"https:{https.strip().lower()}",
+                f"cors:{cors.strip().lower()}",
+            ],
+            "github": url if url.startswith("https://github.com/") else None,
+            "license": None,
+            "stars": 0,
+            "featured": False,
+            "kind": "api",       # classify() leaves this alone; see classify()
+        })
+    return records
+
+
 # ---------------------------------------------------------------------------
 # Task 3: classify
 # ---------------------------------------------------------------------------
@@ -75,6 +165,11 @@ _SELFHOST_RE = re.compile(r"\b(self[- ]?host\w*|docker)\b", re.I)
 
 def classify(record: dict) -> str:
     """Honest-by-default kind. github is a hard precondition for every non-default kind (AC-4)."""
+    # A remote HTTP endpoint is not a runnable artifact; the cli/js-lib/self-host
+    # heuristics below don't apply to it. Sources that already know their kind
+    # (public-apis) keep it rather than being re-derived from prose.
+    if record.get("kind") == "api":
+        return "api"
     if not record.get("github"):
         return "browser-only"
     blob = " ".join([record.get("description", ""), " ".join(record.get("tags", []))])
@@ -222,14 +317,18 @@ def _registry_conn(db_path: Path) -> sqlite3.Connection:
 
 
 def upsert_registry(records: list[dict], db_path: Path) -> int:
-    """Upsert kind != browser-only records as discoverable cli-registry rows.
+    """Upsert runnable records as discoverable cli-registry rows.
+
+    Excludes browser-only (nothing to install) and api (a remote HTTP endpoint
+    is not a runnable artifact — it would land as a row whose launch_spec
+    points at nothing). Those stay QMD-only.
 
     One transaction. Returns number of rows written.
     """
     rows = []
     now = datetime.datetime.now(datetime.timezone.utc).timestamp()
     for r in records:
-        if r["kind"] == "browser-only":
+        if r["kind"] in ("browser-only", "api"):
             continue
         toolid = _toolid_from_uid(r["uid"])
         if not TOOLID_RE.match(toolid):
@@ -324,7 +423,22 @@ def soft_remove_registry(removed_uids, db_path: Path) -> None:
 # Task 8: sync orchestration (diff, ordering, changelog, --dry-run)
 # ---------------------------------------------------------------------------
 
-SOURCES = [{"name": "nosignups", "url": RAW_URL, "normalize": normalize_nosignups}]
+def _decode_json(body: bytes):
+    return json.loads(body.decode("utf-8"))
+
+
+def _decode_text(body: bytes) -> str:
+    return body.decode("utf-8")
+
+
+# "decode" turns raw bytes into whatever the source's normalize() expects:
+# JSON for nosignups, plain markdown text for public-apis.
+SOURCES = [
+    {"name": "nosignups", "url": RAW_URL,
+     "normalize": normalize_nosignups, "decode": _decode_json},
+    {"name": "public-apis", "url": PUBLIC_APIS_URL,
+     "normalize": normalize_public_apis, "decode": _decode_text},
+]
 
 
 def _now_iso() -> str:
@@ -349,6 +463,7 @@ def sync_source(source_cfg, *, state_dir, qmd_dir, artifact_path, db_path,
     name = source_cfg["name"]
     url = source_cfg["url"]
     normalize_fn = source_cfg["normalize"]
+    decode_fn = source_cfg.get("decode", _decode_json)   # JSON stays the default
 
     state = load_state(state_dir, name)
     body, new_fields = fetch(url, state, urlopen=urlopen)
@@ -356,7 +471,7 @@ def sync_source(source_cfg, *, state_dir, qmd_dir, artifact_path, db_path,
         log.info("%s: unchanged", name)
         return f"{name}: unchanged"
 
-    payload = json.loads(body.decode("utf-8"))
+    payload = decode_fn(body)
     records = classify_all(normalize_fn(payload, source=name))
 
     old_uids = state.get("uids", [])
@@ -420,7 +535,7 @@ def _emit(urlopen=None, sources=None):
         body, _ = fetch(cfg["url"], {}, urlopen=urlopen)
         if body is None:
             continue
-        payload = json.loads(body.decode("utf-8"))
+        payload = cfg.get("decode", _decode_json)(body)
         all_records.extend(classify_all(cfg["normalize"](payload, source=cfg["name"])))
     return all_records
 
@@ -451,7 +566,7 @@ def main(argv=None) -> int:
         for k in KINDS:
             print(f"{k}: {counts.get(k, 0)}")
         for r in records:
-            if r["kind"] != "browser-only":
+            if r["kind"] not in ("browser-only", "api"):
                 print(f"{r['kind']}\t{r['uid']}")
         return 0
 
