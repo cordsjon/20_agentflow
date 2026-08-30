@@ -1,0 +1,149 @@
+# osm-panel — specialized deliberation for OSM-based mapping projects (Europe).
+# Created 2026-08-30 with spec-panel.yaml as blueprint (operator request,
+# 60_funroadtrip CR-4 session). Baseline failure this panel fixes: the generic
+# spec-panel has no OSM voice — tag-semantics defects (leisure=swimming_pool is
+# the basin, not the facility; swimming=yes undocumented) were only caught by
+# manual operator measurement, never by an expert lens.
+name: osm-panel
+description: "Multi-expert OSM/geodata architecture review — tag semantics, harvest pipelines, boundaries, corridors — for European mapping projects"
+
+modes:
+  - discussion
+  - critique
+  - socratic
+
+focus-areas:
+  - name: tagging
+    description: "Tag semantics, wiki-status drift, vocabulary gates, taginfo evidence"
+    lead: jochen-topf
+    experts: [jochen-topf, frederik-ramm, sarah-hoffmann]
+
+  - name: pipeline
+    description: "Extract selection, harvest/derive/reclassify ordering, corpus freshness, ODbL"
+    lead: frederik-ramm
+    experts: [frederik-ramm, jochen-topf, roland-olbricht]
+
+  - name: boundaries
+    description: "admin_level semantics per country, CRS choices, polygon vs point, geocoding"
+    lead: sarah-hoffmann
+    experts: [sarah-hoffmann, frederik-ramm, dennis-luxen]
+
+  - name: querying
+    description: "Overpass query design, rate limits, taginfo vs corpus counts, API etiquette"
+    lead: roland-olbricht
+    experts: [roland-olbricht, jochen-topf]
+
+  - name: routing
+    description: "Route corridors, ferry legs, profile semantics, network topology"
+    lead: dennis-luxen
+    experts: [dennis-luxen, roland-olbricht, sarah-hoffmann]
+
+default-experts: [jochen-topf, frederik-ramm, sarah-hoffmann, roland-olbricht]
+
+max-experts: 7
+
+auto-select:
+  - keywords: [route, routing, ferry, corridor, osrm, profile, autobahn, motorway, polyline]
+    add: [dennis-luxen]
+  - keywords: [overpass, rate-limit, quota, taginfo, query]
+    add: [roland-olbricht]
+  - keywords: [geofabrik, extract, pbf, odbl, attribution, licence, license, harvest]
+    add: [frederik-ramm]
+  - keywords: [admin_level, boundary, nominatim, geocode, municipality, kreis, commune]
+    add: [sarah-hoffmann]
+  # Cross-panel borrow: operator-surface / CLI reachability voice from spec-panel.
+  - keywords: [cli, command, operator, telemetry, observability]
+    add: [charity-majors]
+
+# Mandatory pre-scoring checks (deterministic, not LLM-delegated).
+# table-reconciliation and operator-surface-completeness are carried over from
+# spec-panel verbatim in spirit; tag-evidence and boundary-crs are OSM-native.
+pre-scoring-checks:
+  - name: table-reconciliation
+    description: |
+      Before any expert scores, extract every numeric claim from the spec's
+      tables (counts, totals, "≥ N", "= N") and verify it reconciles with the
+      enumerated items in other sections. Flag arithmetic mismatches as
+      CRITICAL findings BEFORE expert deliberation. Compensates for the known
+      LLM failure mode of hallucinating arithmetic consistency over tables.
+    when: spec contains 2+ tables with numeric values
+
+  - name: tag-evidence
+    description: |
+      Enumerate every OSM tag (key=value) the spec names. For each, the spec
+      must carry BOTH: (1) wiki status — documented / undocumented / deprecated
+      (a tag with no wiki page must be flagged, not silently trusted; the
+      free-tagging doctrine means presence in the corpus proves usage, not
+      meaning); (2) a measured count from the project corpus or taginfo — a
+      recalled count is not evidence. Flag each tag missing either leg as a
+      MAJOR finding BEFORE deliberation. Rationale: tag-semantics defects
+      (basin-vs-facility, undocumented values) are invisible to generalist
+      personas and cost re-harvests when caught late.
+    when: spec names any OSM tag
+
+  - name: boundary-crs
+    description: |
+      Enumerate every distance, radius, buffer, area, or polygon claim. Each
+      must name its CRS or unit basis (degrees are NOT meters; lon degrees
+      shrink with cos(latitude)) and — for admin-area claims — the country's
+      admin_level for that tier (admin_level=N is country-specific, never
+      universal). Flag each unanchored geometry claim as MAJOR. Rationale:
+      a buffer_km applied in EPSG:4326 or a Kreis assumed at the wrong level
+      silently corrupts every downstream count.
+    when: spec contains any geometry, distance, or admin-area claim
+
+  - name: operator-surface-completeness
+    description: |
+      Same three-point checklist as spec-panel: (1) every implied operator
+      verb has a NAMED CLI command; (2) launchpad/menu wiring where the
+      target project has one; (3) A2A registry entry as explicit AC when the
+      capability should be agent-invocable. Flag each miss as MAJOR before
+      deliberation. Mechanical, executed by the panel runner.
+    when: spec introduces or modifies any operator-facing capability
+
+scoring:
+  min: 0
+  max: 10
+  pass-threshold: 7.0
+  dimensions:
+    - name: clarity
+      description: "Language precision and understandability"
+    - name: tag-grounding
+      description: |
+        Is every OSM tag the spec relies on evidenced? Wiki status stated,
+        corpus/taginfo count measured, deprecations and regional variants
+        acknowledged. Score directly from the tag-evidence pre-scoring check:
+        each unaddressed miss caps this dimension below the pass threshold.
+        A spec naming no tags scores N/A (excluded from the average).
+    - name: pipeline-integrity
+      description: |
+        Does the data flow respect harvest → derive → classify → join →
+        bundle ordering? Are re-derive/reclassify passes named after every
+        vocabulary or classify() change? Are derived columns guarded against
+        the harvest-date split (a column added mid-corpus is empty for
+        earlier rows until an explicit backfill — flag any spec that adds a
+        derived column without naming its backfill run)? Is extract
+        provenance (which .pbf, which date) recorded, and is ODbL
+        attribution addressed for shipped artifacts?
+    - name: boundary-correctness
+      description: |
+        Are CRS choices explicit and metric where meters matter? Are
+        admin_level values verified per country rather than assumed? Are
+        edge effects at every spatial partition (corridor edge, region
+        boundary, postcode seam) named and either mitigated or measured?
+        Score directly from the boundary-crs pre-scoring check.
+    - name: consistency
+      description: "Internal coherence and contradiction detection"
+    - name: operator-surface
+      description: |
+        Every introduced capability reachable by its consumers — human
+        operator (named CLI command; launchpad/menu entry where the project
+        has one) and other agents (a2a registry entry as explicit AC when
+        applicable). Scored from the operator-surface-completeness check;
+        N/A when the spec has no operator-facing surface.
+
+output:
+  default-format: standard
+  include-scores: true
+  include-roadmap: true
+  include-consensus: true
