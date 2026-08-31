@@ -1,0 +1,8 @@
+# nosignups-catalog-sync — weekly pull of nosignups.net tools.json into
+# JSON artifact + QMD tool-directories + cli-registry discoverable rows.
+# Spec: ~/projects/20_agentflow/docs/superpowers/specs/2026-07-20-nosignups-catalog-sync-design.md
+# 304/hash-match ⇒ no-op. Failure leaves last-good sinks (state written last).
+schedule: "30 4 * * 1"
+steps:
+  - name: sync
+    command: python3 /Users/jcords-macmini/projects/20_agentflow/scripts/nosignups_catalog.py sync
