@@ -246,38 +246,6 @@ copy now references PANEL_CORE), satisfying AC-2 for that skill. Remaining:
 
 **Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]` `[debt]`
 
-### US-AF-05: Panel protocol propagation — wholesale application + propagation test
-
-> Split from US-AF-03 on 2026-07-26: the mechanically-verifiable half. Its counts
-> (10 protocol loaders / 9 core loaders / 17 panel dirs / 7 unwired) were the ONLY claims
-> in the US-AF-03 spec to survive both codex rounds unchallenged.
->
-> Root cause: every `sh-*-panel/SKILL.md` named the protocol sections it applied
-> ("apply its Grounding and Refute Stage sections") — a named-section ALLOWLIST, so any
-> stage added to `PANEL_PROTOCOL.md` was inert in all 10 consumers.
-
-**As a** maintainer of the shared panel protocol,
-**I want** every panel skill to apply the protocol wholesale and a test to enforce it,
-**so that** adding a protocol stage takes effect without a 10-file edit, and drift fails CI.
-
-**Acceptance Criteria:**
-- [x] AC-1: All 10 protocol-loading SKILL.md files apply the protocol IN FULL rather than
-  enumerating sections. _Verified: 10 files rewritten; test `…apply_protocol_wholesale`
-  passes for each._
-- [x] AC-2: `sh-claude-code-panel`'s verbatim `PANEL_CORE` Verbosity copy replaced by a
-  reference. `sh-business-panel`'s reworded block kept and labelled a deviation — permitted
-  by PANEL_CORE's own header. _Verified: `test_no_verbatim_copies_of_shared_blocks` passes._
-- [x] AC-3: Propagation test exists, was seen RED first, and is mutation-verified.
-  _Verified: red = `11 failed, 13 passed, 7 xfailed`; green = `26 passed, 6 xfailed`;
-  mutation (revert one skill to allowlist form) → `1 failed`, detector confirmed live._
-- [x] AC-4: Denominator guarded — `test_panel_population_is_discovered` fails if the glob
-  returns <15, so the parametrized tests can never pass vacuously.
-
-**Status:** DONE 2026-07-26 · **Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]`
-**Not claimed:** presence ≠ behavior. These tests prove each skill READS the protocol; they
-prove nothing about whether the model FOLLOWS it. That evidence was US-AF-03's job and
-remains unbuilt. **Scope:** the live tree `~/.claude/skills` only — see US-AF-06.
-
 ### US-AF-06: Resolve the stale agentflow skill fork (18 divergent panel copies)
 
 > Surfaced while shipping US-AF-05 (2026-07-26). `20_agentflow/.claude/skills/` holds 18
@@ -326,6 +294,40 @@ _(empty — see Refining / Done)_
 US-AF-01 and US-AF-02 are independent (no shared dependency) — both are memory-registration/extraction fixes, not blocking each other or downstream work.
 
 ## Done
+
+### US-AF-05: Panel protocol propagation — wholesale application + propagation test
+
+> Split from US-AF-03 on 2026-07-26: the mechanically-verifiable half. Its counts
+> (10 protocol loaders / 9 core loaders / 17 panel dirs / 7 unwired) were the ONLY claims
+> in the US-AF-03 spec to survive both codex rounds unchallenged.
+>
+> Root cause: every `sh-*-panel/SKILL.md` named the protocol sections it applied
+> ("apply its Grounding and Refute Stage sections") — a named-section ALLOWLIST, so any
+> stage added to `PANEL_PROTOCOL.md` was inert in all 10 consumers.
+
+**As a** maintainer of the shared panel protocol,
+**I want** every panel skill to apply the protocol wholesale and a test to enforce it,
+**so that** adding a protocol stage takes effect without a 10-file edit, and drift fails CI.
+
+**Acceptance Criteria:**
+- [x] AC-1: All 10 protocol-loading SKILL.md files apply the protocol IN FULL rather than
+  enumerating sections. _Verified: 10 files rewritten; test `…apply_protocol_wholesale`
+  passes for each._
+- [x] AC-2: `sh-claude-code-panel`'s verbatim `PANEL_CORE` Verbosity copy replaced by a
+  reference. `sh-business-panel`'s reworded block kept and labelled a deviation — permitted
+  by PANEL_CORE's own header. _Verified: `test_no_verbatim_copies_of_shared_blocks` passes._
+- [x] AC-3: Propagation test exists, was seen RED first, and is mutation-verified.
+  _Verified: red = `11 failed, 13 passed, 7 xfailed`; green = `26 passed, 6 xfailed`;
+  mutation (revert one skill to allowlist form) → `1 failed`, detector confirmed live._
+- [x] AC-4: Denominator guarded — `test_panel_population_is_discovered` fails if the glob
+  returns <15, so the parametrized tests can never pass vacuously.
+
+**Status:** DONE 2026-07-26 · **Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]`
+**Not claimed:** presence ≠ behavior. These tests prove each skill READS the protocol; they
+prove nothing about whether the model FOLLOWS it. That evidence was US-AF-03's job and
+remains unbuilt. **Scope:** the live tree `~/.claude/skills` only — see US-AF-06.
+> _moved to Done 2026-09-07 — shipped `03ffd470` 2026-07-26; verified 2026-09-07: `pytest tests/test_panel_propagation.py -q` -> 29 passed, 6 xfailed._
+
 
 - **Code-Level Quality Gate Augmentation** → DONE (2026-03-09) `[governance]` `[quality]` · **S** _(project: Governance)_ — Adopt two high-leverage quality patterns from [ryanthedev/code-foundations](https://github.com/ryanthedev/code-foundations) (MIT, v4.0) to add code-level enforcement where DOR/DOD currently operate only at process level. Business panel (5/5 consensus) + spec-panel (pass 1: 2.9/10 → pass 2: 7.6/10) shaped scope.
   - **Source:** *Code Complete* assessment framework (Fix/Investigate/Plan/Decide taxonomy + uncertainty declaration)
