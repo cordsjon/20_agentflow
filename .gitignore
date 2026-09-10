@@ -11,5 +11,11 @@ done/
 .env
 
 # generated catalog sinks (regenerated weekly by nosignups-catalog-sync DAG)
-data/tool-directories/
+# NOTE: uses /* not / so the hand-curated ssg/ subdir can be re-included below.
+# Git cannot negate a path whose parent DIRECTORY is excluded by a trailing-slash
+# pattern, so `data/tool-directories/` + `!.../ssg/` would silently fail.
+data/tool-directories/*
 data/tool_catalog.json
+
+# hand-curated (NOT regenerated) — must stay tracked
+!data/tool-directories/ssg/
