@@ -17,6 +17,16 @@ Produce a HANDOVER document capturing full session state, in the format
 > searched `00_Governance/HANDOVER-<project>-<timestamp>.md`. The result was
 > 16 filed Skill-Unused debt entries across 8 projects, because writing the
 > handover by hand was genuinely more correct than invoking this skill.)
+>
+> **A second consumer reads by heading prefix.** The Hermes adapter's
+> `POST /v1/claude/resume` (`hermes_adapter/claude_routes.py`,
+> `_extract_handover_sections`) takes the newest handover and extracts exactly
+> two sections with `line.startswith("## Open Items")` and
+> `line.startswith("## Resume Checklist")`, stop-at-next-`##`. Any other
+> heading text yields an empty section. This drifted too: the template said
+> `## Known gaps, deliberately not closed` until 2026-09-17, so 109 of the 226
+> September handovers handed the adapter an empty Open Items. The gate now
+> asserts both prefixes are present in the template.
 
 ## Where the file goes — NOT the project root
 
@@ -25,7 +35,20 @@ Produce a HANDOVER document capturing full session state, in the format
 ```
 
 `<project>` is the directory name (`60_funroadtrip`, `20_CONSIGLIERE`), not a
-path. Derive the timestamp from the actual clock, never from a guess.
+path. Take the timestamp from the clock **once** and use that one value for
+both the filename and the `# HANDOVER — … — <YYYY-MM-DD HH:MM>` heading:
+
+```bash
+STAMP=$(date +%Y-%m-%d-%H%M)     # one call; filename AND heading derive from $STAMP
+```
+
+The wrong idiom is reading the time twice — a `date` call for the filename and
+a second one (or a time remembered from earlier in the conversation) for the
+heading — which lets the two disagree. Measured 2026-09-17: 2 of 223 September
+handovers in the store carry a heading stamp that does not match their filename
+stamp, one by 27 minutes. `resume-handover` parses the project token out of the
+FILENAME; a stamp copied from a previous handover's name, or typed from memory,
+resolves to the wrong session.
 
 **APPEND-ONLY. Never overwrite a previous handover.** The store is timestamped
 and `resume-handover` resolves "newest" by mtime across ~1700 files. Two
@@ -76,10 +99,12 @@ Numbers with their units, conditions, and what they justify. The point is that
 the next session must not spend an hour re-measuring what is already known.
 Mark anything unmeasured as unmeasured — never fabricate.
 
-## Known gaps, deliberately not closed
+## Open Items — known gaps, deliberately not closed
 
 What was left, and why it was a choice rather than an oversight. Include
 carried-item counts ("carried across four sessions") — recurrence is signal.
+(Heading prefix `## Open Items` is load-bearing — see the contract note at the
+top. Do not rename it to "Known gaps" / "Carry forward" / "Left open".)
 
 ## Payload artifacts
 
@@ -104,6 +129,18 @@ what separates a handover from a status report: the next session runs this block
 and learns in 60 seconds whether the world still matches the document. A premise
 without an expected value is not a premise.
 
+**Probe every ref the handover makes a claim about — `main` included.** The
+wrong idiom is a Premises block whose only ref probe is `git rev-parse --short HEAD`
+or `git log -1`: it passes on the feature branch and asserts nothing about
+`main`. On 2026-08-09 a `60_funroadtrip` handover stated "`main` untouched at
+`22c97bd`"; its premises probed only the branch, all passed, and `main` had in
+fact been merged to `f621755` mid-story — the premise gate cleared and the
+stale claim silently under-scoped the whole-branch review to the unmerged
+commits. Measured 2026-09-17: 108 of the 451 handovers in the store that carry
+a `rev-parse` premise probe HEAD only. If the text says "main untouched at X",
+"not yet merged", or "branched from Y", the block carries the matching
+`git rev-parse main   # expect X` line.
+
 ## Resume Checklist
 
 - [ ] Run the Premises block above
@@ -123,6 +160,14 @@ without an expected value is not a premise.
 4. **Dump payloads to disk** — scan for research/compiled output living only in
    conversation; write each to a file and list the path.
 5. **Write to the centralized store** at the path above, with the real timestamp.
+   **The handover is the LAST artifact of the session.** The wrong idiom is
+   writing it at the start of `/lightsout` and then continuing to work: on
+   2026-04-30 a SHIELD-tablet handover was written at 13:55 and the session
+   then pushed the DS2 blobs at 14:02, so the next session resumed on
+   "blobs not pushed yet" and re-diagnosed a state that no longer existed
+   (KP-4893, KP-1420). If any state changes after the file is written —
+   a commit, a push, a device flash — write a second, later-stamped handover
+   that names the first as superseded. Never edit the first in place.
 6. **Commit and push** — `git add` then
    `git commit -F <msgfile> -- <explicit path>` (bare `git commit` is blocked by
    the governance guard; `-F -` with a heredoc does NOT work in the
@@ -139,8 +184,12 @@ skill went unused.
 ## Key rules
 
 - **Append-only, centralized store, timestamped filename.** Not the project root.
-- **The Premises block is mandatory and must be executable.**
-- Git state comes from real command output, never assumption.
+- **The Premises block is mandatory and must be executable**, and it probes
+  every ref the prose names — `HEAD`-only probes are the 2026-08-09 failure.
+- Every SHA in the document was printed by a `git rev-parse` / `git log` run
+  **in this session, after the last commit**. A SHA copied from a `git log`
+  output earlier in the conversation is stale the moment anything is committed
+  after it — that is an assumed SHA wearing a real one's clothes.
 - Prefer carrying a gotcha forward one session too many over dropping it early.
 - If the session guard forced the stop mid-task, say so and name the clean
   boundary — a deliberate stop reads very differently from an abandoned one.
