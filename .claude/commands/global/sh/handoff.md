@@ -44,11 +44,13 @@ STAMP=$(date +%Y-%m-%d-%H%M)     # one call; filename AND heading derive from $S
 
 The wrong idiom is reading the time twice — a `date` call for the filename and
 a second one (or a time remembered from earlier in the conversation) for the
-heading — which lets the two disagree. Measured 2026-09-17: 2 of 223 September
-handovers in the store carry a heading stamp that does not match their filename
-stamp, one by 27 minutes. `resume-handover` parses the project token out of the
-FILENAME; a stamp copied from a previous handover's name, or typed from memory,
-resolves to the wrong session.
+heading — which lets the two disagree. Measured 2026-09-17 with
+`python3 ~/projects/00_Governance/scripts/handover_store_lint.py --since 2026-09`:
+2 of 226 September handovers carry a heading stamp that does not match their
+filename stamp (one by 27 minutes); across the whole store it is 174 of 2135,
+105 of them from May 2026 alone, before this rule existed. `resume-handover`
+parses the project token out of the FILENAME; a stamp copied from a previous
+handover's name, or typed from memory, resolves to the wrong session.
 
 **APPEND-ONLY. Never overwrite a previous handover.** The store is timestamped
 and `resume-handover` resolves "newest" by mtime across ~1700 files. Two
@@ -136,8 +138,10 @@ or `git log -1`: it passes on the feature branch and asserts nothing about
 `22c97bd`"; its premises probed only the branch, all passed, and `main` had in
 fact been merged to `f621755` mid-story — the premise gate cleared and the
 stale claim silently under-scoped the whole-branch review to the unmerged
-commits. Measured 2026-09-17: 108 of the 451 handovers in the store that carry
-a `rev-parse` premise probe HEAD only. If the text says "main untouched at X",
+commits. Measured 2026-09-17 with
+`python3 ~/projects/00_Governance/scripts/handover_store_lint.py`: 104 of the
+447 handovers in the store that carry a `rev-parse` premise probe HEAD only
+(21 of 177 in September alone). If the text says "main untouched at X",
 "not yet merged", or "branched from Y", the block carries the matching
 `git rev-parse main   # expect X` line.
 
