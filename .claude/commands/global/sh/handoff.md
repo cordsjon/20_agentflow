@@ -52,6 +52,19 @@ filename stamp (one by 27 minutes); across the whole store it is 174 of 2135,
 parses the project token out of the FILENAME; a stamp copied from a previous
 handover's name, or typed from memory, resolves to the wrong session.
 
+The second wrong idiom is never calling `date` at all — typing a plausible time,
+or picking a number bigger than a sibling's so yours "sorts later". Both stamps
+then agree and both are wrong, so the mismatch check above cannot see it. Shipped
+2026-09-21: `HANDOVER-00_Governance-2026-09-21-2318.md` was created at 22:11, and
+`parallel_session_merge.py` — which ranked PRIMARY by filename stamp — crowned it
+over genuinely newer handovers. Measured the same day with the lint's
+`future-stamp` finding: 26 of 344 September handovers carry a filename stamp more
+than 10 minutes AHEAD of their own mtime. This one is now gated, not just asked
+for: the PreToolUse hook `~/.claude/hooks/handover-stamp-gate.sh` blocks the Write
+of a NEW handover whose filename stamp is >5 min ahead of or >30 min behind the
+clock, and prints the real stamp. If it blocks you, use the stamp it prints — in
+both the filename and the heading. Do not route around it with Bash.
+
 **APPEND-ONLY. Never overwrite a previous handover.** The store is timestamped
 and `resume-handover` resolves "newest" by mtime across ~1700 files. Two
 handovers from one session (e.g. a session-guard stop at 11:30 and a wrap-up at
