@@ -1,49 +1,18 @@
 ---
 name: sh-dor
-description: Run the Definition of Ready gate check before implementing a task. Verifies a task is ready for implementation including spec-panel score >= 7.0 requirement.
+description: Run the executable Definition of Ready gate (scripts/dor_gate.py in 20_agentflow) against one BACKLOG entry and quote its verdict. Use before an item moves from Refining to Ready or into a queue.
 ---
 
-# Definition of Ready (DOR) Gate
+# /sh:dor — Definition of Ready (executable)
 
-**Gate:** Must pass BEFORE implementation begins.
-An item that fails DOR cannot enter TODO-Today queue. It stays in BACKLOG#Refining.
+The checklist is not restated here; the script is the rule (`~/projects/20_agentflow/DOCTRINE.md` § DOR).
 
-## Full DOR Checklist
+1. Resolve the BACKLOG file (`$ARGUMENTS` may name it; default `./BACKLOG.md`) and the entry: a story id `US-XXX-NN` or a title substring.
+2. Run, verbatim, and paste the whole output:
+   ```bash
+   python3 ~/projects/20_agentflow/scripts/dor_gate.py <BACKLOG.md> "<id-or-title>"
+   ```
+3. Exit 0 → the entry may move to Ready / a queue. Exit 1 → quote each `FAIL <reason>` line and stop; fix the entry (or run `/sh:spec-panel` if the reason is `no-score`/`score-below-7.0`/`stale-score`), never edit the score line by hand. Exit 2 → `not-found` or `ambiguous-id`: name the entry more precisely.
+4. The FINAL line of your reply is the script's own `DOR-VERDICT:` line, unchanged. Consumers (`/goal`, `backlog_dor_pipeline.py`) parse it.
 
-- [ ] **User Stories defined** — at least 1 US with "As a [role], I want [goal], so that [benefit]"
-- [ ] **Acceptance Criteria written** — each US has explicit, testable AC (Given/When/Then or bullet list)
-- [ ] **Spec document exists** — requirements doc with functional requirements
-- [ ] **Spec panel score >= 7.0** — `/sh:spec-panel` critique passed (or issues addressed and re-scored). Score below 7.0 blocks graduation to Ready
-- [ ] **Architecture decided** — if new modules/APIs: design doc exists
-- [ ] **Dependencies identified** — any blocking work listed and either complete or explicitly deferred
-- [ ] **Test strategy known** — which test types needed (unit, integration, E2E), approximate count
-- [ ] **No constraint violations** — feature doesn't conflict with project's constraints
-- [ ] **Estimated size** — S (1-3 queue items), M (4-8), L (9+) — tagged in BACKLOG
-
-## Bug DOR-lite
-
-Lightweight gate for `[bug]` or `[hotfix]` items. No US template, no spec-panel score required.
-
-- [ ] **Root cause identified** — specific file/line/mechanism documented
-- [ ] **Fix plan** — 1-3 concrete steps; if > 3 steps it's a feature, use full DOR
-- [ ] **Regression test named** — which test file + test case will catch this
-- [ ] **No constraint violations** — fix doesn't conflict with project constraints
-- [ ] **Estimate** — XS (1 item) or S (2 items); larger = use full DOR
-
-## Hotfix Fast-Track
-
-If a bug is **actively blocking development** (server down, build broken, data corruption):
-
-1. Add bullet to INBOX.md immediately
-2. Triage classifies as `[hotfix]`, moves directly to TODO-Today (skips Ideation/Refining)
-3. Bug DOR-lite satisfied at triage time
-4. Autopilot executes as next queue item
-
-## Enforcement
-
-```
-Gate: Score >= 7.0 + all checklist items -> graduate to Ready
-Any item missing or score < 7.0 -> stay in Refining, iterate
-```
-
-The `/sh:workflow` skill MUST NOT generate a queue for an item that hasn't passed DOR.
+Tracks are read from the entry's tag (`[bug]` → bug-lite, `[hotfix]` → hotfix); `--track` overrides; `--json` for machines.
