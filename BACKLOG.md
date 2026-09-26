@@ -46,6 +46,11 @@
 
 ## Refining
 
+- **Shepherd v2 — audit and doctrine collapse** (refining 2026-09-26) `[governance]` `[skills]` · **L** _(project: agentflow)_ — Audit found doctrine files frozen since March–April while tooling stayed live, gates that are prose only, a DOD queue tail naming five commands that no longer exist (`/sc:*`, `/commit-smart`), 75 bundled skills of which 2 were promoted, two namespaces for the same gate, and four frozen `agentflow/` clones in other repos. v2 = one doctrine pointer to Governance, DOR/DOD as scripts with positive controls, a skill pack with an explicit promotion list, measured (not guessed) panel consolidation.
+  - Spec: [docs/specs/2026-09-26-shepherd-v2-audit-design.md](docs/specs/2026-09-26-shepherd-v2-audit-design.md) — 7 user stories (US-SH2-01..07), 3 Decide items for the operator
+  - **Missing before Ready:** `/sh:spec-panel` score ≥ 7.0, operator answers Decide-1 (namespace `sh:` vs `agentflow:`)
+
+
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
 > **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
