@@ -1,0 +1,63 @@
+{
+ "skill_name": "sh-ai-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review this spec for the LLM-based lead-scoring service.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the AI/ML lenses: model architecture, evaluation rigor, safety/alignment, production readiness",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this AI spec: no eval plan, no failure-mode handling, prompt templates inline in code.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "SPEC-triage-assistant.md",
+     "content": "# SPEC — Support Ticket Triage Assistant\n\n## Goal\nRoute inbound support tickets to the right queue and draft a first reply, so\nthe two-person support team stops hand-sorting ~400 tickets a week.\n\n## Approach\nAn LLM classifies each ticket into one of six queues (billing, onboarding,\nbug, feature-request, abuse, other) and writes a suggested reply. We call\n`gpt-4o-mini` through the existing gateway. Temperature 0.7 for the reply,\nsame call for the classification.\n\n## Data\nTickets come from the Zendesk webhook. We pass the subject and the full body\nof the ticket, plus the customer's plan tier, into the prompt.\n\n## Interface\n`POST /triage` with `{ticket_id}`. Returns `{queue, draft_reply, confidence}`.\n`confidence` is whatever number the model puts in its JSON output.\n\n## Rollout\nWeek 1: shadow mode, log the output. Week 2: show the draft in the agent\nconsole. Week 3: auto-send drafts for the billing queue.\n\n## Success\nSupport lead reviews a handful of outputs at the end of week 1 and says\nwhether it feels right. If it does, we move to week 2.\n\n## Out of scope\nMultilingual tickets, attachments, voice.\n"
+    },
+    {
+     "path": "src/triage.py",
+     "content": "\"\"\"Ticket triage — called by the /triage endpoint.\"\"\"\n\nimport json\n\nfrom gateway import llm\n\n\ndef triage(ticket):\n    resp = llm.complete(\n        model=\"gpt-4o-mini\",\n        temperature=0.7,\n        prompt=f\"\"\"You are a support triage assistant for Acme Cloud.\n\nClassify this ticket into exactly one queue: billing, onboarding, bug,\nfeature-request, abuse, other. Then write a friendly reply to the customer.\n\nCustomer plan: {ticket['plan_tier']}\nSubject: {ticket['subject']}\nBody: {ticket['body']}\n\nReturn JSON: {{\"queue\": ..., \"draft_reply\": ..., \"confidence\": 0-1}}\n\"\"\",\n    )\n    return json.loads(resp.text)\n\n\ndef escalate_summary(thread):\n    resp = llm.complete(\n        model=\"gpt-4o-mini\",\n        temperature=0.7,\n        prompt=f\"\"\"Summarize this support thread for a tier-2 engineer in\nunder 120 words. Be concrete about what the customer already tried.\n\nThread:\n{thread}\n\"\"\",\n    )\n    return resp.text\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail rep1 with fixtures",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 3,
+   "prompt": "Panel-review this database migration plan.",
+   "expected_output": "Should recognize the artifact belongs to a different domain and route to the architecture or spec panel instead of forcing this panel's lenses onto it.",
+   "assertions": [
+    "Recognizes the domain mismatch",
+    "Names the more appropriate panel/skill",
+    "Does not force-review the out-of-domain artifact"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

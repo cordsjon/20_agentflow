@@ -11,12 +11,9 @@ description: "Multi-expert AI/ML specification review with scoring gate — mode
 /sh:ai-panel [specification_content|@file] [--mode discussion|critique|socratic|debate] [--focus fundamentals|evaluation|safety|production|ethics-data] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
 
-## Verbosity
+## Shared Core
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+0. **Load shared core**: Read `~/.claude/skills/_panel-shared/PANEL_CORE.md` and follow its Verbosity, Auto-Fix Policy, and Output Contract sections verbatim. (Expert Loading is panel-specific for this panel and stays inline below.)
 
 ## When to Use
 
@@ -30,7 +27,7 @@ Use `sh-spec-panel` instead for classical software specs without an AI/ML core. 
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding and Refute Stage sections. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written. This is load-bearing — findings that are not grounded per the protocol, or that do not survive its refute stage, MUST NOT be reported.
 1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/ai-panel.yaml` for focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow)
 2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
@@ -97,27 +94,4 @@ AI/ML review document containing:
 - Consensus points and named disagreements
 - Priority-ranked improvement recommendations
 
-**AUTO-FIX, NOT SYNTHESIS-ONLY** — this panel produces the analysis AND then applies fixes for **every** finding (high, medium, and low) automatically, per `00_Governance/CLAUDE.md §8 Panel Auto-Fix Policy`. It never asks which findings to apply and never presents a menu: it fixes everything, then reports what changed. A below-gate score means fix the findings and re-run, not stop and ask.
-
-## Auto-Fix Policy
-Fix ALL findings automatically — high, medium, and low severity. Do not ask which findings to fix. Do not present a menu or an a/b/c choice. Fix everything, then report what was changed. This overrides any softer "synthesis only" framing. Per `00_Governance/CLAUDE.md §8`.
-
-## Output Contract (machine-readable verdict)
-
-The quality gate (`quality_gate.run_stage3_panel`) consumes this panel via
-`claude -p` and reads the **score from stdout, not the exit code**. Therefore
-the **final line** of your output MUST be exactly one of:
-
-```
-PANEL-VERDICT: <overall_score>
-PANEL-VERDICT: FAIL: <machine_reason>
-```
-
-- `<overall_score>` is the numeric overall score (0–10, one decimal — e.g. `8.3`).
-  The gate applies the pass threshold (default 7.0); do NOT pre-apply it — just
-  report the score you computed.
-- Use the `FAIL: <machine_reason>` form only when no score could be produced
-  (structural failure) — snake_case naming the first blocker (e.g.
-  `no_content`, `panel_config_missing`, `experts_unavailable`).
-- Emit the line literally, on its own line, as the last meaningful output.
-  Omitting it makes the gate fail-closed with `panel_no_verdict` (inconclusive).
+Auto-fix behavior and the machine-readable PANEL-VERDICT output contract come from the shared core (step 0).

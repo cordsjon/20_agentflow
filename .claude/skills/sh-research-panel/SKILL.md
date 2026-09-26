@@ -16,16 +16,13 @@ You evaluate information sources with the rigor of an intelligence analyst and t
 /sh:research-panel [research_plan|@file|@spec] [--mode discussion|critique|socratic] [--evidence passive|active] [--focus sources|apis|scraping|intelligence|triangulation|auth] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
 
-## Verbosity
+## Shared Core
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+0. **Load shared core**: Read `~/.claude/skills/_panel-shared/PANEL_CORE.md` and follow its Verbosity and Auto-Fix Policy sections verbatim. (This panel defines its experts inline and has no machine-readable Output Contract.)
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written (non-code branch: every finding quotes the source section it rests on). Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Ingest**: Parse input — detect source lists, API specs, scraping plans, collection strategies, or research designs
 2. **Classify**: Identify research domain (competitive intel, technical research, market research, academic, regulatory, OSINT) and scope
 3. **Assemble Panel**: Select experts based on `--focus` area or use defaults. `--experts` override replaces defaults entirely. Max 6 experts per review.
@@ -102,9 +99,6 @@ Research review document containing:
 - Consensus points and disagreements
 - Priority-ranked recommendations for source additions, API changes, or strategy pivots
 
-**AUTO-FIX, NOT SYNTHESIS-ONLY** — this panel produces the analysis AND then applies fixes for **every** finding (high, medium, and low) automatically, per `00_Governance/CLAUDE.md §8 Panel Auto-Fix Policy`. It never asks which findings to apply and never presents a menu: it fixes everything, then reports what changed. A below-gate score means fix the findings and re-run, not stop and ask.
+Auto-fix behavior comes from the shared core (step 0).
 
 **Next Step**: After review, address critical gaps first. Use `/sh:architecture-panel` for pipeline design changes. Use `/sh:spec-panel` for requirements validation. Use `/sh:plan` when ready to implement.
-
-## Auto-Fix Policy
-Fix ALL findings automatically — high, medium, and low severity. Do not ask which findings to fix. Do not present a menu. Fix everything, then report what was changed.

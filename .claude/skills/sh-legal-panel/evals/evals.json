@@ -1,0 +1,47 @@
+{
+ "skill_name": "sh-legal-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review the SaaS terms draft and the GDPR data-handling section.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the legal/compliance lenses: contracts, GDPR, licensing, IP",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this: scraped personal data retained indefinitely, no processing basis stated, license terms copied from a competitor.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "docs/data-handling.md",
+     "content": "# LeadGrid — Data Handling Notes\n\n## What we collect\nOur crawler visits public company pages, LinkedIn profiles and conference\nattendee listings and extracts: full name, job title, employer, work email\nwhere shown, personal email where shown, phone number, city, and a free-text\n\"about\" blurb. Records are keyed by email address. Individuals are not\ncontacted before or after collection and no notice is served to them.\n\n## Retention\nEvery record collected is kept in the primary database for the lifetime of the\nproduct. There is no deletion job. Superseded versions of a record are kept as\nhistory rows so customers can see how a contact's role changed over time.\nNightly snapshots go to S3 and are also kept permanently.\n\n## Access and export\nCustomers can export any segment to CSV without limit. Exports are not logged\nper-record. Two engineers hold read access to the raw crawl tables via a\nshared `analyst` database account.\n\n## Requests from individuals\nWe have received four emails asking us to remove a record. There is no\ndocumented workflow; the on-call engineer deletes the row manually if they get\nto it. We do not track whether the record reappears on the next crawl.\n\n## Transfers\nThe database runs in eu-central-1. The enrichment step calls a US vendor\n(ClearScope Inc.) with name + employer + email to fetch firmographics. There\nis no contract with ClearScope beyond clicking through their online signup.\n"
+    },
+    {
+     "path": "docs/terms-of-service.md",
+     "content": "# LeadGrid Terms of Service (draft)\n\n1. Acceptance. By accessing the Datamora Platform, you agree to these Terms.\n\n2. License. Subject to these Terms, Datamora grants Customer a limited,\n   non-exclusive, non-transferable license to access the Datamora Platform\n   and the Datamora Contact Graph(TM) solely for Customer's internal business\n   purposes during the Subscription Term.\n\n3. Restrictions. Customer shall not (a) resell or sublicense the Datamora\n   Platform; (b) reverse engineer the Datamora Contact Graph(TM); or (c) use\n   the Datamora Platform to build a competing contact-intelligence product.\n\n4. Data. Customer Data remains the property of Customer. Datamora may use\n   Customer Data to improve the Datamora Platform.\n\n5. Fees. Fees are as set out in the applicable Order Form and are\n   non-refundable.\n\n6. Warranty. The Datamora Platform is provided \"AS IS\".\n\n7. Limitation of Liability. Datamora's aggregate liability shall not exceed\n   the fees paid in the twelve months preceding the claim.\n\n8. Governing Law. These Terms are governed by the laws of the State of\n   Delaware.\n\n9. Entire Agreement. These Terms, together with the Order Form, constitute the\n   entire agreement between Datamora, Inc. and Customer.\n\n(c) Datamora, Inc. All rights reserved.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail rep1 with fixtures",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

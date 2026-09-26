@@ -124,3 +124,13 @@
 **Justification:** 20_agentflow's own entry title has no US- id and its 7 stories live in the spec (live check: us=7 ac=13, PASS). Governance uses ### US-ID headings under ## Ready, which the non-nesting loop could never select.
 **Outcome:** assumed
 **Ref:** a5a708f (at write time)
+
+
+## Q13 — shepherd-v2/US-SH2-04 — tradeoff
+
+**Question:** sh-4-reviewer-panel: bundle (2026-06-26, 9789 B) is newer than runtime (2026-06-20, 6640 B) — which copy is truth? And the 18 runtime-truth copies: replace the bundle dir or copy over it?
+**Chosen:** Bundle wins for sh-4-reviewer-panel: promote after the manifest exists. The 18 others: runtime copied OVER the bundle in place (not rm -rf + cp), because sh-ux-design's bundle holds wireframe-rules.md, concept-compare.md, handoff.md that both SKILL.md copies read and the runtime lacked; the three were also restored into ~/.claude/skills/sh-ux-design.
+**Decided-by:** agent
+**Justification:** The reviewer-panel diff is authored content (disjoint lenses per experts/PANEL_PROTOCOL.md, codex refute pass, gated auto-apply), not a stale skeleton; the protocol sections it cites exist. The plan's rm -rf step would have deleted three files a live skill references.
+**Outcome:** assumed
+**Ref:** ae345d1 (at write time)

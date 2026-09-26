@@ -1,5 +1,5 @@
 ---
-name: business-analysis
+name: sh-business-analysis
 description: "Interactive business analysis workbench — pick frameworks by number (SWOT, BMC, Five Forces, PESTLE, etc.), get text analysis first, then optionally render as DIN poster PDF"
 argument-hint: "<topic_or_document> [context notes]"
 ---

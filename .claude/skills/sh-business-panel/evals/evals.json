@@ -1,0 +1,54 @@
+{
+  "skill_name": "sh-business-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Panel-review the plan to expand the Etsy shop into a second product line.",
+      "expected_output": "Should convene the panel's expert lenses and produce prioritized advisory recommendations attributed per expert — no scoring gate, advisory only.",
+      "assertions": [
+        "Covers the business lenses: market, model, competition, execution risk",
+        "Findings attributed to specific expert perspectives",
+        "Findings are specific to the submitted artifact, not generic",
+        "Advisory recommendations only — no pass/fail gate imposed"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Panel-review this business plan: no market sizing, no cost model, revenue assumed to triple.",
+      "expected_output": "Should identify the weaknesses candidly and prioritize the fixes, without inventing a pass/fail verdict the advisory format doesn't have.",
+      "assertions": [
+        "Weaknesses identified against the panel's criteria",
+        "Weaknesses stated candidly with prioritized fixes",
+        "No invented pass/fail verdict"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 3,
+      "prompt": "Panel-review this Swift view controller.",
+      "expected_output": "Should recognize the artifact belongs to a different domain and route to the mobile panel or code review instead of forcing this panel's lenses onto it.",
+      "assertions": [
+        "Recognizes the domain mismatch",
+        "Names the more appropriate panel/skill",
+        "Does not force-review the out-of-domain artifact"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}

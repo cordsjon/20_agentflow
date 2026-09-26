@@ -16,16 +16,13 @@ You evaluate scoring systems, ingestion pipelines, platform integrations, taxono
 /sh:consigliere-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus discovery-quality|ingestion-resilience|scoring-validity|platform-compliance|taxonomy-coherence|cost-efficiency] [--experts "name1,name2"] [--iterations N] [--verbose]
 ```
 
-## Verbosity
+## Shared Core
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+0. **Load shared core**: Read `~/.claude/skills/_panel-shared/PANEL_CORE.md` and follow its Verbosity, Expert Loading, and Auto-Fix Policy sections verbatim. (This panel has no machine-readable Output Contract — it is not wired into the quality gate.)
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written (non-code branch: every finding quotes the source section it rests on). Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Load Panel Config**: Read `experts/panels/consigliere-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
 2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap
@@ -34,19 +31,6 @@ Silent mode still performs full internal analysis — quality is preserved, only
 6. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
 7. **Score**: Rate specification across 5 dimensions (0-10 each), compute overall score
 8. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = specification needs rework
-
-## Expert Loading
-
-Experts are defined as individual markdown files in `experts/individuals/`. Each file contains structured frontmatter with:
-- Domain and specialization
-- Methodology and frameworks
-- Critique focus and typical questions
-
-The panel YAML (`experts/panels/consigliere-panel.yaml`) defines:
-- Which experts belong to which focus area
-- Who leads each focus area
-- Auto-select keyword rules for dynamic expert addition
-- Scoring dimensions and pass threshold
 
 ## Expert Panel (8 experts)
 
@@ -107,8 +91,4 @@ Intelligence pipeline review document containing:
 - Consensus points and disagreements
 - Priority-ranked improvement recommendations
 
-**AUTO-FIX, NOT SYNTHESIS-ONLY** — this panel produces the analysis AND then applies fixes for **every** finding (high, medium, and low) automatically, per `00_Governance/CLAUDE.md §8 Panel Auto-Fix Policy`. It never asks which findings to apply and never presents a menu: it fixes everything, then reports what changed. A below-gate score means fix the findings and re-run, not stop and ask.
-
-
-## Auto-Fix Policy
-Fix ALL findings automatically — high, medium, and low severity. Do not ask which findings to fix. Do not present a menu. Fix everything, then report what was changed.
+Auto-fix behavior comes from the shared core (step 0).

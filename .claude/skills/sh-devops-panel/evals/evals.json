@@ -1,0 +1,38 @@
+{
+  "skill_name": "sh-devops-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Panel-review the deploy pipeline for the poster-engine service.",
+      "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+      "assertions": [
+        "Covers the DevOps/infrastructure lenses: CI/CD, infrastructure, monitoring, cost",
+        "Findings attributed to specific expert perspectives",
+        "Findings are specific to the submitted artifact, not generic",
+        "Emits a numeric score and an explicit gate verdict"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Panel-review this infra: no rollback path, secrets in CI logs, no monitoring, single untested backup.",
+      "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+      "assertions": [
+        "Weaknesses identified against the panel's criteria",
+        "Gate returns Not-Ready for the weak artifact",
+        "Each blocking finding says what would make it pass"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}

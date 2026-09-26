@@ -1,0 +1,38 @@
+{
+  "skill_name": "sh-visualization-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Panel-review the usage-dashboard charts before they ship.",
+      "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+      "assertions": [
+        "Covers the data visualization lenses: chart correctness, perception, accessibility, dashboard composition",
+        "Findings attributed to specific expert perspectives",
+        "Findings are specific to the submitted artifact, not generic",
+        "Emits a numeric score and an explicit gate verdict"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Panel-review these charts: truncated axes exaggerating trends, rainbow categorical palette, 3D pies, no accessible contrast.",
+      "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+      "assertions": [
+        "Weaknesses identified against the panel's criteria",
+        "Gate returns Not-Ready for the weak artifact",
+        "Each blocking finding says what would make it pass"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}
