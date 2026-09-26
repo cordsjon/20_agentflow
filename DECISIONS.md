@@ -114,3 +114,13 @@
 **Justification:** The v2 DOD tail drops the cleanup step; verify is where findings are checked. Each target exists in ~/.claude/commands/sh (checked by loop).
 **Outcome:** assumed
 **Ref:** 621c30f (at write time)
+
+
+## Q12 — shepherd-v2/US-SH2-02 — deviation
+
+**Question:** dor_gate.py: how are entries without a story id, stories held only in a linked spec, nested headings, and a score on a bug-lite entry handled?
+**Chosen:** Selector accepts a title substring when not an id; US/AC are read from the linked spec when the entry body has none; entries nest (every title line starts one — the plan's i=j loop skipped every ### story inside ## Ready and failed 15/16 tests); bug-lite ignores a present score.
+**Decided-by:** agent
+**Justification:** 20_agentflow's own entry title has no US- id and its 7 stories live in the spec (live check: us=7 ac=13, PASS). Governance uses ### US-ID headings under ## Ready, which the non-nesting loop could never select.
+**Outcome:** assumed
+**Ref:** a5a708f (at write time)
