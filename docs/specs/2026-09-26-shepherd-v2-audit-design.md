@@ -377,3 +377,13 @@ Recorded here, below the review rounds, so the body digest `5176cdbc81e4` and th
 | 3 — repo placement | Shepherd stays a separate repo (`20_agentflow`). | yes | Q8 |
 
 Consequences for the plan: US-SH2-07 deletes `CLAUDE-LOOP.md` instead of moving it (no `docs/archive/` entry needed for it); US-SH2-04 AC-3 is unblocked; US-SH2-06's delete step still needs a separate operator approval per the still-ask rule. Status: Ready.
+
+## Plan-time corrections — 2026-09-26
+
+Measured while writing `docs/plans/2026-09-26-shepherd-v2-audit.md`; the body above is left as reviewed. Where they disagree, this section wins.
+
+1. **Finding 4 / handover measurement:** 20 of 77 `.claude/skills/*` dirs are empty husks (no `SKILL.md`, dated 2026-04-07, never tracked). Real bundle: 45 `sh-*`, 11 `agentflow-*`, 1 third-party. Of the six "bundle-newer" skills only `sh-4-reviewer-panel` is; `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`, `sh-marketing-panel`, `sh-visualization-panel` are runtime-only (bundle dir empty). `sh-case1-panel` and `sh-design-panel` exist in neither place — the two "bundle only" rows in the US-SH2-05 table are phantoms; 11 bundled panels are at 0, not 13.
+2. **US-SH2-01 AC-1:** baseline is 81 `sc:` hits in 11 files, not 8 in 2. `DECISIONS.md` (append-only) is excluded from the check; every other file is fixed.
+3. **US-SH2-02:** Governance `BACKLOG.md` has 39 Ready stories and 0 conforming score lines; the pipeline scores at stage E after its DOR stage C. `dor_gate.py` gets `--skip-score`, used only by the pipeline's stage C. The selector also accepts a title substring (20_agentflow's own entry title has no story id), and US/AC are read from the linked spec when the entry body has none.
+4. **US-SH2-03 AC-1:** installer is v6 (not v4); the global hooks dir chains both pre-commit and commit-msg.
+5. **Finding 4:** `scripts/sync-skills-global.sh` in this repo is a retired stub (2026-06-26); deleted under US-SH2-07.
