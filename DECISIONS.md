@@ -39,3 +39,47 @@
 **Justification:** Spec rev 1 sized US-SH2-05 at <= 2 h and 'anytime'; reviewers D6 and C9 both needed the log location and coverage to judge the retirement rule, so the measurement was a prerequisite for the panel, not extra scope.
 **Outcome:** applied
 **Ref:** ff80046 (at write time)
+
+
+## Q5 — shepherd-v2/decide-1 — tradeoff
+
+**Question:** Decide-1: which command prefix survives (sh: vs agentflow:), and are the 9 unused agentflow:* commands deleted outright or parked under docs/archive/?
+**Options considered:** keep sh:, delete the 9 outright / keep sh:, park the 9 under docs/archive / keep agentflow:, retire sh: / keep both
+**Chosen:** Keep sh:, retire agentflow:*, delete the 9 unused commands outright. dor.md and dod.md stay as two-line aliases to /sh:dor and /sh:dod until backlog_dor_pipeline.py:494, goal.md:68/79 and mission.md:145 are migrated in the same story (US-SH2-04 AC-3).
+**Decided-by:** human
+**Justification:** Operator chose option 1 in the /unblock walk on 2026-09-26. Git history preserves the deleted files; the alias-then-migrate step protects the two live callers; spec recommendation and both review rounds converged on it. Skill-sync DAG propagates the deletions to 13 projects at the next 06:00 run.
+**Outcome:** applied
+**Ref:** ba20e57
+
+
+## Q6 — shepherd-v2/spec-rev2 — tradeoff
+
+**Question:** agentflow:dor has 105 invocations / 90 days and three named callers — retire the namespace outright or keep compatibility aliases?
+**Chosen:** Confirmed as assumed: delete the 9 unused agentflow:* commands, keep dor.md/dod.md as aliases until the three callers migrate, then delete the aliases.
+**Decided-by:** human
+**Justification:** Operator confirmed via Decide-1 option 1 (see Q5) in the /unblock walk on 2026-09-26.
+**Outcome:** applied
+**Ref:** ba20e57
+**Supersedes:** Q3 — resolved
+
+
+## Q7 — shepherd-v2/decide-2 — tradeoff
+
+**Question:** Decide-2: does CLAUDE-LOOP.md get archived under docs/archive/ as a design record, or deleted?
+**Options considered:** archive under docs/archive/ with a pointer header to dagu nightshift / delete outright
+**Chosen:** Delete CLAUDE-LOOP.md outright; git history is the record.
+**Decided-by:** human
+**Justification:** Operator chose option 2 in the /unblock walk on 2026-09-26, against the spec's archive recommendation: the loop is superseded by dagu nightshift and the reasoning is recoverable from git history. Spec 'Decisions for the operator' item 2 must be updated to record the choice.
+**Outcome:** applied
+**Ref:** ba20e57
+
+
+## Q8 — shepherd-v2/decide-3 — tradeoff
+
+**Question:** Decide-3: does Shepherd stay a separate repo (20_agentflow), or become 00_Governance/skills-pack/?
+**Options considered:** separate repo / fold into 00_Governance/skills-pack/
+**Chosen:** Separate repo: Shepherd stays in 20_agentflow.
+**Decided-by:** human
+**Justification:** Operator chose option 1 in the /unblock walk on 2026-09-26. Governance already archives skills inward (skills-global/); a second inward path would make Governance both source and archive of the same files and re-open the which-copy-is-authoritative question.
+**Outcome:** applied
+**Ref:** ba20e57
