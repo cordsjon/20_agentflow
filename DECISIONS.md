@@ -154,3 +154,14 @@
 **Justification:** The gate's documented escape valve downgrades to a loud warning; the 8 tags predate the gate and are frozen by the digest contract. Durable fix (not done here): make the gate judge added lines only, or re-panel the spec with checkable tags.
 **Outcome:** assumed
 **Ref:** 534c433 (at write time)
+
+
+## Q16 — shepherd-v2/spec-edits — deviation
+
+**Question:** The verified-tag gate (installed in Chunk 2) scans the WHOLE staged spec and blocks on 8 bare verified-tags in the frozen, panel-scored body. Editing them breaks digest 5176cdbc81e4 and the 7.75 score. How are append-only spec edits committed?
+**Chosen:** Fix the verified-tag gate to judge only added lines of the staged diff (Governance change, own story); ALLOW_UNCHECKABLE_VERIFIED=1 procedure stays as interim until it lands.
+**Decided-by:** human
+**Justification:** The gate exists to police new claims; pre-existing tags in frozen/legacy files should not block current work. Only option that removes the recurring manual bypass without editing the digest-frozen spec.
+**Outcome:** applied
+**Ref:** ce86d79 (at write time)
+**Supersedes:** Q15 — resolved
