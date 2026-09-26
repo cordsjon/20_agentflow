@@ -3,6 +3,10 @@
 > Complete catalog of skills integrated into the governance loop.
 > Each skill is a reusable prompt module that plugs into a specific loop stage.
 
+## Promotion manifest (Shepherd v2)
+
+`skills-manifest.json` is the source of truth for every dir under `.claude/skills/`: `global` (also installed in `~/.claude/skills/`, digest-guarded), `repo-local` (this repo only), `retired` (moved to `.claude/skills-retired/`). Lifecycle: `python3 scripts/skills_manifest.py check | promote <name> | retire <name> | record <name>` (see the script header). `check` runs in this repo's pre-commit (`tools/precommit.d/10-skills-manifest`). Commands (`/sh:<name>`) need no promotion: `~/.claude/commands/sh` is a symlink to `.claude/commands/global/sh`. `skills-lock.json` is the third-party `npx skills` lock for `remotion-best-practices`, not ours. `agentflow-*` skills are `repo-local`; retirement of the 11 zero-invocation panels is decided per panel after the subagent-coverage question (spec US-SH2-05).
+
 ---
 
 ## Skill Dependencies & Prerequisites

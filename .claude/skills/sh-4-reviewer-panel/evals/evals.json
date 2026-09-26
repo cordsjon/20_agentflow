@@ -1,0 +1,48 @@
+{
+  "skill_name": "sh-4-reviewer-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run the 4-reviewer panel on my branch.",
+      "expected_output": "Should run all four reviewers (code-reviewer, architecture-panel, analyze, codex) in parallel, triage merged findings per FIPD, and auto-fix only Fix-class findings.",
+      "assertions": [
+        "All four reviewers run in parallel",
+        "Findings merged and FIPD-triaged",
+        "Auto-fix applied to Fix-* findings only",
+        "Fixes verified after application"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Run our standard multi-reviewer review on gateway/session_cache.py and deal with the findings per our triage convention. One prior round of comments is in reviews/round3.md.",
+      "expected_output": "The standard review is the 4-reviewer parallel panel: code-reviewer, architecture-panel, analyze, and codex — four distinct lenses dispatched in parallel, not one generalist pass. Findings are triaged by the FIPD taxonomy (Fix / Investigate / Plan / Decide), not a severity-only ranking, and only Fix-class findings are auto-applied; Investigate/Plan/Decide findings are surfaced, never silently fixed.",
+      "assertions": [
+        "Dispatches the four specific reviewer lenses (code-reviewer, architecture-panel, analyze, codex) in parallel rather than one generalist review",
+        "Triages findings into the FIPD classes (Fix/Investigate/Plan/Decide) rather than a severity-only ranking",
+        "Auto-applies only Fix-class findings",
+        "Surfaces Investigate/Plan/Decide findings for the operator instead of silently fixing them"
+      ],
+      "files": [
+        {
+          "path": "gateway/session_cache.py",
+          "content": "\"\"\"Session token cache used by the gateway request handler.\"\"\"\n\nimport time\n\n_CACHE = {}\n_TTL_SECONDS = 300\n\n\ndef get_session(session_id, loader):\n    \"\"\"Return the cached session for session_id, loading it on miss.\"\"\"\n    entry = _CACHE.get(session_id)\n    now = time.time()\n    if entry is not None and now - entry[\"at\"] < _TTL_SECONDS:\n        return entry[\"value\"]\n\n    value = loader(session_id)\n    _CACHE[session_id] = {\"value\": value, \"at\": now}\n\n    if len(_CACHE) > 5000:\n        oldest = min(_CACHE, key=lambda k: _CACHE[k][\"at\"])\n        del _CACHE[oldest]\n\n    return value\n"
+        },
+        {
+          "path": "reviews/round3.md",
+          "content": "# Review round 3 — gateway/session_cache.py\n\n## code-reviewer\n\n`get_session` (session_cache.py:10) — Blocker.\n\nThe module-level `_CACHE` dict is mutated on every request. The gateway runs\nits handlers on a thread pool, so two threads can hit the miss path for the\nsame `session_id` concurrently, both call `loader`, and both write. The\neviction branch is worse: `min()` walks the dict while another thread may be\ninserting. This needs a lock or a thread-safe cache type before merge.\n\n## codex\n\n`get_session` (session_cache.py:10) — Nit, non-blocking.\n\nCPython dict operations are atomic under the GIL, so the reads and writes here\ncannot corrupt the dict. A duplicate `loader` call on a cold key is idempotent\nand costs one extra fetch. Adding a lock on the hot path would serialize every\nauthenticated request for no correctness gain. Ship it; revisit only if the\ncache ever moves off a single process.\n"
+        }
+      ],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "rewrite targeting body-only panel composition + FIPD triage; prior reconcile framing was baseline-capable whenever gradeable",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}

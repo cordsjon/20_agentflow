@@ -134,3 +134,13 @@
 **Justification:** The reviewer-panel diff is authored content (disjoint lenses per experts/PANEL_PROTOCOL.md, codex refute pass, gated auto-apply), not a stale skeleton; the protocol sections it cites exist. The plan's rm -rf step would have deleted three files a live skill references.
 **Outcome:** assumed
 **Ref:** ae345d1 (at write time)
+
+
+## Q14 — shepherd-v2/US-SH2-04 — deviation
+
+**Question:** skills_manifest.py: check exits 1 only on structural errors and reports runtime drift; record added; and the plan's guard made a bundle-wins promote impossible (record needs identical, promote needs recorded). How is the first bundle-wins adoption done?
+**Chosen:** check: structural errors exit 1, drift is reported only. promote gets --expect-runtime-sha <sha of the reviewed runtime SKILL.md>: proceeds only while the live file still has that digest. Used once for sh-4-reviewer-panel (Q13) after backing the runtime copy up and carrying its runtime-only evals/ into the bundle.
+**Decided-by:** agent
+**Justification:** The runtime is where skills get edited, so drift must be visible but not block commits. An explicit reviewed digest keeps the race guard (a runtime edit after review still refuses) without a blanket --force.
+**Outcome:** assumed
+**Ref:** bfd5266 (at write time)

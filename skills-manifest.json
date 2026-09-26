@@ -1,0 +1,282 @@
+{
+  "skills": {
+    "agentflow-autopilot": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-code-review-gate": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-dod": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-dor": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-fipd": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-kickoff": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-loop": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-orchestrator": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-retro": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-triage": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "agentflow-workflow": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "remotion-best-practices": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-4-reviewer-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "7436c9f3392887e3056bb8a8677c74df43fed1487dc22a8bc7432ee034ceb0a8"
+    },
+    "sh-ai-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "d4c6c5bd481c88a7e2612f417923ca4ba1c81150f97e494985f79333a6974e33"
+    },
+    "sh-analyze": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "de0fb604574ba5f22bb745e52cc4018eab5a627caee712a3ef064168700570d2"
+    },
+    "sh-architecture-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "0ed9b59cbfaf5f48b48057577833550bf6806eb45194fb86ebed92555087b4b4"
+    },
+    "sh-autopilot": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-brainstorm": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-business-analysis": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "9e537f205d9ad9ad4658122ea57dbb32e9961e1951d75445597d327fe59c327c"
+    },
+    "sh-business-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "6a72e6eb9800a2a31126aae38e99fb8075705b25f84c262da69c3e543d0800ac"
+    },
+    "sh-cancel": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-consigliere-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "24d83fbfe79ce50ebd4855fa997d86ba5bb633db6c06382195f1040751440faf"
+    },
+    "sh-content-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "5604428b95aaa7facfa62509e06bdee6bfe42b881f0628f3663fa2f7ab9aeffd"
+    },
+    "sh-debug": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-devops-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "d6e621fb489a42b28daf43b2d725db100930b4bd1458025a57a142d62fceffac"
+    },
+    "sh-document": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "22a0cb06736224fa692e7b33394fb745d14d724fe2b7420a950e7efa7f80139e"
+    },
+    "sh-dod": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-dor": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-estimate": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "68d8c03c81ac9c22a6d374d4a8502e4d8fe631c454c73fde7d8acb8345200e94"
+    },
+    "sh-execute": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-explain": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "a1c65194682461570c8f1c29f4c1df5ccd764c79d300ad2c6996e4e071983ec2"
+    },
+    "sh-handoff": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "2bc602212b9ef8f889f162f66918dd7fe9d8b2d1568eff3de4590af37d5eb9b7"
+    },
+    "sh-help": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "12bcffb4a529959a57f2fb9a331ec63f34bff5fd7d70bfd2bc65c18327b325ec"
+    },
+    "sh-index-repo": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "b88d31fc626f0905f7f632c0d067136b72ba476cc94ef01c4f8f8c2d1d7b88a3"
+    },
+    "sh-kickoff": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-legal-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "f65ae02e879869b69846b3523a7a823332d955af7fa8fa313a7b2956250d7eff"
+    },
+    "sh-loop": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-marketing-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "e1eda24c43b903a287de0ba083a317aeb2f47731a542b433dcbb98ca6ef59810"
+    },
+    "sh-mobile-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "9d64cd924f3e6dd73cfdadd53ec1521c9979ef62cf5d3bbc5374244fd493c0bf"
+    },
+    "sh-newskill": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-parallel": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-personal-development-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "de844ab45df58d418580496ed47cfbeb5053342cfc6ea5af3e5120a30eada44e"
+    },
+    "sh-plan": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-ralph": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-research": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-research-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "b73def23f341253e0be8f1a81912f97a6091b2aba0edc6d449e89942320a2041"
+    },
+    "sh-retro": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-review": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-security-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "023c224c545a33c8238ccb69e67cdc804b3e9c7dff61cb151fcbe46352946f36"
+    },
+    "sh-select-tool": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "4ec112290d1c49afa39fd4e15ed0461dd5860885cc4c5398c67cffe0392c17c3"
+    },
+    "sh-spec-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "bad36d287f79a48e9e06cf8b9e6fe815a02e1dc8306cdcf718bbd70a04b1911e"
+    },
+    "sh-spec-review": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "764bbc068235ffbe6fe833b3f5532f5471d6a34eca1a81bcef0f9de133a3a8e4"
+    },
+    "sh-tdd": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-test": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "4fd6f0aab62c3fbf472fdca4c5cefb956744119e6df90556df978b2289ec3ea0"
+    },
+    "sh-test-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "0650abe2ea2b372918366c42d27d30cf690927d058a85ff85653d3e03b1fd279"
+    },
+    "sh-triage": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "86c8cc9536ea37b92fdc94f90bea5a5857c236be55bb4ea87f5bdff8432f3c5f"
+    },
+    "sh-troubleshoot": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-ux-design": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "0f60b81772d38adb40578a95873d68fd6ba3af5dca4bb767ca5a97ead36ad654"
+    },
+    "sh-verify": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-visualization-panel": {
+      "since": "2026-09-26",
+      "status": "global",
+      "synced_sha256": "ef28821f00b822de9fbe363d4a4e557af6f5688c7511d365e242d9c42eedf2a6"
+    },
+    "sh-workflow": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    },
+    "sh-worktree": {
+      "since": "2026-09-26",
+      "status": "repo-local"
+    }
+  },
+  "version": 1
+}
