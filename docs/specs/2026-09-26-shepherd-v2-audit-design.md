@@ -387,3 +387,17 @@ Measured while writing `docs/plans/2026-09-26-shepherd-v2-audit.md`; the body ab
 3. **US-SH2-02:** Governance `BACKLOG.md` has 39 Ready stories and 0 conforming score lines; the pipeline scores at stage E after its DOR stage C. `dor_gate.py` gets `--skip-score`, used only by the pipeline's stage C. The selector also accepts a title substring (20_agentflow's own entry title has no story id), and US/AC are read from the linked spec when the entry body has none.
 4. **US-SH2-03 AC-1:** installer is v6 (not v4); the global hooks dir chains both pre-commit and commit-msg.
 5. **Finding 4:** `scripts/sync-skills-global.sh` in this repo is a retired stub (2026-06-26); deleted under US-SH2-07.
+6. **US-SH2-04 AC-3:** `agentflow:*` commands retired 2026-09-26 in `04be532` (repo) and `~/.claude/commands/agentflow` (runtime, deleted after a byte-identity check against git). The skill-sync DAG propagates the deletion to 13 projects at the next 06:00 run — verify one project (e.g. `ls ~/projects/50_Excelbridge/.claude/commands/global/agentflow` → absent) the day after. Runtime-only `~/.claude/commands/app-audit.md` pointed at `agentflow:fipd`; retargeted to KP-4974.
+7. **US-SH2-06 inventories (2026-09-26)** — remote for all three is `github.com/cordsjon/agentflow`; "unpushed" = commits on no remote-tracking ref of that clone.
+
+   | clone | unpushed commits | local refs | stashes | untracked+ignored | disposition |
+   |---|---|---|---|---|---|
+   | `50_KETO/agentflow` | 2 (`601de58`, `33547b5`) | master `33547b5`, v1.1.0, v2.0.0 | 0 | 5 (M `BACKLOG.md`, M `KNOWN_PATTERNS.md`, 3 playground html) | **not yet deletable** — see row below |
+   | `MAC/agentflow` | 3 (`601de58`, `33547b5`, `89d15bb`) | master `89d15bb`, v1.1.0, v2.0.0 | 0 | 0 | nothing unique; deletion is an operator ask |
+   | `PY-Gen/agentflow` | 2 (`601de58`, `33547b5`) | master `33547b5`, v1.1.0, v2.0.0 | 0 | 4 (M `KNOWN_PATTERNS.md`, 3 playground html) | nothing unique; deletion is an operator ask |
+   | commit `601de58` (Codex PR workflow) | | | | | superseded: `.github/workflows/codex-review.yml` byte-identical in canonical |
+   | commit `33547b5` (spec-panel public-readiness) | | | | | superseded: canonical `sh-spec-panel` has 6 dimensions incl. this one |
+   | commit `89d15bb` (janitor KNOWN_PATTERNS refactor + playgrounds) | | | | | superseded: both deleted in canonical under US-SH2-01/07 |
+   | uncommitted `KNOWN_PATTERNS.md`, playground html | | | | | superseded (deleted in canonical) |
+   | `50_KETO/agentflow` uncommitted `BACKLOG.md` (+1 line) | | | | | **unique**: ideation item "KETO Score UX Ideation via XCOM" (2026-03-16) exists nowhere else — move it to `50_KETO`'s own backlog before that clone is deleted |
+8. **US-SH2-05 Plan tail — subagent hook coverage: COVERED (measured 2026-09-26).** One `Explore` subagent invoked `sh:help` via the Skill tool. `~/.local/state/claude-observations/2026-09-26.jsonl`: `sh:help|sh-help` hits 0 → 1, new line `{"ts": "2026-09-26T19:12:30", "sid": "1737dc49", "project": "20_agentflow", "tool": "Skill", "summary": "invoked sh:help"}`. Positive control: the parent's own `invoked sh:execute` line is present in the same file. Caveat: the line carries the PARENT's `sid`, so subagent calls are counted but cannot be told apart from parent calls. Consequence: a panel with 0 logged invocations really had 0, whether called directly or from a subagent — the per-panel retirement decisions (separate story) may use the log as evidence.

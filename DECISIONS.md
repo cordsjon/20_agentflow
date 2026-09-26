@@ -144,3 +144,13 @@
 **Justification:** The runtime is where skills get edited, so drift must be visible but not block commits. An explicit reviewed digest keeps the race guard (a runtime edit after review still refuses) without a blanket --force.
 **Outcome:** assumed
 **Ref:** bfd5266 (at write time)
+
+
+## Q15 — shepherd-v2/spec-edits — deviation
+
+**Question:** The verified-tag gate (installed in Chunk 2) scans the WHOLE staged spec and blocks on 8 bare [verified] tags in the frozen, panel-scored body. Editing them breaks digest 5176cdbc81e4 and the 7.75 score. How are append-only spec edits committed?
+**Chosen:** ALLOW_UNCHECKABLE_VERIFIED=1 on spec-append commits only, after checking the added lines carry 0 [verified] tags (git diff | grep '^+' | grep -ci verified -> 0). The plan's assumption that only new edits are checked was wrong.
+**Decided-by:** agent
+**Justification:** The gate's documented escape valve downgrades to a loud warning; the 8 tags predate the gate and are frozen by the digest contract. Durable fix (not done here): make the gate judge added lines only, or re-panel the spec with checkable tags.
+**Outcome:** assumed
+**Ref:** 534c433 (at write time)
