@@ -1,6 +1,153 @@
+# DUO REVIEW BUNDLE
+
+## CONTEXT.md (procedural extraction, phase 0)
+
+# CONTEXT — 2026-09-26-shepherd-v2-audit-design
+
+_Generated procedurally by phase0-procedural.sh at 2026-09-26T12:00:26Z.
+No LLM call — pure grep + stat. Reviewers can request deeper context on demand._
+
+## 1. Spec under review
+
+- **Path:** `/Users/jcords-macmini/projects/20_agentflow/docs/specs/2026-09-26-shepherd-v2-audit-design.md`
+- **Last modified:** 2026-09-26 14:00:14
+- **Lines:** 284
+- **Bytes:** 39354
+- **Project root:** `/Users/jcords-macmini/projects/20_agentflow`
+
+### Section index
+
+- Why
+- Audit findings
+- Design principles for v2
+- Scope — user stories
+- Decisions for the operator (Decide)
+- Order and size
+- Not in scope
+- Duo review — pre-panel round 1
+- Findings — DEEPSEEK  
+- Self‑flagged uncertainty  
+- Findings — CODEX
+- Self-flagged uncertainty
+
+## 2. Cited artifacts — grounded existence checks
+
+This is the **grounding layer**. Every citation extracted from the spec was checked
+against the filesystem. `OK` = path exists, `MISSING` = does not exist, `GLOB` =
+matches via shell glob (count > 0).
+
+### 2.1 Tilde paths
+
+| Path | Status | Size / kind |
+|---|---|---|
+| `~/.claude/` | OK | directory, 57 entries |
+| `~/.claude/CLAUDE.md` | OK | file, 17706B |
+| `~/.claude/TENETS.md` | OK | file, 6174B |
+| `~/.claude/commands` | OK | directory, 26 entries |
+| `~/.claude/commands/` | OK | directory, 26 entries |
+| `~/.claude/commands/agentflow` | OK | directory, 11 entries |
+| `~/.claude/commands/agentflow/` | OK | directory, 11 entries |
+| `~/.claude/commands/sh` | OK | directory, 47 entries |
+| `~/.claude/commands/sh/` | OK | directory, 47 entries |
+| `~/.claude/commands/sh/finish.md` | OK | file, 3767B |
+| `~/.claude/commands/sh/verify.md` | OK | file, 3732B |
+| `~/.claude/hooks/observation-logger.sh` | OK | file, 4436B |
+| `~/.claude/logs/skill-invocations.jsonl` | MISSING | — |
+| `~/.claude/skills` | OK | directory, 98 entries |
+| `~/.claude/skills/` | OK | directory, 98 entries |
+| `~/.config/dagu/dags` | OK | directory, 157 entries |
+| `~/.config/dagu/dags/skill-sync.yaml` | OK | file, 7107B |
+| `~/.hermes/hermes-adapter/dags` | OK | directory, 2 entries |
+| `~/.local/state/claude-observations/` | OK | directory, 86 entries |
+| `~/projects/00_Governance/scripts/install_repo_hooks.py` | OK | file, 20452B |
+| `~/projects/20_agentflow` | OK | directory, 26 entries |
+| `~/projects/20_agentflow/*.md` | GLOB | 15 matches |
+
+### 2.2 Backticked filenames
+
+| Filename | Status | Locations (up to 3) |
+|---|---|---|
+| `.claude/skills/sh-dor/SKILL.md` | OK | ~/projects/20_agentflow/.claude/skills/sh-dor/SKILL.md |
+| `.github/workflows/codex-review.yml` | OK | ~/projects/20_agentflow/.github/workflows/codex-review.yml |
+| `00_Governance/KNOWN_PATTERNS.md` | MISSING | — |
+| `00_Governance/TENETS.md` | MISSING | — |
+| `00_Governance/scripts/install_repo_hooks.py` | MISSING | — |
+| `00_Governance/scripts/sync-global-skills.sh` | MISSING | — |
+| `BACKLOG.md` | OK | ~/projects/20_agentflow/BACKLOG.md |
+| `CLAUDE-LOOP.md` | OK | ~/projects/20_agentflow/CLAUDE-LOOP.md |
+| `CLAUDE.md` | MISSING | — |
+| `DECISIONS.md` | OK | ~/projects/20_agentflow/DECISIONS.md;~/.claude/skills/DECISIONS.md |
+| `DOCTRINE.md` | MISSING | — |
+| `DOD.md` | OK | ~/projects/20_agentflow/DOD.md |
+| `DOR.md` | OK | ~/projects/20_agentflow/DOR.md |
+| `GOVERNANCE-GUIDE.md` | OK | ~/projects/20_agentflow/GOVERNANCE-GUIDE.md |
+| `KNOWN_PATTERNS.md` | OK | ~/projects/20_agentflow/KNOWN_PATTERNS.md |
+| `ORCHESTRATOR.md` | OK | ~/projects/20_agentflow/ORCHESTRATOR.md |
+| `ORIGIN.md` | OK | ~/projects/20_agentflow/ORIGIN.md |
+| `README.md` | OK | ~/projects/20_agentflow/tools/poster-generator/README.md;~/projects/20_agentflow/.pytest_cache/README.md;~/projects/20_agentflow/docs/README.md |
+| `SKILLS.md` | OK | ~/projects/20_agentflow/SKILLS.md |
+| `TENETS.md` | MISSING | — |
+| `backlog_dor_pipeline.py` | MISSING | — |
+| `commands/global/sh/dor.md` | OK | ~/projects/20_agentflow/.claude/commands/global/sh/dor.md |
+| `dod.md` | OK | ~/projects/20_agentflow/.claude/commands/global/agentflow/dod.md;~/projects/20_agentflow/.claude/commands/global/sh/dod.md;~/.claude/commands/agentflow/dod.md |
+| `dor.md` | OK | ~/projects/20_agentflow/.claude/commands/global/agentflow/dor.md;~/projects/20_agentflow/.claude/commands/global/sh/dor.md;~/.claude/commands/agentflow/dor.md |
+| `goal.md` | OK | ~/projects/20_agentflow/.claude/commands/global/goal.md;~/.claude/commands/goal.md |
+| `install_repo_hooks.py` | MISSING | — |
+| `kp_integrity.py` | MISSING | — |
+| `mission.md` | OK | ~/projects/20_agentflow/.claude/commands/global/mission.md;~/.claude/commands/mission.md |
+| `scratchpad/panel_usage.py` | MISSING | — |
+| `scripts/skills_manifest_check.py` | MISSING | — |
+| `sh-spec-panel/SKILL.md` | OK | ~/projects/20_agentflow/.claude/skills/sh-spec-panel/SKILL.md;~/.claude/skills/sh-spec-panel/SKILL.md |
+| `skill-sync.yaml` | MISSING | — |
+| `skills-lock.json` | OK | ~/projects/20_agentflow/skills-lock.json |
+| `skills-manifest.json` | MISSING | — |
+| `sync-global-skills.sh` | MISSING | — |
+| `tests/fixtures/backlog_*.md` | MISSING | — |
+| `tests/test_dod_chain.py` | MISSING | — |
+| `tests/test_dor_gate.py` | MISSING | — |
+
+### 2.3 Slash-commands (skills)
+
+| Command | Status | Path |
+|---|---|---|
+| `/lightsout` | OK | ~/.claude/commands/lightsout.md |
+| `/loop` | OK | ~/.claude/commands/sh/loop.md |
+| `/mop` | OK | ~/.claude/skills/mop/SKILL.md |
+| `/triage` | OK | ~/.claude/commands/sh/triage.md |
+
+### 2.4 sh: panel skills
+
+| Skill | Status | Path |
+|---|---|---|
+| `sh:dor` | OK | ~/.claude/commands/sh/dor.md |
+| `sh:parallel` | OK | ~/.claude/commands/sh/parallel.md |
+
+## 3-6. Surrounding code, prior decisions, open questions, repo conventions
+
+**Procedurally deferred.** This collector intentionally does not synthesize these
+sections — they require judgment the grounding layer alone cannot provide.
+Reviewers should pull what they need:
+
+- For *surrounding code* of a flagged path: open the path directly.
+- For *prior decisions*: check sibling specs in `/Users/jcords-macmini/projects/20_agentflow/docs/specs` (see section index).
+- For *open questions inherited*: search the spec for "Q1", "Q2", etc.
+- For *repo conventions*: read `/Users/jcords-macmini/projects/20_agentflow/CLAUDE.md` and `/Users/jcords-macmini/projects/20_agentflow/KNOWN_PATTERNS.md`.
+
+## 7. What this collector did NOT check
+
+- Function names, CLI sub-commands, and config keys (`escalation.to`, `schema_version` etc.) — these are spec-internal JSON schema fields, not external artifacts; no existence check applies.
+- External URLs and resources.
+- Path placeholders containing `<...>` or `...` — filtered out as noise.
+- Whether file *contents* match the spec's claims about them. Only file existence is verified.
+- Imports / call sites of cited code paths (would require an LSP or wider grep).
+
+If a reviewer needs any of these, they should request explicitly.
+
+## SPEC.md (/Users/jcords-macmini/projects/20_agentflow/docs/specs/2026-09-26-shepherd-v2-audit-design.md)
+
 # Shepherd v2 — Audit and Design
 
-**Date:** 2026-09-26 · **Status:** Refining → awaiting Decide-1 (duo pre-panel round 1, spec-panel 7.75, Codex post-panel round 2 all applied) · **Author:** session audit, one read-only research agent + parent verification · **Rev 2** (2026-09-26 14:xx, after duo review round 1)
+**Date:** 2026-09-26 · **Status:** Refining (duo pre-panel round 1 + spec-panel 7.75 applied; post-panel review pending) · **Author:** session audit, one read-only research agent + parent verification · **Rev 2** (2026-09-26 14:xx, after duo review round 1)
 
 ## Why
 
@@ -27,10 +174,7 @@ Evidence is from `git log`, `ls` and `grep` on 2026-09-26 unless marked. Cross-r
    | uncommitted `KNOWN_PATTERNS.md` (+81/−27) | superseded | working tree byte-identical to live `KNOWN_PATTERNS.md` (commit `c90950c`) |
    | 3 untracked `docs/*-playground.html` | superseded | clone copies dated 2026-04-07, 62–65 KB; live copies 2026-04-30, 99–101 KB (commit `44f2b3c`) |
 
-   | local refs beyond `master` | two tags | `v1.1.0` → d7e0a03 (same tag upstream); `v2.0.0` → 084ebb9 (same tag upstream) |
-   | stashes / ignored files | none | `git stash list` → 0; `git status --ignored --porcelain` → 0 |
-
-   Clone `origin/master` (`6c2b163`) is an ancestor of live `master`; `git log --branches --tags --not --remotes` lists exactly the two commits above. Deleting the clone still needs the operator (still-ask list). [verified]
+   Clone `origin/master` (`6c2b163`) is an ancestor of live `master`. Deleting the clone still needs the operator (still-ask list). [verified]
 8. **Stale content.** `AGENT_CAPABILITIES.md:113` "GPT-4 tier"; `ORIGIN.md` frames Superpowers/SuperClaude as merged-in when they are separate live skill trees; a 17 MB `.pptx` and a `.numbers` file in the repo root; `docs/*-playground.html` (April) unreferenced by anything. `skills-lock.json` is the `npx skills` lock for one third-party skill (`remotion-best-practices`), not an inventory of ours. [verified by agent, spot-checked]
 9. **Still unique, worth keeping.** FIPD (finding 6); the two-speed DOR (Bug DOR-lite: root cause, 1–3-step fix plan, named regression test, no constraint violation, XS/S estimate, no US template and no panel score; Hotfix fast track: INBOX → `/triage` `[hotfix]` → TODO-Today, DOR-lite at triage time; `DOR.md:18-35`); `CLAUDE-LOOP.md`'s worked autopilot design (never implemented; dagu nightshift and `/loop` now cover the runtime). [inference on "unique": agent scanned Governance headers, not bodies]
 
@@ -51,24 +195,23 @@ Evidence is from `git log`, `ls` and `grep` on 2026-09-26 unless marked. Cross-r
 - AC-3: `DOCTRINE.md` names no command that fails `ls ~/.claude/commands/sh/<name>.md`.
 
 **US-SH2-02 — Executable DOR.** As an agent, I want `sh:dor` to run a script, so that "Ready" is checked, not asserted.
-- Input contract: `scripts/dor_gate.py <BACKLOG.md> <story-id> [--track normal|bug-lite|hotfix] [--json]`. A story-id is `US-[A-Z0-9]+-[0-9]+`. Two title forms are recognised: a heading (`^#{2,4} ` containing the id) and a top-level list item (`^- \*\*…\*\*` containing the id). A heading entry ends at the next heading of equal or higher level; a list entry ends at the next top-level list item or any heading. The id counts as a match only in a title line, never in body text or cross-references. Two title matches → exit 2 (ambiguous), zero → exit 2 (not found).
-- Evidence contract: the panel score is a line inside the entry of the form `spec-panel: <score> (<YYYY-MM-DD>, body:<12-hex>)` where `body:<12-hex>` is the first 12 hex digits of the SHA-256 of the spec file's text **above its first `## Duo review` or `## Codex review` heading** — the reviewed body. Appended review rounds and triage do not invalidate a score; any edit to the body does, committed or not. The gate recomputes the digest from the working tree and rejects a mismatch (exit 1, reason `stale-score`).
+- Input contract: `scripts/dor_gate.py <BACKLOG.md> <story-id> [--track normal|bug-lite|hotfix] [--json]`. A story-id is `US-[A-Z0-9]+-[0-9]+`. An entry spans from the heading or bold-title line that contains the id to the next line of the same level; two matches → exit 2 (ambiguous), zero → exit 2 (not found).
+- Evidence contract: the panel score is a line inside the entry of the form `spec-panel: <score> (<YYYY-MM-DD>, <spec-sha>)` where `<spec-sha>` must equal `git log -1 --format=%h -- <spec path named in the entry>`; a score recorded against an older spec revision is rejected (exit 1, reason `stale-score`).
 - Track policy: `normal` requires ≥1 US, ≥1 AC per US, and a valid score ≥ 7.0. `bug-lite` requires the five DOR-lite lines (root cause, fix plan ≤3 steps, regression test named, no constraint violation, estimate XS/S) and no score. `hotfix` requires the `[hotfix]` tag and the DOR-lite lines. Default track is read from the entry's tag (`[bug]` → bug-lite, `[hotfix]` → hotfix, else normal); `--track` overrides.
 - AC-1: exit 0 on pass, 1 on fail with a one-line reason per failed requirement, 2 on ambiguous/not-found; `--json` emits `{story, track, pass, reasons[]}`.
-- AC-2: `tests/test_dor_gate.py` with fixtures under `tests/fixtures/backlog_*.md`: one passing and one failing entry **per track** (six fixtures), plus one stale-score case (body edited after scoring, uncommitted), one ambiguous-id case, one section transition (a `###` story followed by a `##` section that must not be absorbed), one mixed-title-form file, and one body-text cross-reference to another story id that must not count. Red first, per `feedback_redgreen_verify_new_tests`.
+- AC-2: `tests/test_dor_gate.py` with fixtures under `tests/fixtures/backlog_*.md`: one passing and one failing entry **per track** (six fixtures), plus one stale-score and one ambiguous-id case. Red first, per `feedback_redgreen_verify_new_tests`.
 - AC-3: `.claude/skills/sh-dor/SKILL.md` and `commands/global/sh/dor.md` invoke the script and quote its output; they no longer restate the checklist.
 - Grep before define: check `00_Governance/scripts/` for an existing backlog parser first (`backlog_dor_pipeline.py`, `decisions_probe_queue`, `handover_stamp_gate` are the closest known). `backlog_dor_pipeline.py:494` currently calls `/agentflow:dor` as a prompt string; it must call the script after this story.
 
 **US-SH2-03 — Executable DOD.** As an agent, I want the DOD to be the existing hook chain with proof it refuses, so that agentflow does not carry a second one.
 - AC-1: `python3 ~/projects/00_Governance/scripts/install_repo_hooks.py --list ~/projects/20_agentflow` lists the v4 gates and `--doctor` reports them installed on this repo.
-- AC-2: one failing control **per gate** the installer manages. `--list` on 2026-09-26: spec-hierarchy, verified-tag, reflex (warn-only), decisions-staleness (warn-only), repo-local `tools/precommit.d/*`, all pre-commit; commit-trailer (blocking) on commit-msg. There are no pre-push gates, so no push scenario is needed. Per-gate controls that already exist in Governance are cited by path, not re-written: `00_Governance/tests/test_install_repo_hooks_verified_tag.py`, `test_install_repo_hooks_reflex.py`, `test_install_repo_hooks_commit_msg.py`, `test_commit_trailer_gate.py`; spec-hierarchy and decisions-staleness get one each if none exists (check `00_Governance/tests/` first). This repo adds `tests/test_dod_chain.py` for the chain *as installed here*: scratch clone (fixture neutralises global `core.hooksPath`, per `feedback_scratch_git_repo_inherits_global_hookspath`), one violating commit per blocking gate rejected, each warn-only gate seen to emit its warning, one clean commit passes. `--doctor` on 2026-09-26 reports both hooks NOT INSTALLED on 20_agentflow; installing them is step 1 of this story.
+- AC-2: positive control recorded in `tests/test_dod_chain.py`: in a scratch clone (fixture neutralises global `core.hooksPath`, per `feedback_scratch_git_repo_inherits_global_hookspath`), a commit that violates one named v4 gate is rejected and a clean commit passes.
 - AC-3: `DOCTRINE.md`'s DOD section states which hook event each gate fires on (pre-commit vs. pre-push) and where `/sh:verify` and `/sh:finish` sit relative to them.
 
 **US-SH2-04 — Skill pack with a promotion manifest.** As the operator, I want `SKILLS.md` plus `skills-manifest.json` to say for each bundled skill: `global` / `repo-local` / `retired`, so that sessions outside agentflow get the right set.
-- Manifest schema: `{"version": 1, "skills": {"<dir-name>": {"status": "global|repo-local|retired", "since": "<YYYY-MM-DD>", "synced_sha256": "<SHA-256 of SKILL.md at the last outward copy; global entries only>"}}}`. `skills-lock.json` is untouched (third-party lock, finding 8).
-- AC-1: every `.claude/skills/*` dir appears exactly once in the manifest; `scripts/skills_manifest.py check` exits 1 on a missing or duplicate entry (test with one of each). It runs in this repo's pre-commit chain (registered as a repo-local gate through `install_repo_hooks.py`, named in `DOCTRINE.md`'s DOD section) and is runnable by hand as `python3 scripts/skills_manifest.py check`; it gets no SKILL.md or `/sh:` command — a CI-only gate per *Terms*.
-- AC-2: comparison is **scoped to manifest entries**: for each `global` entry, `~/.claude/skills/<name>/SKILL.md` exists and is byte-identical to the bundle; runtime dirs not in the manifest (`_panel-shared`, `sh-claude-code-panel`, `sh-osm-panel`, everything non-`sh-*`) are never touched or reported. Before the first sync, the 13 runtime-newer skills are copied runtime → bundle and the 6 bundle-newer ones get a per-skill decision logged in `DECISIONS.md`; only then may bundle → runtime copies run. Every later outward copy is guarded by `synced_sha256`: if the runtime `SKILL.md` digest differs from the recorded one, the copy is refused (exit 1, `runtime-diverged`) until reconciled. Test: a runtime edit made after a successful promote makes the next promote refuse.
-- AC-4 (lifecycle): the manifest states are established by `scripts/skills_manifest.py check | promote <name> | retire <name>`. `promote` copies bundle → `~/.claude/skills/<name>` under the AC-2 guard and records `synced_sha256`. `retire` moves the bundle dir to `.claude/skills-retired/<name>` (outside Claude Code's scan path) and removes the runtime copy only under the same digest guard, otherwise refuses and names the divergence. `check` is AC-1 plus a digest-drift report. A decoy runtime dir not in the manifest survives every subcommand (test).
+- Manifest schema: `{"version": 1, "skills": {"<dir-name>": {"status": "global|repo-local|retired", "since": "<YYYY-MM-DD>"}}}`. `skills-lock.json` is untouched (third-party lock, finding 8).
+- AC-1: every `.claude/skills/*` dir appears exactly once in the manifest; `scripts/skills_manifest_check.py` exits 1 on a missing or duplicate entry (test with one of each). It runs in this repo's pre-commit chain (registered as a repo-local gate through `install_repo_hooks.py`, named in `DOCTRINE.md`'s DOD section) and is runnable by hand as `python3 scripts/skills_manifest_check.py`; it gets no SKILL.md or `/sh:` command — a CI-only gate per *Terms*.
+- AC-2: comparison is **scoped to manifest entries**: for each `global` entry, `~/.claude/skills/<name>/SKILL.md` exists and is byte-identical to the bundle; runtime dirs not in the manifest (`_panel-shared`, `sh-claude-code-panel`, `sh-osm-panel`, everything non-`sh-*`) are never touched or reported. Before the first sync, the 13 runtime-newer skills are copied runtime → bundle and the 6 bundle-newer ones get a per-skill decision logged in `DECISIONS.md`; only then may bundle → runtime copies run.
 - AC-3 (depends on Decide-1 and finding 5's consumer list): `agentflow:*` retired by deleting 9 of the 11 files in `commands/global/agentflow/` and `~/.claude/commands/agentflow/` (0 invocations in 90 days); `dor.md` and `dod.md` stay as two-line aliases that invoke `/sh:dor` and `/sh:dod` until the three callers (`backlog_dor_pipeline.py:494`, `goal.md:68,79`, `mission.md:145`) are migrated in the same story, then they are deleted too. The skill-sync DAG propagates the deletions to the 13 project copies at the next 06:00 run (`--delete`); verify one project the day after.
 
 **US-SH2-05 — Panel usage measurement (Investigate) — DONE 2026-09-26.**
@@ -90,7 +233,7 @@ Evidence is from `git log`, `ls` and `grep` on 2026-09-26 unless marked. Cross-r
 - Reproduce: the count script is `scratchpad/panel_usage.py` of session `cfbfa4d9`; it is 40 lines of stdlib and should be re-run, not trusted, before any retirement.
 - Outcome: 13 bundled panels have zero invocations in 90 days. They are retirement **candidates** (status `retired` in the US-SH2-04 manifest), decided per panel after the subagent-coverage question above is answered (Plan: one grep of the hook input for `agent_id`/parent session, ≤ 1 h).
 
-**US-SH2-06 — Clone cleanup (Plan) — report done, delete pending.** The four frozen `agentflow/` checkouts are replaced by a one-line pointer file. The inventory for `40_convergence/agentflow` is in finding 7: every item has a merged equivalent or a newer superset on `origin/master`, so no archive is needed beyond the remote. Remaining steps: (1) operator approves deletion of `40_convergence/agentflow` (un-merged commits exist locally even though their content is upstream; still-ask list); (2) same inventory for `50_KETO`, `MAC`, `PY-Gen` before their deletion — expected trivial, they carry no local commits, but the check per clone is the same four-command inventory as finding 7 — `git log --branches --tags --not --remotes` (any local ref, not only `master`), `git for-each-ref refs/heads refs/tags`, `git stash list`, `git status --ignored --porcelain` — with a disposition row per non-empty result recorded here before the deletion ask.
+**US-SH2-06 — Clone cleanup (Plan) — report done, delete pending.** The four frozen `agentflow/` checkouts are replaced by a one-line pointer file. The inventory for `40_convergence/agentflow` is in finding 7: every item has a merged equivalent or a newer superset on `origin/master`, so no archive is needed beyond the remote. Remaining steps: (1) operator approves deletion of `40_convergence/agentflow` (un-merged commits exist locally even though their content is upstream; still-ask list); (2) same inventory for `50_KETO`, `MAC`, `PY-Gen` before their deletion — expected trivial, they carry no local commits, but the check is `git log origin/master..master` + `git status --porcelain` per clone, recorded here.
 
 **US-SH2-07 — Repo hygiene.** Move `Agentflow-Skills-in-Action-2.pptx` and the `.numbers` file out of git (Kingston backup per the large-file rule); delete `docs/*-playground.html`; fix `AGENT_CAPABILITIES.md:113`; rewrite `ORIGIN.md`'s framing in one paragraph.
 
@@ -286,82 +429,3 @@ Every finding gets an applied edit (✅, where in rev 2) or an explicit ignore (
 | C9 | IMPORTANT — zero invocations undefined against coverage | ✅ applied | Coverage window, record count, project attribution limit and the unverified subagent case stated; zeros labelled "within verified coverage"; retirement gated on closing that question (US-SH2-05). |
 
 Not changed on either reviewer's request: the "Not in scope" list, the three Decide recommendations (Decide-1 now carries the resolved Unknown), the order 01 → 03 → 02 → 04.
-
-## Duo review — post-panel round 2
-
-_Generated by review-duo at 2026-09-26T12:00:26Z (Codex leg) — phase artifacts: `/Users/jcords-macmini/projects/20_agentflow/docs/specs/2026-09-26-shepherd-v2-audit-design-duo-20260926-140026`_
-_DeepSeek leg FAILED: HTTP 503 from the api-router on the 48 KB prompt, three attempts (14:00, 14:05, 14:07); a one-line probe returned OK in 1.2 s, so the failure is size- or load-related upstream, not a router outage. Not diagnosed further this session; this round is Codex-only, which still meets the two-Codex-pass floor of `feedback_codex_spec_review_protocol`._
-
-### DeepSeek findings
-
-(none — leg failed, see above)
-
-### Codex findings
-
-## Findings — CODEX
-
-**CRITICAL:** (none)
-
-### [IMPORTANT] Score freshness ignores uncommitted specification changes
-- What: The proposed revision check accepts an old panel score when the specification has changed without a new commit.
-- Where: US-SH2-02, “`<spec-sha>` must equal `git log -1 --format=%h -- <spec path named in the entry>`”.
-- Why it matters: Editing the specification leaves that command’s result unchanged, allowing materially changed requirements to pass using earlier review evidence.
-- Suggested fix: Bind the score to a digest of the reviewed specification contents and compare it with the current file. Alternatively, require the recorded commit and reject staged, unstaged, or untracked changes to the specification. Add a fixture for edits made after scoring but before committing.
-- Confidence: high
-
-### [IMPORTANT] Entry boundaries can include unrelated backlog sections
-- What: The parser contract does not terminate entries at higher-level headings or define how bold titles interact with Markdown heading levels.
-- Where: US-SH2-02, “An entry spans from the heading or bold-title line that contains the id to the next line of the same level”.
-- Why it matters: A story under `###` followed by a new `##` section can absorb unrelated content, potentially borrowing acceptance criteria or panel evidence from another entry.
-- Suggested fix: Define supported title forms, terminate heading-based entries at the next heading of equal or higher level, and specify boundaries for bold-title entries. Define AC ownership and count identifier matches only in recognized entry titles. Add fixtures covering section transitions, mixed title forms, and references to other story IDs.
-- Confidence: high
-
-### [IMPORTANT] One rejected commit does not validate every DOD gate
-- What: The acceptance test proves refusal by one gate, while the design principle requires a positive control for every gate.
-- Where: Design principles, “Every gate in v2 … with a positive control”; US-SH2-03 AC-2, “a commit that violates one named v4 gate is rejected”.
-- Why it matters: The test can pass while other gates are ineffective, and a commit-only scenario does not exercise gates attached to pre-push.
-- Suggested fix: Identify the required gates and their hook events, then require a failing control for each gate, either through referenced existing tests or new controls. Exercise pre-push gates with a push to a disposable local remote, and retain passing controls.
-- Confidence: high
-
-### [IMPORTANT] Runtime reconciliation protects only the first promotion
-- What: The spec requires reconciliation before the first sync but gives no conflict policy for subsequent runtime edits.
-- Where: Design principles, “Runtime is the direction of truth for already-promoted skills”; US-SH2-04 AC-2, “Before the first sync … only then may bundle → runtime copies run”.
-- Why it matters: A later bundle-to-runtime copy can overwrite new runtime work even though the initial migration satisfied every acceptance criterion.
-- Suggested fix: Record the last synchronized content digest for each managed skill. Before every outward copy, detect runtime changes since that baseline and require reconciliation before overwriting them. Test a runtime edit made after a successful initial sync.
-- Confidence: high
-
-### [IMPORTANT] Manifest statuses lack an executable lifecycle
-- What: The manifest labels skills as global, repo-local, or retired without defining the operations that establish those states.
-- Where: Audit finding 4, “There is no promotion tool”; US-SH2-04, “`global` / `repo-local` / `retired`”; US-SH2-05, retirement candidates receive “status `retired`”.
-- Why it matters: A checker can report missing global installations without installing them, and marking an installed skill retired can leave it discoverable and usable indefinitely.
-- Suggested fix: Specify a promotion command or a concrete manual procedure, including installation, verification, and retirement behavior. Define whether retired skills move outside discovery directories and how previously managed runtime copies are removed or archived. Require that unrelated runtime skills remain untouched.
-- Confidence: high
-
-### [IMPORTANT] Remaining clone inventories omit potentially unique Git state
-- What: The deletion checks cover commits on `master` and working-tree status but omit other branches, stashes, and ignored files.
-- Where: US-SH2-06, “the check is `git log origin/master..master` + `git status --porcelain` per clone”.
-- Why it matters: Both commands can report nothing to preserve while another local branch, a stash, or an ignored local artifact contains unique work that deletion would destroy.
-- Suggested fix: Before requesting deletion approval, inventory all local branches and relevant refs against preserved upstream history, list stashes, and inspect ignored files. Record a durable disposition for anything unique, or create and verify an archive covering Git state and required local files.
-- Confidence: high
-
-**NIT:** (none)
-
-## Self-flagged uncertainty
-
-- The bundle omits representative backlog entries, so compatibility with the existing format cannot be assessed; the parser finding concerns the stated contract.
-- Governance hook implementations and existing tests were not supplied. They may already provide the missing per-gate controls, but the spec does not identify them.
-- No promotion implementation or complete skill-directory contents were supplied. Existing external tooling might provide lifecycle behavior, although the audit explicitly says no promotion tool exists.
-- The bundle does not establish that the remaining clones contain other branches, stashes, or valuable ignored files. The finding concerns the completeness of the deletion preconditions, not confirmed data loss.
-
-### Triage — Claude, 2026-09-26 (round 2)
-
-| # | Finding | Verdict | Disposition |
-|---|---|---|---|
-| P1 | IMPORTANT — score freshness ignores uncommitted edits | ✅ applied | Score now binds to `body:<12-hex>` = SHA-256 of the spec text above the first review heading, recomputed from the working tree; stale-score fixture is an uncommitted body edit (US-SH2-02). |
-| P2 | IMPORTANT — entry boundaries can absorb unrelated sections | ✅ applied | Two title forms defined; heading entries end at equal-or-higher heading, list entries at next top-level item or heading; id counts only in title lines; three new fixtures (US-SH2-02). |
-| P3 | IMPORTANT — one rejected commit ≠ every gate | ✅ applied, narrowed | Per-gate control required; existing Governance tests cited by path for 4 of 6 gates. Verified `install_repo_hooks.py --list`: all gates are pre-commit or commit-msg, none pre-push, so the push scenario is dropped as inapplicable. `--doctor` shows the hooks are not yet installed here — made step 1 of US-SH2-03. |
-| P4 | IMPORTANT — reconciliation protects only the first promotion | ✅ applied | `synced_sha256` per global entry; every outward copy refuses on runtime divergence; test named (US-SH2-04 AC-2). |
-| P5 | IMPORTANT — manifest statuses lack a lifecycle | ✅ applied | `skills_manifest.py check\|promote\|retire` with digest guard, retired dirs moved outside the scan path, decoy-dir test (US-SH2-04 AC-4). |
-| P6 | IMPORTANT — clone inventory omits branches/stashes/ignored | ✅ applied | Ran it for `40_convergence/agentflow`: 2 local tags both present upstream at the same commits, 0 stashes, 0 ignored files (finding 7); the four-command inventory is now the precondition for the other three clones (US-SH2-06). |
-
-Body digest after this round: `body:5176cdbc81e4` (what the BACKLOG score line cites).
