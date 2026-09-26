@@ -46,11 +46,6 @@
 
 ## Refining
 
-- **Shepherd v2 — audit and doctrine collapse** (refining 2026-09-26) `[governance]` `[skills]` · **L** _(project: agentflow)_ — Audit found doctrine files frozen since March–April while tooling stayed live, gates that are prose only, a DOD queue tail naming five commands that no longer exist (`/sc:*`, `/commit-smart`), 75 bundled skills of which 2 were promoted, two namespaces for the same gate, and four frozen `agentflow/` clones in other repos. v2 = one doctrine pointer to Governance, DOR/DOD as scripts with positive controls, a skill pack with an explicit promotion list, measured (not guessed) panel consolidation.
-  - Spec: [docs/specs/2026-09-26-shepherd-v2-audit-design.md](docs/specs/2026-09-26-shepherd-v2-audit-design.md) — 7 user stories (US-SH2-01..07), 3 Decide items for the operator
-  - spec-panel: 7.75 (2026-09-26, body:5176cdbc81e4) — rev 2 after duo pre-panel round 1 (DeepSeek+Codex, 17 findings triaged) and Codex post-panel round 2 (6 applied); US-SH2-05 measured (13 bundled panels at 0 invocations / 90 d); US-SH2-06 report done (nothing unique in the 40_convergence clone)
-  - **Missing before Ready:** operator answers Decide-1 (namespace `sh:` vs `agentflow:`; recommendation keep `sh:`), Decide-2, Decide-3; then `/sh:plan`
-
 
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
@@ -293,7 +288,11 @@ copy now references PANEL_CORE), satisfying AC-2 for that skill. Remaining:
 
 ## Ready
 
-_(empty — see Refining / Done)_
+- **Shepherd v2 — audit and doctrine collapse** (ready 2026-09-26) `[governance]` `[skills]` · **L** _(project: agentflow)_ — Audit found doctrine files frozen since March–April while tooling stayed live, gates that are prose only, a DOD queue tail naming five commands that no longer exist (`/sc:*`, `/commit-smart`), 75 bundled skills of which 2 were promoted, two namespaces for the same gate, and four frozen `agentflow/` clones in other repos. v2 = one doctrine pointer to Governance, DOR/DOD as scripts with positive controls, a skill pack with an explicit promotion list, measured (not guessed) panel consolidation.
+  - Spec: [docs/specs/2026-09-26-shepherd-v2-audit-design.md](docs/specs/2026-09-26-shepherd-v2-audit-design.md) — 7 user stories (US-SH2-01..07); order 01 → 03 → 02 → 04, 07 anytime, 06 delete step still needs operator approval
+  - spec-panel: 7.75 (2026-09-26, body:5176cdbc81e4) — rev 2 after duo pre-panel round 1 (DeepSeek+Codex, 17 findings triaged) and Codex post-panel round 2 (6 applied); US-SH2-05 measured (13 bundled panels at 0 invocations / 90 d); US-SH2-06 report done (nothing unique in the 40_convergence clone)
+  - Decide-1/2/3 answered by the operator 2026-09-26 (spec §"Operator decisions", DECISIONS.md Q5/Q7/Q8): keep `sh:`, delete the 9 unused `agentflow:*` outright with dor/dod aliases until callers migrate; delete `CLAUDE-LOOP.md` (not archive); Shepherd stays a separate repo
+  - Next: `/sh:plan` on the spec
 
 ## Critical Path
 

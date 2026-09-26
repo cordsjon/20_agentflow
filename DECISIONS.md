@@ -83,3 +83,14 @@
 **Justification:** Operator chose option 1 in the /unblock walk on 2026-09-26. Governance already archives skills inward (skills-global/); a second inward path would make Governance both source and archive of the same files and re-open the which-copy-is-authoritative question.
 **Outcome:** applied
 **Ref:** ba20e57
+
+
+## Q9 — shepherd-v2/decide-record — tradeoff
+
+**Question:** Where do the operator's Decide-1..3 answers go in the spec: edit the 'Decisions for the operator' body section, or append a section below the review rounds?
+**Options considered:** edit the body section in place / append an 'Operator decisions' section after the review rounds
+**Chosen:** Append '## Operator decisions — 2026-09-26' at the end of the spec; body section left verbatim, including the archive recommendation Decide-2 overrode.
+**Decided-by:** agent
+**Justification:** US-SH2-02 binds the 7.75 score to the SHA-256 of the text above the first review heading; editing the Decide section would invalidate the score and force a re-panel over a non-substantive change. The appended section states it wins over the body where they differ. Reversible: fold into the body at the next substantive rev.
+**Outcome:** assumed
+**Ref:** ba20e57

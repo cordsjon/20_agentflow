@@ -365,3 +365,15 @@ _DeepSeek leg FAILED: HTTP 503 from the api-router on the 48 KB prompt, three at
 | P6 | IMPORTANT — clone inventory omits branches/stashes/ignored | ✅ applied | Ran it for `40_convergence/agentflow`: 2 local tags both present upstream at the same commits, 0 stashes, 0 ignored files (finding 7); the four-command inventory is now the precondition for the other three clones (US-SH2-06). |
 
 Body digest after this round: `body:5176cdbc81e4` (what the BACKLOG score line cites).
+
+## Operator decisions — 2026-09-26
+
+Recorded here, below the review rounds, so the body digest `5176cdbc81e4` and the 7.75 score stay valid. The "Decisions for the operator" section above keeps its original recommendations as written; where the operator chose differently, this section wins. Journal entries: `DECISIONS.md` Q5–Q8.
+
+| Decide | Chosen | Matches recommendation | Entry |
+|---|---|---|---|
+| 1 — namespace | Keep `sh:`, retire `agentflow:*`, **delete** the 9 unused commands outright. `dor.md`/`dod.md` stay as two-line aliases until `backlog_dor_pipeline.py:494`, `goal.md:68,79`, `mission.md:145` migrate in US-SH2-04, then go too. | yes (delete, not park) | Q5; Q6 closes Q3 |
+| 2 — `CLAUDE-LOOP.md` | **Delete outright.** Git history is the record. | **no** — spec recommended archive under `docs/archive/` | Q7 |
+| 3 — repo placement | Shepherd stays a separate repo (`20_agentflow`). | yes | Q8 |
+
+Consequences for the plan: US-SH2-07 deletes `CLAUDE-LOOP.md` instead of moving it (no `docs/archive/` entry needed for it); US-SH2-04 AC-3 is unblocked; US-SH2-06's delete step still needs a separate operator approval per the still-ask rule. Status: Ready.
