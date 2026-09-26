@@ -66,27 +66,9 @@ Three systems. Three installs. Three namespaces. Three mental models.
 
 **The lesson:** The best tools are useless if you can't find them.
 
-### Phase 5 — The Merge
+### Phase 5 — The Name
 
-The question became obvious: why are these separate?
-
-- Ralph provides persistence (keep going)
-- Superpowers provides execution discipline (do this well)
-- SuperClaude provides analysis depth (think about this hard)
-- AgentFlow provides governance (do the right thing, in the right order)
-
-They weren't competing — they were layers. Like an operating system: Ralph is the kernel (session survival), AgentFlow is the process scheduler (task queue), and Superpowers + SuperClaude are the applications (skills for each job).
-
-The merge was surgical:
-
-- **AgentFlow's** Scrumban pipeline and 14-step loop became the backbone
-- **Superpowers'** 11 execution skills plugged into specific loop steps
-- **SuperClaude's** 11 analysis skills and 2 expert panels became on-demand tools
-- **Ralph's** stop hook wrapped the autopilot for session persistence
-- **15 duplicate skills** were eliminated (both systems had brainstorm, workflow, session lifecycle, etc.)
-- **34 commands** unified under one namespace: `/sh:`
-
-The result needed a name. Something that captured the idea of guiding a flock of tasks through a pipeline — keeping them on track, protecting them from wolves (bugs), shepherding them to completion.
+The question became obvious: why three mental models? Ralph provides persistence, Superpowers provides execution discipline, SuperClaude provides analysis depth, AgentFlow provides governance — layers, not competitors. They were **not merged into one code base**: Superpowers and SuperClaude remain separate, live skill trees installed alongside this repo, and Ralph's stop hook is a plugin. What this repo did was give the governance layer one namespace (`/sh:`, 47 commands as of 2026-09) and one doctrine (`DOCTRINE.md`), and drop its own duplicates of what the other trees already did. The result needed a name that captured guiding a flock of tasks through a pipeline, protecting them from wolves (bugs), and getting them to completion.
 
 **Shepherd.**
 
@@ -129,7 +111,7 @@ The sheep are tasks. The pasture is the pipeline. The shepherd is the governance
 | 2025 Q2 | Phase 3: Full Scrumban pipeline, DOR/DOD gates |
 | 2025 Q3 | Phase 4: Skill integration, Superpowers + SuperClaude adoption |
 | 2025 Q4 | AgentFlow extracted as standalone repo |
-| 2026 Q1 | Phase 5: The merge — Shepherd v2.0 |
+| 2026 Q1 | Phase 5: One namespace and one doctrine — Shepherd v2.0 |
 
 ---
 

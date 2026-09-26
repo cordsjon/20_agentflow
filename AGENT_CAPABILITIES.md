@@ -110,7 +110,7 @@ Each agent entry follows this structure:
   - All outputs relayed via Tether or manual
   - No MCP client support
   - No persistent memory across sessions without Tether
-  - Rate limits on GPT-4 tier
+  - Rate limits depend on the vendor plan in force (the 2026-03 "GPT-4 tier" note is obsolete)
 - **Historical:**
   - No first contact yet
   - No task routing yet — stub only
