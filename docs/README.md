@@ -24,7 +24,7 @@ Static HTML documentation and panel playgrounds for **Shepherd / AgentFlow** —
 ## What Shepherd Provides
 
 - **Scrumban Pipeline** — Inbox → Backlog (Ideation/Refining/Ready) → Queue (TODO-Today) → Done
-- **14-Step Autopilot Loop** — quality-gated execution with DOR/DOD checkpoints (defined in `CLAUDE-LOOP.md`)
+- **14-Step Autopilot Loop** — quality-gated execution with DOR/DOD checkpoints (historical; CLAUDE-LOOP.md was deleted 2026-09-26, see DOCTRINE.md)
 - **35 Installable Skills** — `/sh:*` commands for pipeline, implementation, analysis, expert panels
 - **Expert Panels** — multi-expert review with scoring gates (Spec, Business, Architecture, Security, Design, Test, DevOps, Legal, Marketing, Content, Visualization, AI)
 - **DOR / DOD Quality Gates** — non-negotiable entry/exit criteria

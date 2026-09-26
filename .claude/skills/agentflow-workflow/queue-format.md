@@ -61,9 +61,9 @@
   `/test-driven-development`
   _Context: templates/shell.html, static/js/theme.js_
 - [ ] **analyze: Quality scan of changed files**
-  `/sc:analyze "shell.css theme.js" --focus quality`
+  `/sh:analyze "shell.css theme.js" --focus quality`
 - [ ] **cleanup: Fix findings and enforce standards**
-  `/sc:cleanup --type all`
+  `/sh:verify --type all`
 - [ ] **commit: Atomic conventional commit**
   `/commit-smart`
 ```

@@ -43,9 +43,9 @@ Every batch MUST end with these items:
 
 ```markdown
 - [ ] **analyze: Quality scan of changed files**
-  `/sc:analyze "<changed files>" --focus quality`
+  `/sh:analyze "<changed files>" --focus quality`
 - [ ] **cleanup: Fix findings and enforce standards**
-  `/sc:cleanup --type all`
+  `/sh:verify --type all`
 - [ ] **commit: Atomic conventional commit**
   `/commit-smart`
 - [ ] **deploy: Run deployment**

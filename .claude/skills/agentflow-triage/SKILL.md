@@ -47,7 +47,7 @@ Even for obvious inline bugs, the sequence is always:
 ### [classification] Brief title
 Description of the item.
 Origin: INBOX (date)
-Next: /sc:brainstorm (or appropriate next action)
+Next: /sh:brainstorm (or appropriate next action)
 ```
 
 ## Hotfix Fast-Track

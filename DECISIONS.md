@@ -94,3 +94,23 @@
 **Justification:** US-SH2-02 binds the 7.75 score to the SHA-256 of the text above the first review heading; editing the Decide section would invalidate the score and force a re-panel over a non-substantive change. The appended section states it wins over the body where they differ. Reversible: fold into the body at the next substantive rev.
 **Outcome:** assumed
 **Ref:** ba20e57
+
+
+## Q10 — shepherd-v2/US-SH2-01 — deviation
+
+**Question:** AC-1 (0 sc: hits) is unsatisfiable literally: DECISIONS.md is append-only and quotes the dead names as history. Scope?
+**Chosen:** The AC-1 test excludes DECISIONS.md only; every other file (81 hits/11 files measured) is fixed. BACKLOG.md:291 reworded.
+**Decided-by:** agent
+**Justification:** An append-only journal cannot be edited without breaking the schema gate; every living document is fixed.
+**Outcome:** assumed
+**Ref:** 621c30f (at write time)
+
+
+## Q11 — shepherd-v2/US-SH2-01 — tradeoff
+
+**Question:** Which /sh: command replaces /sc:cleanup, /sc:design and /sc:implement, none of which has a same-named successor?
+**Chosen:** /sc:cleanup -> /sh:verify, /sc:design -> /sh:plan, /sc:implement -> /sh:execute (mapping table in the plan Task 1.4). Found on the way: the pre-existing dangling /sh:poster-analysis in SKILLS.md retargeted to /sh:business-analysis, which renders the DIN poster.
+**Decided-by:** agent
+**Justification:** The v2 DOD tail drops the cleanup step; verify is where findings are checked. Each target exists in ~/.claude/commands/sh (checked by loop).
+**Outcome:** assumed
+**Ref:** 621c30f (at write time)

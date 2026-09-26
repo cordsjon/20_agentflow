@@ -63,13 +63,9 @@ INBOX → BACKLOG (Ideation → Refining → Ready) → TODO-Today → DONE-Toda
 
 | File | Purpose |
 |------|---------|
-| [CLAUDE-LOOP.md](CLAUDE-LOOP.md) | The execution loop — 3 nested loops, 14 inner steps, semaphore control |
-| [GOVERNANCE-GUIDE.md](GOVERNANCE-GUIDE.md) | Full framework reference — pipeline, quality gates, skill portfolios |
-| [DOD.md](DOD.md) | Definition of Done — quality gate before deployment |
-| [DOR.md](DOR.md) | Definition of Ready — entry criteria before implementation |
+| [DOCTRINE.md](DOCTRINE.md) | Sources, DOR (executable), DOD (hook chain), FIPD pointer — the only doctrine file |
 | [ORCHESTRATOR.md](ORCHESTRATOR.md) | Task routing, agent assignment, stall detection |
 | [AGENT_CAPABILITIES.md](AGENT_CAPABILITIES.md) | Agent capability matrix for task routing |
-| [KNOWN_PATTERNS.md](KNOWN_PATTERNS.md) | Anti-pattern catalog — consult before writing code |
 | [SKILLS.md](SKILLS.md) | Complete skill catalog — dependencies, chains, examples, portfolios |
 | [experts/](experts/) | Extensible expert registry — panels, packs, individual expert files |
 | [ORIGIN.md](ORIGIN.md) | The genesis story — how four systems became one |
@@ -136,7 +132,7 @@ And expert panels: `/sh:spec-panel` (scoring gate ≥ 7.0), `/sh:business-panel`
    ```markdown
    ## Governance
    This project follows the Shepherd loop.
-   See governance/CLAUDE-LOOP.md for execution model.
+   See DOCTRINE.md (DOR/DOD) and ~/.config/dagu for the nightly loop.
    ```
 3. **Create your pipeline files:**
    - `INBOX.md` — raw input dump

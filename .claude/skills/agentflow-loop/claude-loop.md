@@ -1,6 +1,6 @@
 # Full Loop Reference
 
-This is the complete loop specification extracted from CLAUDE-LOOP.md.
+This is the complete loop specification extracted from CLAUDE-LOOP.md (deleted 2026-09-26; this file is the surviving copy).
 
 ## Stage Definitions
 
