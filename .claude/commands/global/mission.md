@@ -142,7 +142,7 @@ Run the spec §4 algorithm IN ORDER, fail-closed at every step:
    `/mission` does not invoke `sh:execute` itself.
 
 ### `/mission gate`  (MANUAL — always)
-Run the `on_close` gate: invoke the wired `agentflow:dod` / `sh:spec-panel` / `sh:test`
+Run the `on_close` gate: invoke the wired `sh:dod` / `sh:spec-panel` / `sh:test`
 / deploy+Playwright-smoke across the whole surface, judge against `done_gate.all_of`.
 - PASS → `python3 ~/.claude/scripts/mission_parse.py gate --path "$MISSION_FILE" --passed`
 - FAIL (e.g. smoke red) → `python3 ~/.claude/scripts/mission_parse.py gate --path "$MISSION_FILE" --reason smoke_red`,

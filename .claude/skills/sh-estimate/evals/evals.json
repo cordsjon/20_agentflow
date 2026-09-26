@@ -1,0 +1,57 @@
+{
+ "skill_name": "sh-estimate",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Estimate the effort for the MCP server story.",
+   "expected_output": "Should produce a T-shirt-size estimate with risk adjustment, stated assumptions, and what would change the size — no fabricated precision.",
+   "assertions": [
+    "T-shirt sizing used",
+    "Risk adjustment explicit",
+    "Assumptions stated",
+    "No fabricated point-precision (e.g. '13.5 hours')"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Estimate these four backlog items relative to each other.",
+   "expected_output": "Should size them consistently on the same scale and explain relative ordering.",
+   "assertions": [
+    "Consistent scale across items",
+    "Relative ordering justified"
+   ],
+   "files": [
+    {
+     "path": "BACKLOG.md",
+     "content": "# Backlog — Sprint Candidate Queue\n\n## BL-108: Add `--json` flag to `report export`\nThe export command currently prints a fixed table to stdout. Add a `--json`\nflag that emits the same rows as a JSON array. The row objects already exist\ninternally (`ReportRow` dataclass in `reporting/rows.py`); the table renderer\nis the only consumer today. No schema decisions open — field names mirror the\ndataclass. One integration test to add alongside the existing table test.\n\n## BL-112: Replace the session store with Postgres\nSessions live in a single-process in-memory dict today (`server/session.py`,\n~200 lines) and are lost on restart. Move to Postgres so sessions survive\nrestarts and so the second app instance can serve the same users.\n\nUnknowns noted in the thread:\n- Nobody has confirmed whether the ops team can provision a Postgres instance\n  for this service or whether we share the billing cluster.\n- Session objects hold arbitrary pickled payloads today; what a relational\n  schema looks like has not been worked out.\n- The logout/expiry semantics were never written down — current behaviour is\n  \"whatever the dict does\".\n- Cutover with zero forced re-login has been requested but not designed.\n\n## BL-115: Fix timezone drift in the daily digest email\nThe digest sends at 07:00 UTC instead of 07:00 local for the ~40 non-UTC\naccounts. `scheduler/digest.py` builds the send time with `datetime.utcnow()`\nand ignores `account.timezone`, which is already stored and populated. Fix is\nin one function; there is an existing test file for the scheduler with a\nfrozen-clock helper.\n\n## BL-121: Onboarding wizard for new workspaces\nNew workspaces land on an empty dashboard. Build a guided multi-step wizard\ncovering: invite teammates, connect a data source, pick a starter template.\n\nOpen threads:\n- Product has sketched three steps but has not signed off on the order or on\n  whether steps are skippable.\n- The connectors list is being reworked in parallel by another team; the\n  wizard would consume whatever that lands on.\n- Needs new persistence for \"wizard progress\" — no store exists.\n- Design has not started; copy for each step is unwritten.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "mixed confirm (pass/needs_fixture) — kept fail-closed",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 3,
+   "prompt": "Give me the exact hours this will take.",
+   "expected_output": "Should decline false precision — offer the size with confidence range and the drivers of variance instead.",
+   "assertions": [
+    "Declines exact-hours certainty",
+    "Provides range plus variance drivers"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

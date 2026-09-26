@@ -201,7 +201,7 @@ After the panel run, confirm:
 - Called by: autopilot cleanup sub-loop (M+ effort tasks)
 - Calls: `code-reviewer` subagent ×3 (lenses A/B/C), `codex exec` (lens D + refute engine)
 - Output consumed by: quality gate Stage 3 (`parse_panel_verdict`)
-- Synced via: `bash ~/projects/20_agentflow/scripts/sync-skills-global.sh`
+- Promoted via: `python3 ~/projects/20_agentflow/scripts/skills_manifest.py promote sh-4-reviewer-panel`
 
 ---
 

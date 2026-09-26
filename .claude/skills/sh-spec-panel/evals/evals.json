@@ -1,0 +1,43 @@
+{
+ "skill_name": "sh-spec-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review the KETO enrichment-DB spec.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the specification lenses: completeness, testability, clarity, scope discipline",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this spec: no acceptance criteria, undefined terms, scope boundary missing, NFRs absent.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "specs/smart-inbox-triage.md",
+     "content": "# Spec: Smart Inbox Triage\n\n## Background\nSupport agents spend too long sorting the shared inbox. We will add smart\ntriage so the important things surface first and the noise drops away.\n\n## Goals\nMake the inbox feel fast and relevant. Reduce time-to-first-response. Agents\nshould trust the ordering enough to work top-down.\n\n## Proposed Behaviour\nWhen a message lands, the triage service assigns it a priority using the\nrelevance engine. High-signal messages move to the top of the queue; low-signal\nones are collapsed into the digest lane. The engine considers sender standing,\nmessage urgency and account tier.\n\nAgents can override a placement. Overrides feed back into the engine so it\nlearns the team's preferences over time.\n\nThe digest lane is summarised and delivered on the usual cadence.\n\n## Implementation Sketch\n- New `triage` service subscribing to the ingest stream.\n- Priority written to `messages.priority_band`.\n- Inbox UI sorts by band, then by arrival.\n- Overrides recorded in an events table for later training.\n\n## Notes\n- The relevance engine is the same one the recommendations team uses.\n- Sender standing should probably reuse whatever reputation signal we already\n  compute, if that is still running.\n- We may want to expose triage to end customers eventually.\n- Migration for existing unread mail: TBD.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail rep1 with fixtures",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

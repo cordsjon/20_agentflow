@@ -94,3 +94,63 @@
 **Justification:** US-SH2-02 binds the 7.75 score to the SHA-256 of the text above the first review heading; editing the Decide section would invalidate the score and force a re-panel over a non-substantive change. The appended section states it wins over the body where they differ. Reversible: fold into the body at the next substantive rev.
 **Outcome:** assumed
 **Ref:** ba20e57
+
+
+## Q10 — shepherd-v2/US-SH2-01 — deviation
+
+**Question:** AC-1 (0 sc: hits) is unsatisfiable literally: DECISIONS.md is append-only and quotes the dead names as history. Scope?
+**Chosen:** The AC-1 test excludes DECISIONS.md only; every other file (81 hits/11 files measured) is fixed. BACKLOG.md:291 reworded.
+**Decided-by:** agent
+**Justification:** An append-only journal cannot be edited without breaking the schema gate; every living document is fixed.
+**Outcome:** assumed
+**Ref:** 621c30f (at write time)
+
+
+## Q11 — shepherd-v2/US-SH2-01 — tradeoff
+
+**Question:** Which /sh: command replaces /sc:cleanup, /sc:design and /sc:implement, none of which has a same-named successor?
+**Chosen:** /sc:cleanup -> /sh:verify, /sc:design -> /sh:plan, /sc:implement -> /sh:execute (mapping table in the plan Task 1.4). Found on the way: the pre-existing dangling /sh:poster-analysis in SKILLS.md retargeted to /sh:business-analysis, which renders the DIN poster.
+**Decided-by:** agent
+**Justification:** The v2 DOD tail drops the cleanup step; verify is where findings are checked. Each target exists in ~/.claude/commands/sh (checked by loop).
+**Outcome:** assumed
+**Ref:** 621c30f (at write time)
+
+
+## Q12 — shepherd-v2/US-SH2-02 — deviation
+
+**Question:** dor_gate.py: how are entries without a story id, stories held only in a linked spec, nested headings, and a score on a bug-lite entry handled?
+**Chosen:** Selector accepts a title substring when not an id; US/AC are read from the linked spec when the entry body has none; entries nest (every title line starts one — the plan's i=j loop skipped every ### story inside ## Ready and failed 15/16 tests); bug-lite ignores a present score.
+**Decided-by:** agent
+**Justification:** 20_agentflow's own entry title has no US- id and its 7 stories live in the spec (live check: us=7 ac=13, PASS). Governance uses ### US-ID headings under ## Ready, which the non-nesting loop could never select.
+**Outcome:** assumed
+**Ref:** a5a708f (at write time)
+
+
+## Q13 — shepherd-v2/US-SH2-04 — tradeoff
+
+**Question:** sh-4-reviewer-panel: bundle (2026-06-26, 9789 B) is newer than runtime (2026-06-20, 6640 B) — which copy is truth? And the 18 runtime-truth copies: replace the bundle dir or copy over it?
+**Chosen:** Bundle wins for sh-4-reviewer-panel: promote after the manifest exists. The 18 others: runtime copied OVER the bundle in place (not rm -rf + cp), because sh-ux-design's bundle holds wireframe-rules.md, concept-compare.md, handoff.md that both SKILL.md copies read and the runtime lacked; the three were also restored into ~/.claude/skills/sh-ux-design.
+**Decided-by:** agent
+**Justification:** The reviewer-panel diff is authored content (disjoint lenses per experts/PANEL_PROTOCOL.md, codex refute pass, gated auto-apply), not a stale skeleton; the protocol sections it cites exist. The plan's rm -rf step would have deleted three files a live skill references.
+**Outcome:** assumed
+**Ref:** ae345d1 (at write time)
+
+
+## Q14 — shepherd-v2/US-SH2-04 — deviation
+
+**Question:** skills_manifest.py: check exits 1 only on structural errors and reports runtime drift; record added; and the plan's guard made a bundle-wins promote impossible (record needs identical, promote needs recorded). How is the first bundle-wins adoption done?
+**Chosen:** check: structural errors exit 1, drift is reported only. promote gets --expect-runtime-sha <sha of the reviewed runtime SKILL.md>: proceeds only while the live file still has that digest. Used once for sh-4-reviewer-panel (Q13) after backing the runtime copy up and carrying its runtime-only evals/ into the bundle.
+**Decided-by:** agent
+**Justification:** The runtime is where skills get edited, so drift must be visible but not block commits. An explicit reviewed digest keeps the race guard (a runtime edit after review still refuses) without a blanket --force.
+**Outcome:** assumed
+**Ref:** bfd5266 (at write time)
+
+
+## Q15 — shepherd-v2/spec-edits — deviation
+
+**Question:** The verified-tag gate (installed in Chunk 2) scans the WHOLE staged spec and blocks on 8 bare [verified] tags in the frozen, panel-scored body. Editing them breaks digest 5176cdbc81e4 and the 7.75 score. How are append-only spec edits committed?
+**Chosen:** ALLOW_UNCHECKABLE_VERIFIED=1 on spec-append commits only, after checking the added lines carry 0 [verified] tags (git diff | grep '^+' | grep -ci verified -> 0). The plan's assumption that only new edits are checked was wrong.
+**Decided-by:** agent
+**Justification:** The gate's documented escape valve downgrades to a loud warning; the 8 tags predate the gate and are frozen by the digest contract. Durable fix (not done here): make the gate judge added lines only, or re-panel the spec with checkable tags.
+**Outcome:** assumed
+**Ref:** 534c433 (at write time)

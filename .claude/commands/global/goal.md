@@ -65,7 +65,7 @@ MISSIONS=$(python3 ~/.claude/scripts/goal_parse.py list-missions)   # JSON array
 
    **GOAL-VERDICT emission (spec §7 — only when `active.json.mission_id` is set):**
    On goal-complete, after confirming `exit_condition.all_of` and the per-goal
-   `agentflow:dor` result, emit a machine-readable verdict. Compose it PROCEDURALLY
+   `sh:dor` result, emit a machine-readable verdict. Compose it PROCEDURALLY
    from the gate results — never ask an LLM to "print PASS":
    ```bash
    # actual-diff paths the USs really changed (authoritative sensitive re-scan, I15)
@@ -76,7 +76,7 @@ MISSIONS=$(python3 ~/.claude/scripts/goal_parse.py list-missions)   # JSON array
    diff = json.loads(sys.argv[1])
    verdict, reason = ms.compose_goal_verdict(
        exit_all_of_satisfied=EXIT_OK,   # substitute: did exit_condition.all_of verify?
-       dor_pass=DOR_OK,                 # substitute: did agentflow:dor PASS?
+       dor_pass=DOR_OK,                 # substitute: did sh:dor PASS?
        actual_diff_paths=diff)
    print(f"GOAL-VERDICT: {verdict}")    # the parsed line (last GOAL-VERDICT: wins)
    ms.record_verdict(PROJECT, GOAL_ID, ATTEMPT, verdict, reason)

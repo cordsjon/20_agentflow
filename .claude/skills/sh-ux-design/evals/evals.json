@@ -1,0 +1,56 @@
+{
+ "skill_name": "sh-ux-design",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Wireframe the onboarding flow so we can validate it.",
+   "expected_output": "Should build a clickable wireframe prototype in code — structure and flow over visual polish — that a user can actually click through.",
+   "assertions": [
+    "Prototype is clickable/navigable",
+    "Focus on flow and structure, not hi-fi styling",
+    "All flow branches reachable"
+   ],
+   "files": [
+    {
+     "path": "docs/product-brief.md",
+     "content": "# Product Brief — Plotline\n\n## What it is\nPlotline is a web app for hobby gardeners. You draw your beds, tell it what\nyou planted, and it tells you what to sow or harvest each week.\n\n## Who signs up\nTwo kinds of people arrive at the signup page:\n\n- **Starting from scratch** — has a bare plot or a few pots and no idea what\n  goes where. Wants to be told.\n- **Already gardening** — has beds planted, keeps notes in a spreadsheet or a\n  notebook. Wants Plotline to hold what they already know.\n\n## What we must know before the dashboard is useful\n1. Which account they are (email + password, or Google).\n2. Where they garden — a postal code, so we can resolve the frost dates and\n   hardiness zone that every recommendation depends on. Without this the\n   calendar cannot be generated at all.\n3. What growing space they have — bed dimensions, or a count of containers.\n4. What is already growing, if anything. Existing gardeners can add plants one\n   at a time or paste a list; new gardeners skip this entirely and instead\n   pick a starter plan (Salad Box, Herb Corner, Three Sisters).\n\n## Constraints from the team\n- Postal code is required. Everything else can be edited later from settings.\n- People who already garden get annoyed by being taught; people starting out\n  get frightened by empty forms. The flow should not feel the same for both.\n- A user who abandons partway should be able to come back and continue rather\n  than restart.\n- Mobile is the majority of signups. Phone-width first.\n- Google signup skips the password step but still needs everything else.\n\n## Open question we want to answer\nDoes this flow get a first-time gardener to a populated dashboard without them\nbailing out? We want to put something in front of five people this week and\nwatch them try it, before anyone builds the real thing.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "confirm rep3 baseline_fail",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Validate whether settings should be a page or a modal.",
+   "expected_output": "Should prototype both variants clickably so the structural question gets answered by interaction.",
+   "assertions": [
+    "Both variants prototyped",
+    "Comparison addresses the structural question"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 3,
+   "prompt": "Make the wireframe pixel-perfect with the final brand styling.",
+   "expected_output": "Should keep the wireframe lo-fi — hi-fi polish at wireframe stage defeats the validate-structure-first purpose; route polish to the design skill.",
+   "assertions": [
+    "Declines hi-fi polish at wireframe stage",
+    "Routes visual design to the appropriate skill/stage"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

@@ -52,7 +52,7 @@ After `queue done` moves an item to DONE-Today.md:
 
 The orchestrator reads:
 - The task description (bold text after checkbox)
-- The `/sc:` command hint (line 2 of queue format)
+- The `/sh:` command hint (line 2 of queue format)
 - The `_Context:_` line (line 3, optional)
 
 ### Scoring
@@ -75,7 +75,7 @@ The orchestrator annotates the TODO-Today item:
 
 ```markdown
 - [ ] **implement** FE-32 font preview refresh `@claude` `stall:0`
-  `/sc:implement "font preview refresh" --focus frontend`
+  `/sh:execute "font preview refresh" --focus frontend`
   _Context: font_detail.html, fonts.js — confidence:0.9_
 ```
 
@@ -140,14 +140,14 @@ This is informational — the executing agent reads it as starting context, not 
 After task execution, before commit (runs inside the Cleanup Sub-Loop):
 
 1. **Greenlight** — Project's greenlight must pass (existing gate, unchanged)
-2. **KNOWN_PATTERNS scan** — Check diff against `KNOWN_PATTERNS.md` for anti-pattern reintroduction
+2. **KNOWN_PATTERNS scan** — Check diff against `~/projects/00_Governance/KNOWN_PATTERNS.md` for anti-pattern reintroduction
 3. **Constraint check** — Verify no CLAUDE.md constraint violation in the diff
 
 If validation fails, the orchestrator does NOT accept the result:
 - Low findings: auto-fix loop (existing behavior)
 - Medium+ findings: pause autopilot (existing behavior)
 
-This gate already exists in CLAUDE-LOOP.md's Cleanup Sub-Loop. The orchestrator adds no new validation steps — it just names the existing gate as part of the routing lifecycle.
+This gate already exists in the former CLAUDE-LOOP.md's Cleanup Sub-Loop (deleted 2026-09-26, git history). The orchestrator adds no new validation steps — it just names the existing gate as part of the routing lifecycle.
 
 ---
 
@@ -156,14 +156,14 @@ This gate already exists in CLAUDE-LOOP.md's Cleanup Sub-Loop. The orchestrator 
 Existing format (unchanged):
 ```markdown
 - [ ] **Phase: Task description**
-  `/sc:command "args" --attribute`
+  `/sh:<command> "args" --attribute`
   _Context: brief notes, file refs, links_
 ```
 
 Extended format (orchestrator adds):
 ```markdown
 - [ ] **Phase: Task description** `@claude` `stall:0`
-  `/sc:command "args" --attribute`
+  `/sh:<command> "args" --attribute`
   _Context: brief notes, file refs, links — confidence:0.85_
 ```
 

@@ -1,0 +1,43 @@
+{
+ "skill_name": "sh-security-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review the credential-handling design for the new agent gateway.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the security lenses: threat modeling, secrets handling, LLM/prompt injection, data classification, incident response",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this design: API keys in query strings, LLM output executed unsanitized, no data classification, no incident plan.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "docs/agent-gateway-design.md",
+     "content": "# Agent Gateway — Design Doc v0.3\n\n## Purpose\nSingle HTTP entry point that lets internal tools ask an LLM to answer\nquestions over company data and run follow-up actions.\n\n## Authentication\nCallers authenticate with a static API key appended to the request URL:\n\n    GET /v1/agent/run?api_key=AG-live-8f21c...&prompt=...\n\nThe key is issued once per team in the admin UI and does not expire. nginx\naccess logs record the full request line. The same key string is embedded in\nthe internal tools' config files and in the Postman collection we share in the\n#eng channel.\n\n## Request flow\n1. nginx terminates TLS and forwards to `gateway/app.py`.\n2. The gateway loads the caller's documents from the shared `corp_docs`\n   bucket and concatenates them into the prompt.\n3. The prompt goes to the model provider.\n4. The model returns a JSON blob with a `python` field. The worker runs it:\n\n       result = eval(model_response[\"python\"], {\"db\": db, \"http\": http})\n\n   This is how the agent does arithmetic, queries the reporting DB and calls\n   internal HTTP endpoints. The worker runs as root in the same container as\n   the gateway.\n5. The result is returned to the caller and appended to\n   `/var/log/gateway/transcripts.jsonl`.\n\n## Storage\nAll prompts, retrieved document chunks and model responses are written to\n`transcripts.jsonl` and shipped nightly to the analytics warehouse, where the\nwhole company has read access. The `corp_docs` bucket holds a mix of public\nmarketing copy, unreleased financials and HR case notes; everything in the\nbucket is treated the same by the loader.\n\n## Operations\n- Deploy: `git push` to the deploy remote, no review gate.\n- Monitoring: uptime ping on `/healthz`.\n- On-call: whoever is around in #eng.\n\n## Out of scope for v1\nRate limiting, key rotation, per-team document isolation.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail on re-roll (earlier needs_fixture was probe variance: deferred instead of analyzing)",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

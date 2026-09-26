@@ -1,0 +1,51 @@
+{
+  "skill_name": "sh-business-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze the consulting arm — give me the framework menu.",
+      "expected_output": "Should present the numbered framework menu (SWOT, BMC, Five Forces, PESTLE, ...), run the picked framework as text analysis first, and only offer the DIN poster PDF after.",
+      "assertions": [
+        "Framework menu presented with numbers",
+        "Text analysis delivered before any rendering",
+        "Analysis content specific to the subject, not template filler"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Run #1 and #3 on the Etsy business.",
+      "expected_output": "Should run both frameworks as text with the subject's actual specifics threaded through.",
+      "assertions": [
+        "Both picked frameworks executed",
+        "Subject specifics, not generic statements"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 3,
+      "prompt": "Skip the analysis, just render me a nice poster.",
+      "expected_output": "Should not render a poster of nothing — the text analysis is the input; run or obtain it first.",
+      "assertions": [
+        "Refuses poster-first ordering",
+        "Text analysis precedes rendering"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}

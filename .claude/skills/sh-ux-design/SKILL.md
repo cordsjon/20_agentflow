@@ -14,7 +14,7 @@ description: "Build clickable wireframe prototypes in code to validate flow and 
 **Announce at start:** "I'm using the sh:ux-design skill to build a clickable wireframe prototype."
 
 <HARD-GATE>
-Do NOT apply production styling, custom icons, real images, animations, or design polish. This is a WIREFRAME. The entire point is to validate structure and flow before investing in hi-fi. If the output looks polished, you've gone too far. Read `wireframe-rules.md` before generating any markup.
+Do NOT apply production styling, custom icons, real images, animations, or design polish. Instead: gray/neutral boxes with labels, system-default fonts, plain borders, text placeholders (e.g. "[Image]", "Lorem ipsum"). This is a WIREFRAME. The entire point is to validate structure and flow before investing in hi-fi. If the output looks polished, you've gone too far. Read `wireframe-rules.md` before generating any markup.
 </HARD-GATE>
 
 ## Why Wireframes in Code
@@ -171,7 +171,7 @@ Before handing off to `/frontend-design`, ALL must pass. Read `handoff.md` for d
 
 ## Key Principles
 
-- **Ugly on purpose** — if it looks polished, you skipped the wireframe stage
+- **Ugly on purpose** — gray boxes and text labels, not polish. If it looks polished, you skipped the wireframe stage
 - **Validate structure, not aesthetics** — catch flow problems before they're expensive
 - **One primary action per screen** — if a screen has two CTAs, it needs splitting
 - **Dead ends are bugs** — every path must reach completion or have explicit escape

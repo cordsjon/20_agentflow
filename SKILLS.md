@@ -3,6 +3,10 @@
 > Complete catalog of skills integrated into the governance loop.
 > Each skill is a reusable prompt module that plugs into a specific loop stage.
 
+## Promotion manifest (Shepherd v2)
+
+`skills-manifest.json` is the source of truth for every dir under `.claude/skills/`: `global` (also installed in `~/.claude/skills/`, digest-guarded), `repo-local` (this repo only), `retired` (moved to `.claude/skills-retired/`). Lifecycle: `python3 scripts/skills_manifest.py check | promote <name> | retire <name> | record <name>` (see the script header). `check` runs in this repo's pre-commit (`tools/precommit.d/10-skills-manifest`). Commands (`/sh:<name>`) need no promotion: `~/.claude/commands/sh` is a symlink to `.claude/commands/global/sh`. `skills-lock.json` is the third-party `npx skills` lock for `remotion-best-practices`, not ours. `agentflow-*` skills are `repo-local`; retirement of the 11 zero-invocation panels is decided per panel after the subagent-coverage question (spec US-SH2-05).
+
 ---
 
 ## Skill Dependencies & Prerequisites
@@ -13,7 +17,7 @@ Skills don't run in isolation — they depend on pipeline state and often chain 
 
 ```
                     ┌─────────────────┐
-                    │  /sc:brainstorm  │  Ideation → Refining
+                    │  /sh:brainstorm  │  Ideation → Refining
                     └────────┬────────┘
                              │
                     ┌────────▼────────────────┐
@@ -21,11 +25,11 @@ Skills don't run in isolation — they depend on pipeline state and often chain 
                     └────────┬────────────────┘
                              │
                     ┌────────▼────────┐
-                    │  /sc:spec-panel  │  Refining → Ready (gate: >= 7.0)
+                    │  /sh:spec-panel  │  Refining → Ready (gate: >= 7.0)
                     └────────┬────────┘
                              │
                     ┌────────▼────────┐
-                    │   /sc:workflow   │  Ready → TODO-Today queue
+                    │   /sh:workflow   │  Ready → TODO-Today queue
                     └────────┬────────┘
                              │
                     ┌────────▼────────┐
@@ -53,9 +57,9 @@ Skills don't run in isolation — they depend on pipeline state and often chain 
               │             ▼               │
               │  ┌───────────────────────┐  │
               │  │ CLEANUP SUB-LOOP      │  │  Step 9: Quality gate
-              │  │  /sc:analyze          │  │
+              │  │  /sh:analyze          │  │
               │  │  /production-code-audit│ │  (M+ tasks only)
-              │  │  /sc:cleanup          │  │  (enforces /clean-code)
+              │  │  /sh:verify           │  │  (enforces /clean-code)
               │  └──────────┬────────────┘  │
               │             ▼               │
               │  ┌───────────────────────┐  │
@@ -82,19 +86,19 @@ Skills don't run in isolation — they depend on pipeline state and often chain 
 
 | Skill | Requires | Produces |
 |-------|----------|----------|
-| `/sc:brainstorm` | Raw idea in INBOX or BACKLOG#Ideation | Requirements document |
+| `/sh:brainstorm` | Raw idea in INBOX or BACKLOG#Ideation | Requirements document |
 | `/requirements-clarity` | Brainstorm output exists | Ambiguity report, clarified requirements |
-| `/sc:spec-panel` | Spec document with US + AC | Score (gate: >= 7.0), improvement suggestions |
+| `/sh:spec-panel` | Spec document with US + AC | Score (gate: >= 7.0), improvement suggestions |
 | `/sh:ux-design` | User flow (Figma/Miro/PRD), optional business-panel brief | Clickable wireframe prototype, component mapping, handoff doc |
-| `/sc:design` | Requirements doc (architecture tasks) | Architecture specification |
-| `/sc:workflow` | Ready items in BACKLOG | Populated TODO-Today.md queue |
+| `/sh:plan` | Requirements doc (architecture tasks) | Architecture specification |
+| `/sh:workflow` | Ready items in BACKLOG | Populated TODO-Today.md queue |
 | `/test-driven-development` | Task in queue with clear AC | Failing test file |
 | `/verification-before-completion` | Implementation complete, tests passing | Evidence log (test output, screenshots) |
 | `/requesting-code-review` | Changed files in working tree | Review findings |
 | `/receiving-code-review` | Review feedback received | Applied fixes |
-| `/sc:analyze` | Implementation complete | Quality findings (Low/Medium/High) |
+| `/sh:analyze` | Implementation complete | Quality findings (Low/Medium/High) |
 | `/production-code-audit` | Task size >= M (Medium) | Security/perf/arch findings |
-| `/sc:cleanup` | Findings from `/sc:analyze` | Fixed code, clean findings |
+| `/sh:verify` | Findings from `/sh:analyze` | Fixed code, clean findings |
 | `/commit-smart` | Clean greenlight, all findings resolved | Atomic commit |
 | `/finishing-a-development-branch` | On a feature branch, commit done | PR created, branch strategy decided |
 | `/session-handoff` | Task(s) complete or session ending | HANDOVER.md with resume checklist |
@@ -110,13 +114,13 @@ Common sequences of skills that execute together as workflows.
 **Trigger:** New idea needs to become implementable work.
 
 ```
-/sc:brainstorm "idea description" --depth deep
+/sh:brainstorm "idea description" --depth deep
     ↓ produces requirements doc
 /requirements-clarity
     ↓ catches ambiguities, iterates
-/sc:spec-panel requirements/SPEC.md --mode critique --focus requirements
+/sh:spec-panel requirements/SPEC.md --mode critique --focus requirements
     ↓ gate: score >= 7.0 (else iterate)
-/sc:workflow requirements/SPEC.md --strategy systematic
+/sh:workflow requirements/SPEC.md --strategy systematic
     ↓ populates TODO-Today.md queue
 ```
 
@@ -124,17 +128,17 @@ Common sequences of skills that execute together as workflows.
 ```
 User sends: "We need dark mode support"
 
-1. /sc:brainstorm "dark mode support" --depth deep
+1. /sh:brainstorm "dark mode support" --depth deep
    → Outputs requirements doc with scope, edge cases, themes
 
 2. /requirements-clarity
    → Catches: "Does dark mode apply to exported assets or just UI?"
    → Clarifies: UI only, export uses explicit color schemes
 
-3. /sc:spec-panel requirements/SPEC_DARK_MODE.md --mode critique
+3. /sh:spec-panel requirements/SPEC_DARK_MODE.md --mode critique
    → Score: 7.5/10 — Ready
 
-4. /sc:workflow requirements/SPEC_DARK_MODE.md --strategy systematic
+4. /sh:workflow requirements/SPEC_DARK_MODE.md --strategy systematic
    → Generates 5 queue items in TODO-Today.md
 ```
 
@@ -227,11 +231,11 @@ Task: "- [ ] Implement US-DM-01: CSS custom property theme tokens"
 **Trigger:** Implementation complete, before commit.
 
 ```
-/sc:analyze "<changed files>" --focus quality
+/sh:analyze "<changed files>" --focus quality
     ↓ identifies findings (Low/Medium/High)
 /production-code-audit (if task size >= M)
     ↓ deep security/perf/architecture scan
-/sc:cleanup --type all
+/sh:verify --type all
     ↓ fixes Low findings, enforces /clean-code
 [if Medium+ findings: STOP — human review]
     ↓
@@ -245,13 +249,13 @@ Task: "- [ ] Implement US-DM-01: CSS custom property theme tokens"
 ```
 Changed files: app/services/theme_service.py, app/static/css/shell.css
 
-1. /sc:analyze "app/services/theme_service.py app/static/css/shell.css"
+1. /sh:analyze "app/services/theme_service.py app/static/css/shell.css"
    → 2 Low findings: missing type hint, unused import
 
 2. /production-code-audit (task was Medium)
    → No security issues, no perf concerns
 
-3. /sc:cleanup --type all
+3. /sh:verify --type all
    → Fixes: adds type hint, removes unused import
    → Re-runs greenlight: all green
 
@@ -304,7 +308,7 @@ Changed files: app/services/theme_service.py, app/static/css/shell.css
 | `/requesting-code-review` | 8 | Self-reviews changed files for issues | Trivial 1-line fixes |
 | `/receiving-code-review` | 8 | Evaluates and applies review feedback | No feedback to process |
 | `/production-code-audit` | 9 | Deep security/perf/arch scan | Tasks sized S (Small) |
-| `/clean-code` | 9 | Coding standards during cleanup fixes | N/A (enforced by /sc:cleanup) |
+| `/clean-code` | 9 | Coding standards during cleanup fixes | N/A (enforced by /sh:verify) |
 | `/commit-smart` | 10 | Semantic conventional commit with context | Never — always required |
 | `/finishing-a-development-branch` | 11 | PR creation, branch cleanup, merge | Not on a feature branch |
 | `/session-handoff` | 13 | Context save for next session | Never — always at session end |
@@ -465,7 +469,7 @@ These skills are useful but don't have a fixed position in the loop. Invoke them
 | `/software-architecture` | Python/FastAPI architecture patterns |
 | `/writing-plans` | Plan implementation strategy before coding |
 | `/writing-rules` | Create hookify rules for automation |
-| `/sh:poster-analysis` | Generate DIN A1 business analysis poster as PDF |
+| `/sh:business-analysis` | Framework analysis (SWOT, BMC, …), optionally rendered as a DIN poster PDF (replaced the retired poster-analysis command) |
 
 ---
 
@@ -473,12 +477,12 @@ These skills are useful but don't have a fixed position in the loop. Invoke them
 
 | I want to... | Use this skill |
 |--------------|---------------|
-| Turn a raw idea into a spec | `/sc:brainstorm` → `/requirements-clarity` → `/sc:spec-panel` |
+| Turn a raw idea into a spec | `/sh:brainstorm` → `/requirements-clarity` → `/sh:spec-panel` |
 | Start implementing a feature | `/test-driven-development` |
 | Check if my work is really done | `/verification-before-completion` |
 | Review my own code | `/requesting-code-review` |
 | Respond to review feedback | `/receiving-code-review` |
-| Run a quality check | `/sc:analyze` → `/sc:cleanup` |
+| Run a quality check | `/sh:analyze` → `/sh:verify` |
 | Do a deep security/perf audit | `/production-code-audit` |
 | Make a good commit | `/commit-smart` |
 | Create a PR and clean up branch | `/finishing-a-development-branch` |
@@ -488,7 +492,7 @@ These skills are useful but don't have a fixed position in the loop. Invoke them
 | Optimize for search engines | `/seo-audit` → `/seo-optimizer` |
 | Analyze competitors | `/competitor-alternatives` → `/pricing-strategy` |
 | Create visual content | `/canvas-design` or `/imagegen` |
-| Create a business analysis poster | `/sh:poster-analysis` |
+| Create a business analysis poster | `/sh:business-analysis` |
 | Wireframe a user flow | `/sh:ux-design` → `/frontend-design` |
 | Build a UI component | `/frontend-design` or `/figma` |
 | Plan before coding | `/create-plan` or `/writing-plans` |

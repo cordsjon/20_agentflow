@@ -1,0 +1,43 @@
+{
+ "skill_name": "sh-architecture-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review the proposed service split for the adapter monolith.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the architecture lenses: boundaries, integration patterns, failure modes, evolvability",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this architecture: circular dependencies between all three services, shared mutable DB, no failure isolation.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "docs/architecture-rev4.md",
+     "content": "# Order Platform — Service Architecture (rev 4)\n\n## Services\n\n**orders** — owns checkout. On `POST /orders` it calls `inventory.reserve()`\nsynchronously to hold stock, then calls `billing.charge()` synchronously, then\nwrites the order row.\n\n**inventory** — owns stock levels. On every reservation it calls\n`orders.get_order_context()` to look up the customer's tier and prior order\nhistory so it can apply per-tier stock caps. On restock it calls\n`billing.get_open_invoices()` to decide whether to release held stock.\n\n**billing** — owns invoices and payment capture. On charge it calls\n`orders.get_line_items()` to price the basket, and calls\n`inventory.confirm_reservation()` to mark stock as sold before capture.\n\n## Data\n\nAll three services connect to the same Postgres instance (`platform_db`) with\nthe same application role. `orders`, `inventory`, and `billing` each read and\nwrite the `orders`, `stock_ledger`, and `invoices` tables directly — for\nexample `billing` updates `stock_ledger.status` at capture time, and\n`inventory` updates `orders.state` when a reservation expires.\n\nSchema changes are applied by whichever service ships first; the other two\npick them up on their next deploy.\n\n## Calls\n\nAll inter-service calls are blocking HTTP over the cluster network. Default\nclient timeout is 60s, no retry budget, no circuit breaker. A request thread\nin `orders` stays occupied for the whole downstream chain.\n\n## Deployment\n\nOne shared Kubernetes namespace, one replica each, deployed together from a\nsingle pipeline. A failing readiness probe on any of the three holds the whole\nrollout.\n\n## Open questions\n\n- Should the shared `platform_db` move to a bigger instance class?\n- Do we need a second replica of `orders` for the Black Friday window?\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail rep1 with fixtures",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

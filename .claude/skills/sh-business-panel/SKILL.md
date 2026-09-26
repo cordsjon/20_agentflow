@@ -13,6 +13,9 @@ description: "Multi-expert business analysis with advisory recommendations (no s
 
 ## Verbosity
 
+_Panel-specific deviation from `_panel-shared/PANEL_CORE.md` (permitted by its header):
+this panel emits consolidated findings rather than a score table, as it has no scoring gate._
+
 - **Silent (default)**: No expert deliberations. Output only: consolidated findings — consensus, disagreements, and prioritized recommendations. Saves ~60-80% output tokens.
 - **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, and per-expert framework analysis before the synthesis.
 
@@ -20,7 +23,7 @@ Silent mode still performs full internal analysis — quality is preserved, only
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written (non-code branch: every finding quotes the source section it rests on). Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/business-panel.yaml` for panel definition, focus areas, and auto-select rules (absolute path — relative paths fail when CWD is outside agentflow)
 2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert — these contain domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap

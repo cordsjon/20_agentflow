@@ -1,0 +1,43 @@
+{
+ "skill_name": "sh-content-panel",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Panel-review the draft gtxs.eu article before publishing.",
+   "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+   "assertions": [
+    "Covers the content quality lenses: clarity, structure, accuracy, audience fit",
+    "Findings attributed to specific expert perspectives",
+    "Findings are specific to the submitted artifact, not generic",
+    "Emits a numeric score and an explicit gate verdict"
+   ],
+   "files": [],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "Agent without the skill violates these assertions.",
+    "tested": "2026-08-26"
+   }
+  },
+  {
+   "id": 2,
+   "prompt": "Panel-review this article: no thesis, unsupported claims, wall-of-text structure, wrong audience register.",
+   "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+   "assertions": [
+    "Weaknesses identified against the panel's criteria",
+    "Gate returns Not-Ready for the weak artifact",
+    "Each blocking finding says what would make it pass"
+   ],
+   "files": [
+    {
+     "path": "src/data/learnings/thoughts-on-automation.md",
+     "content": "---\ntitle: \"Some Thoughts on Automation\"\ndate: 2026-08-19\ncategory: workflow\naudience: \"Small-business owners evaluating whether to automate their back office\"\ntags: [\"automation\", \"tooling\"]\ndescription: \"A look at automation.\"\ndraft: true\n---\n\nAutomation is one of those topics everyone has an opinion about and it has been discussed for a very long time, going back to the industrial revolution and arguably earlier, and in the modern software context it has taken on a whole new dimension that most organizations are still trying to work out. The vast majority of companies that adopt automation see returns within the first quarter, and studies consistently show that automated workflows are roughly four times more reliable than manual ones. There is a lot to say here. When we talk about automation we are usually talking about several different things at once: scripted task execution, orchestration layers, idempotent state reconciliation, and increasingly agentic execution loops with non-deterministic planning stages, and it is worth noting that the failure semantics of each of these differ substantially, particularly around partial-failure recovery and the question of whether the system converges on a desired-state manifest or merely replays an imperative sequence. Most people get this wrong. In practice what tends to happen is that a team automates the thing that is easiest to automate rather than the thing that costs the most, which is understandable but ends up producing a portfolio of scripts nobody owns, and then eventually someone leaves and the scripts rot, and the whole thing gets rewritten, which is a well-known dynamic. Idempotency is essential here and anyone serious about this will already be thinking in terms of convergence loops and reconciliation intervals. It is also true that automation changes the shape of the work rather than removing it, because the maintenance burden shifts from doing the task to maintaining the thing that does the task, and there is a crossover point where this stops being worth it, though where exactly that point sits depends on factors that are hard to enumerate in the abstract. Some tools are better than others. The tooling landscape has expanded enormously over the last few years and there are now dozens of viable options in every category, which is both good and bad, and picking among them is largely a matter of what your team already knows. Ultimately, automation is a topic worth thinking about carefully, and there are many considerations, and the right answer depends on your situation.\n"
+    }
+   ],
+   "baseline": {
+    "verdict": "discriminative",
+    "note": "baseline_fail rep1 with fixtures",
+    "tested": "2026-08-26"
+   }
+  }
+ ]
+}

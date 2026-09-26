@@ -42,7 +42,6 @@ PANEL_PROTOCOL = (
 # (2026-07-26). Listed explicitly so fixing one is a deliberate, visible edit
 # rather than a silently shrinking xfail.
 KNOWN_UNWIRED = {
-    "sh-4-reviewer-panel",
     "sh-content-panel",
     "sh-devops-panel",
     "sh-legal-panel",
@@ -51,6 +50,8 @@ KNOWN_UNWIRED = {
 }
 # Removed 2026-07-26: sh-claude-code-panel, when its verbatim Verbosity copy was
 # replaced by a reference to PANEL_CORE.md. 6 remain for US-AF-04.
+# Removed 2026-09-26: sh-4-reviewer-panel, when the wired bundle copy was promoted over
+# the older runtime copy (Shepherd v2 US-SH2-04, DECISIONS.md Q13). 5 remain.
 
 
 def panel_skills() -> list[Path]:
@@ -110,7 +111,7 @@ def test_wired_skills_apply_protocol_wholesale(skill: Path):
 def test_every_panel_loads_shared_protocol(skill: Path):
     """Every panel skill must load the shared protocol.
 
-    The 7 in KNOWN_UNWIRED are a pre-existing defect tracked by US-AF-04; they
+    The 5 in KNOWN_UNWIRED are a pre-existing defect tracked by US-AF-04; they
     xfail rather than silently pass, so fixing one flips to XPASS and prompts
     removal from the list.
     """

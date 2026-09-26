@@ -1,0 +1,38 @@
+{
+  "skill_name": "sh-marketing-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Panel-review the positioning and launch copy for the new consulting offer.",
+      "expected_output": "Should convene the panel's expert lenses, produce findings attributed per expert, and emit the scoring-gate verdict (score with a Ready/Not-Ready call).",
+      "assertions": [
+        "Covers the marketing lenses: copy, positioning, go-to-market",
+        "Findings attributed to specific expert perspectives",
+        "Findings are specific to the submitted artifact, not generic",
+        "Emits a numeric score and an explicit gate verdict"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    },
+    {
+      "id": 2,
+      "prompt": "Panel-review this campaign: no target segment, feature-list copy, no differentiation, channel picked by habit.",
+      "expected_output": "Should score the weak artifact below the gate threshold, return Not-Ready, and make every blocking finding actionable (what to change to pass).",
+      "assertions": [
+        "Weaknesses identified against the panel's criteria",
+        "Gate returns Not-Ready for the weak artifact",
+        "Each blocking finding says what would make it pass"
+      ],
+      "files": [],
+      "baseline": {
+        "verdict": "discriminative",
+        "note": "Agent without the skill violates these assertions.",
+        "tested": "2026-08-26"
+      }
+    }
+  ]
+}
