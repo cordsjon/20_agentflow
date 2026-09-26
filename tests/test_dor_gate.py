@@ -151,3 +151,13 @@ def test_human_output_ends_with_verdict_line(work):
                        capture_output=True, text=True)
     assert r.returncode == 1
     assert r.stdout.rstrip().splitlines()[-1].startswith("DOR-VERDICT: FAIL: dor-lite-missing:")
+
+
+def test_multi_segment_id_and_body_bullets_mentioning_it(work):
+    """Governance ids have several segments (US-GOV-DEBT-41) and story bodies hold
+    `- **X** — … US-GOV-DEBT-41/…` bullets. Live run 2026-09-26: 26/39 Governance stories
+    failed no-user-story and one was ambiguous-id until both were handled."""
+    r = run(work / "backlog_multiseg.md", "US-GOV-DEBT-41", "--skip-score")
+    v = verdict(r)
+    assert r.returncode == 0, r.stdout
+    assert v["story"] == "US-GOV-DEBT-41" and v["counts"] == {"us": 1, "ac": 1}

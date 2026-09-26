@@ -9,7 +9,7 @@ Human mode ends with `DOR-VERDICT: PASS` or `DOR-VERDICT: FAIL: <first reason>`.
 `--json` prints {story, track, pass, reasons[], counts{us,ac}} as the first line.
 
 Entry = a title line plus its body. Title forms: a heading `^#{2,4} ` or a
-top-level list item `^- **…**`. A heading entry ends at the next heading of equal
+top-level list item `^- **…**` (its title is the bold text only). A heading entry ends at the next heading of equal
 or higher level; a list entry ends at the next top-level list item or any heading.
 Entries nest: a `### US-…` story inside `## Ready` is an entry of its own.
 The selector matches TITLE LINES ONLY: an id (US-XXX-NN) as a whole word, or —
@@ -36,15 +36,18 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ID_RE = re.compile(r"\bUS-[A-Z0-9]+-[0-9]+\b")
-FULL_ID_RE = re.compile(r"^US-[A-Z0-9]+-[0-9]+$")
+# Ids have one or more segments: US-W-01, US-SH2-01, US-GOV-DEBT-41, US-SVG-W2TESTS-01.
+ID_PAT = r"US-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]+"
+ID_RE = re.compile(rf"\b{ID_PAT}\b")
+FULL_ID_RE = re.compile(rf"^{ID_PAT}$")
 HEADING_RE = re.compile(r"^(#{2,4}) (.*)$")
 LIST_TITLE_RE = re.compile(r"^- (?:~~)?\*\*(.+?)\*\*")
 TOP_ITEM_RE = re.compile(r"^(?:- |\d+\. )")
 TAG_RE = re.compile(r"`\[([^\]]+)\]`")
 SCORE_RE = re.compile(r"spec-panel: (\d+(?:\.\d+)?) \((\d{4}-\d{2}-\d{2}), body:([0-9a-f]{12})\)")
 LINK_RE = re.compile(r"\]\(([^)\s]+\.md)\)")
-US_RE = re.compile(r"(^\s*(?:#{2,4} |\*\*|- \*\*)?US-[A-Z0-9]+-[0-9]+\b)|(\bAs an? \b.*\bI want\b)", re.IGNORECASE)
+US_ID_LINE_RE = re.compile(rf"^\s*(?:#{{2,4}} |\*\*|- \*\*)?{ID_PAT}\b")
+AS_A_RE = re.compile(r"\bAs an?\**\s.*\bI want\b", re.IGNORECASE)
 AC_RE = re.compile(r"^\s*- (?:\[[ x]\] )?(?:\*\*)?AC-\d+", re.IGNORECASE)
 REVIEW_MARKERS = ("\n## Duo review", "\n## Codex review")
 THRESHOLD = 7.0
@@ -102,7 +105,7 @@ def _entries(lines: list[str]) -> list[Entry]:
             j = i + 1
             while j < n and not (HEADING_RE.match(lines[j]) or TOP_ITEM_RE.match(lines[j])):
                 j += 1
-            title = lines[i]
+            title = l.group(1)  # the bold text only: body bullets quoting an id are not titles
         out.append(Entry(title=title, lines=lines[i:j], start=i + 1))
     return out
 
@@ -140,7 +143,10 @@ def body_digest(spec_text: str) -> str:
 
 def _count_us_ac(text: str) -> dict:
     lines = text.splitlines()
-    us_idx = [i for i, ln in enumerate(lines) if US_RE.search(ln)]
+    # A story is marked by its id line; "As a … I want" counts only where no id line
+    # exists, so a titled story's own "As a" sentence is not a second story.
+    us_idx = [i for i, ln in enumerate(lines) if US_ID_LINE_RE.match(ln)] \
+        or [i for i, ln in enumerate(lines) if AS_A_RE.search(ln)]
     ac_idx = [i for i, ln in enumerate(lines) if AC_RE.match(ln)]
     return {"us": len(us_idx), "ac": len(ac_idx), "_us_idx": us_idx, "_ac_idx": ac_idx}
 
