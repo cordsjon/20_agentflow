@@ -199,3 +199,47 @@
 **Outcome:** applied
 **Ref:** 9b459bf (at write time)
 **Supersedes:** Q10 — resolved
+
+
+## Q20 — shepherd-v2/US-SH2-01 — tradeoff
+
+**Question:** Which /sh: command replaces /sc:cleanup, /sc:design and /sc:implement, none of which has a same-named successor?
+**Chosen:** Confirmed: /sc:cleanup->/sh:verify, /sc:design->/sh:plan, /sc:implement->/sh:execute; /sh:poster-analysis->/sh:business-analysis.
+**Decided-by:** human
+**Justification:** Operator confirmed via /mop "all confirmed" after the /unblock review walk.
+**Outcome:** applied
+**Ref:** f4972fa (at write time)
+**Supersedes:** Q11 — resolved
+
+
+## Q21 — shepherd-v2/US-SH2-02 — deviation
+
+**Question:** dor_gate.py: how are entries without a story id, stories held only in a linked spec, nested headings, and a score on a bug-lite entry handled?
+**Chosen:** Confirmed as shipped: title-substring selector, US/AC from linked spec, nested entries, bug-lite ignores score.
+**Decided-by:** human
+**Justification:** Operator confirmed via /mop "all confirmed" after the /unblock review walk.
+**Outcome:** applied
+**Ref:** f4972fa (at write time)
+**Supersedes:** Q12 — resolved
+
+
+## Q22 — shepherd-v2/US-SH2-04 — tradeoff
+
+**Question:** sh-4-reviewer-panel: bundle (2026-06-26, 9789 B) is newer than runtime (2026-06-20, 6640 B) — which copy is truth? And the 18 runtime-truth copies: replace the bundle dir or copy over it?
+**Chosen:** Confirmed as shipped: bundle wins for sh-4-reviewer-panel; the 18 runtime copies copied over the bundle in place.
+**Decided-by:** human
+**Justification:** Operator confirmed via /mop "all confirmed" after the /unblock review walk.
+**Outcome:** applied
+**Ref:** f4972fa (at write time)
+**Supersedes:** Q13 — resolved
+
+
+## Q23 — shepherd-v2/US-SH2-04 — deviation
+
+**Question:** skills_manifest.py: check exits 1 only on structural errors and reports runtime drift; record added; and the plan's guard made a bundle-wins promote impossible (record needs identical, promote needs recorded). How is the first bundle-wins adoption done?
+**Chosen:** Confirmed as shipped: check exits 1 only on structural errors; promote --expect-runtime-sha for bundle-wins adoption.
+**Decided-by:** human
+**Justification:** Operator confirmed via /mop "all confirmed" after the /unblock review walk.
+**Outcome:** applied
+**Ref:** f4972fa (at write time)
+**Supersedes:** Q14 — resolved
