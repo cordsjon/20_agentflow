@@ -162,10 +162,13 @@ commits. Measured 2026-09-17 with
 `git rev-parse --short HEAD origin/master   # expect <sha> twice`: `--short`
 implies `--verify`, which accepts a single revision, so the line always exits
 128 with `fatal: Needed a single revision` and can never print its expected
-value. Measured 2026-09-27: 11 handovers in the store carry it
-(`grep -l -E 'rev-parse --short HEAD origin' ~/projects/00_Governance/HANDOVER-*.md`),
-among them `HANDOVER-75_Coaching-2026-09-27-1041.md`, where the resuming session
-had to re-probe each ref by hand before the premise gate could be judged. A
+value. Measured 2026-09-27 with
+`python3 ~/projects/00_Governance/scripts/handover_store_lint.py` (kind
+`multi-ref-short`): 28 of the 2343 handovers in the store carry it, 18 of 434 in
+September alone, among them `HANDOVER-75_Coaching-2026-09-27-1041.md`, where the
+resuming session had to re-probe each ref by hand before the premise gate could
+be judged. Sessions had noted the failure as a gotcha in their own handovers
+since 2026-08-26, which reached one successor each and stopped nothing. A
 premise that errors is neither a pass nor drift. Write one call per ref, joined
 with `&&` as in the block above. An expected value the command cannot produce
 also shows the block was never run (Process step 2).
