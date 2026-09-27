@@ -158,6 +158,18 @@ commits. Measured 2026-09-17 with
 "not yet merged", or "branched from Y", the block carries the matching
 `git rev-parse main   # expect X` line.
 
+**One ref per `rev-parse --short` call.** The wrong idiom is
+`git rev-parse --short HEAD origin/master   # expect <sha> twice`: `--short`
+implies `--verify`, which accepts a single revision, so the line always exits
+128 with `fatal: Needed a single revision` and can never print its expected
+value. Measured 2026-09-27: 11 handovers in the store carry it
+(`grep -l -E 'rev-parse --short HEAD origin' ~/projects/00_Governance/HANDOVER-*.md`),
+among them `HANDOVER-75_Coaching-2026-09-27-1041.md`, where the resuming session
+had to re-probe each ref by hand before the premise gate could be judged. A
+premise that errors is neither a pass nor drift. Write one call per ref, joined
+with `&&` as in the block above. An expected value the command cannot produce
+also shows the block was never run (Process step 2).
+
 ## Resume Checklist
 
 - [ ] Run the Premises block above

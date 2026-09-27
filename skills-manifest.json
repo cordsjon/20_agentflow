@@ -137,9 +137,9 @@
       "synced_sha256": "a1c65194682461570c8f1c29f4c1df5ccd764c79d300ad2c6996e4e071983ec2"
     },
     "sh-handoff": {
-      "since": "2026-09-26",
+      "since": "2026-09-27",
       "status": "global",
-      "synced_sha256": "2bc602212b9ef8f889f162f66918dd7fe9d8b2d1568eff3de4590af37d5eb9b7"
+      "synced_sha256": "bcc53067e1ba21cd89bc0b553d4b23b1b706c3b705dfd5abe0979ae3f6aeffb0"
     },
     "sh-help": {
       "since": "2026-09-26",
