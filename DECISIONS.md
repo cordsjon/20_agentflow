@@ -188,3 +188,14 @@
 **Outcome:** applied
 **Ref:** 447dc34 (at write time)
 **Supersedes:** Q9 — resolved
+
+
+## Q19 — shepherd-v2/US-SH2-01 — deviation
+
+**Question:** AC-1 (0 sc: hits) is unsatisfiable literally: DECISIONS.md is append-only and quotes the dead names as history. Scope?
+**Chosen:** Confirmed: the AC-1 no-sc: test exempts DECISIONS.md only; every other file stays free of sc: names.
+**Decided-by:** human
+**Justification:** The decision log is append-only history; rewriting quoted names would falsify it, and a new entry quoting an old name is itself history.
+**Outcome:** applied
+**Ref:** 9b459bf (at write time)
+**Supersedes:** Q10 — resolved
