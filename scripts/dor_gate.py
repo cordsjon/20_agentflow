@@ -19,11 +19,17 @@ Score line (normal track): `spec-panel: <score> (<YYYY-MM-DD>, body:<12-hex>)`.
 The digest is SHA-256 of the linked spec's text above its first `## Duo review`
 or `## Codex review` heading, recomputed from the working tree; mismatch = stale-score.
 The spec is the first `](….md)` link inside the entry, resolved from the BACKLOG's dir.
+An entry with no spec link is scored on its own text instead: the digest is SHA-256 of
+the entry's lines minus score lines and the `**State:**` line (a state flip is not a
+content change), the title's trailing age counter (`[16d]`) dropped, trailing
+whitespace dropped.
 When the entry body has no user story but links a spec, US/AC are counted in the spec
 (a multi-story spec's per-story coverage is what the panel score attests).
 
-`--skip-score` exists for 00_Governance/scripts/backlog_dor_pipeline.py, whose panel
-stage runs AFTER its DOR stage: structural checks only, the score is produced later.
+`--skip-score`: structural checks only. 00_Governance/scripts/backlog_dor_pipeline.py
+runs the full check and routes score-only failures to its panel stage, which writes
+the score line (`score_digest()` is the shared digest).
+Vendored byte-identical at 00_Governance/scripts/dor_gate.py — edit both.
 Stdlib only. Never edits anything.
 """
 from __future__ import annotations
@@ -141,6 +147,37 @@ def body_digest(spec_text: str) -> str:
     return hashlib.sha256(spec_text.encode("utf-8")).hexdigest()[:12]
 
 
+STATE_LINE_RE = re.compile(r"\*\*State:\*\*")
+# Governance's groomer bumps a trailing age counter (`[16d]`) on 297/299 story headings
+# every day; hashed as-is it made every entry score stale overnight (2026-09-27).
+AGE_COUNTER_RE = re.compile(r"\s*\[\d+d\]\s*$")
+
+
+def entry_digest(lines: list[str]) -> str:
+    lines = [AGE_COUNTER_RE.sub("", lines[0])] + lines[1:] if lines else lines
+    kept = [ln.rstrip() for ln in lines if not (SCORE_RE.search(ln) or STATE_LINE_RE.search(ln))]
+    while kept and not kept[-1]:
+        kept.pop()
+    return hashlib.sha256("\n".join(kept).encode("utf-8")).hexdigest()[:12]
+
+
+def spec_path(entry: Entry, backlog: Path) -> Path | None:
+    link = LINK_RE.search(entry.body)
+    return (backlog.parent / link.group(1)).resolve() if link else None
+
+
+def score_digest(entry: Entry, backlog: Path) -> str:
+    """What a score line's body: field must equal — the linked spec, else the entry itself."""
+    spec = spec_path(entry, backlog)
+    if spec is not None and spec.exists():
+        return body_digest(spec.read_text(encoding="utf-8"))
+    return entry_digest(entry.lines)
+
+
+def find_entry(backlog: Path, selector: str) -> tuple[Entry | None, str | None]:
+    return _select(_entries(backlog.read_text(encoding="utf-8").splitlines()), selector)
+
+
 def _count_us_ac(text: str) -> dict:
     lines = text.splitlines()
     # A story is marked by its id line; "As a … I want" counts only where no id line
@@ -152,10 +189,9 @@ def _count_us_ac(text: str) -> dict:
 
 
 def _check_normal(entry: Entry, backlog: Path, res: Result, skip_score: bool) -> None:
-    link = LINK_RE.search(entry.body)
-    spec = (backlog.parent / link.group(1)).resolve() if link else None
+    spec = spec_path(entry, backlog)
     if spec is not None and not spec.exists():
-        res.reasons.append(f"spec-missing:{link.group(1)}")
+        res.reasons.append(f"spec-missing:{LINK_RE.search(entry.body).group(1)}")
         spec = None
 
     counts = _count_us_ac(entry.body)
@@ -185,10 +221,8 @@ def _check_normal(entry: Entry, backlog: Path, res: Result, skip_score: bool) ->
     score = float(m.group(1))
     if score < THRESHOLD:
         res.reasons.append(f"score-below-{THRESHOLD}:{score}")
-    if spec is None:
-        res.reasons.append("no-spec-link")
-        return
-    if body_digest(spec.read_text(encoding="utf-8")) != m.group(3):
+    digest = body_digest(spec.read_text(encoding="utf-8")) if spec else entry_digest(entry.lines)
+    if digest != m.group(3):
         res.reasons.append("stale-score")
 
 
@@ -202,8 +236,7 @@ def _check_lite(entry: Entry, res: Result, hotfix: bool) -> None:
 
 
 def check(backlog: Path, selector: str, *, track: str | None, skip_score: bool) -> tuple[int, Result]:
-    lines = backlog.read_text(encoding="utf-8").splitlines()
-    entry, err = _select(_entries(lines), selector)
+    entry, err = find_entry(backlog, selector)
     if entry is None:
         return 2, Result(story=selector, track=track or "unknown", reasons=[err])
     story = next((m.group(0) for m in ID_RE.finditer(entry.title)), selector)

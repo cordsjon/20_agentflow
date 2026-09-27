@@ -55,11 +55,33 @@ def test_normal_pass(work):
 
 
 def test_normal_fail_low_score_and_no_link(work):
+    """No link: the score attests the entry's own text, and the spec digest here does not match it."""
     r = run(work / "backlog_normal_fail.md", "Widget — the epic")
     assert r.returncode == 1
     reasons = verdict(r)["reasons"]
     assert any(x.startswith("score-below-7.0") for x in reasons)
-    assert "no-spec-link" in reasons
+    assert "stale-score" in reasons
+
+
+ENTRY_STORY = ("# BACKLOG\n\n## Ready\n\n### US-E-01: Entry-scored story [15d]\n"
+               "**As a** user, **I want** x, **so that** y.\n- [ ] AC-01: checkable\n"
+               "spec-panel: 7.5 (2026-09-27, body:000000000000)\n\n**Priority:** P2 · **State:** Ready\n")
+
+
+def test_entry_score_without_spec_link(tmp_path):
+    sys.path.insert(0, str(GATE.parent))
+    import dor_gate
+    backlog = tmp_path / "BACKLOG.md"
+    backlog.write_text(ENTRY_STORY)
+    entry, _ = dor_gate.find_entry(backlog, "US-E-01")
+    backlog.write_text(ENTRY_STORY.replace("000000000000", dor_gate.score_digest(entry, backlog)))
+    assert run(backlog, "US-E-01").returncode == 0
+    backlog.write_text(backlog.read_text().replace("**State:** Ready", "**State:** Done"))
+    assert run(backlog, "US-E-01").returncode == 0, "a State flip is not a content change"
+    backlog.write_text(backlog.read_text().replace("[15d]", "[16d]"))
+    assert run(backlog, "US-E-01").returncode == 0, "the daily age-counter bump is not a content change"
+    backlog.write_text(backlog.read_text().replace("AC-01: checkable", "AC-01: checkable twice"))
+    assert "stale-score" in verdict(run(backlog, "US-E-01"))["reasons"]
 
 
 def test_stale_score_after_uncommitted_body_edit(work):
