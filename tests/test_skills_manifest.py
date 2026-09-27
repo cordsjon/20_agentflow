@@ -96,6 +96,18 @@ def test_promote_copies_and_records_digest(env):
     assert e["status"] == "global" and e["synced_sha256"] == sha(env["skills"] / "sh-b" / "SKILL.md")
 
 
+def test_promote_keeps_runtime_only_files(env):
+    """2026-09-27: promote rmtree'd the runtime dir and deleted sh-handoff/evals/evals.json."""
+    (env["skills"] / "sh-a" / "SKILL.md").write_text("# bundle edit\n")
+    evals = env["runtime"] / "sh-a" / "evals" / "evals.json"
+    evals.parent.mkdir(); evals.write_text("[]\n")
+    r = run(env, "promote", "sh-a")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (env["runtime"] / "sh-a" / "SKILL.md").read_text() == "# bundle edit\n"
+    assert evals.read_text() == "[]\n"
+    assert "kept runtime-only: evals/evals.json" in r.stdout
+
+
 def test_promote_refuses_after_runtime_edit(env):
     assert run(env, "promote", "sh-b").returncode == 0
     (env["runtime"] / "sh-b" / "SKILL.md").write_text("# runtime edit after promote\n")

@@ -142,13 +142,18 @@ def cmd_promote(ctx: Ctx, name: str, expect: str | None = None) -> int:
     if (err := _guard_runtime(ctx, name, entry, expect)):
         print(f"REFUSED {err}")
         return 1
-    dst = ctx.runtime / name
-    if dst.exists():
-        shutil.rmtree(dst)
-    shutil.copytree(ctx.skills / name, dst)
+    src, dst = ctx.skills / name, ctx.runtime / name
+    # Overlay, never rmtree: runtime-only files (evals/, notes) are the runtime's own.
+    # rmtree deleted sh-handoff/evals/evals.json on 2026-09-27. A file removed from the
+    # bundle therefore lingers in the runtime copy; the list below makes it visible.
+    kept = sorted(str(p.relative_to(dst)) for p in dst.rglob("*")
+                  if p.is_file() and not (src / p.relative_to(dst)).exists()) if dst.exists() else []
+    shutil.copytree(src, dst, dirs_exist_ok=True)
     entry.update(status="global", since=date.today().isoformat(), synced_sha256=sha256(ctx.bundle_skill(name)))
     save(ctx.manifest, data)
     print(f"promoted {name} -> {dst}")
+    for k in kept:
+        print(f"  kept runtime-only: {k}")
     return 0
 
 
