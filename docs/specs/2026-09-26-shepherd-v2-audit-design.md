@@ -100,6 +100,8 @@ Evidence is from `git log`, `ls` and `grep` on 2026-09-26 unless marked. Cross-r
 2. Does `CLAUDE-LOOP.md` get archived as a design record, or deleted? Recommendation: archive under `docs/archive/` with a header pointing at dagu nightshift.
 3. Does Shepherd stay a separate repo, or become `00_Governance/skills-pack/`? Recommendation: separate repo, because Governance already archives skills inward (`skills-global/`) and a second inward path would create a loop.
 
+> **Decided 2026-09-26** — see "Operator decisions — 2026-09-26" below. Decision 2 overrode the recommendation above: `CLAUDE-LOOP.md` was deleted outright, not archived.
+
 ## Order and size
 
 01 → 03 → 02 → 04 (each ≤ 1 day; 04 AC-3 waits for Decide-1) · 05 done (its Plan tail ≤ 1 h) · 07 anytime (≤ 2 h) · 06 delete step after Decide-1 and operator approval.

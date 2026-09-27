@@ -176,3 +176,15 @@
 **Outcome:** applied
 **Ref:** 8a7bd4f (at write time)
 **Supersedes:** Q2 — resolved
+
+
+## Q18 — shepherd-v2/decide-record — tradeoff
+
+**Question:** Where do the operator's Decide-1..3 answers go in the spec: edit the 'Decisions for the operator' body section, or append a section below the review rounds?
+**Options considered:** edit the body section in place / append an 'Operator decisions' section after the review rounds
+**Chosen:** Keep the appended "Operator decisions" section AND add a one-line pointer under the original "Decisions for the operator" section naming the override (decision 2: CLAUDE-LOOP.md deleted, not archived).
+**Decided-by:** human
+**Justification:** Operator: a reader stopping at the original section must not take the overridden archive recommendation as what happened. Accepted cost: the spec body digest 5176cdbc81e4 changes, so the 7.75 score line on the (Done) Shepherd v2 BACKLOG entry reads stale-score.
+**Outcome:** applied
+**Ref:** 447dc34 (at write time)
+**Supersedes:** Q9 — resolved
