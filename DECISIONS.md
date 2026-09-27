@@ -165,3 +165,14 @@
 **Outcome:** applied
 **Ref:** ce86d79 (at write time)
 **Supersedes:** Q15 — resolved
+
+
+## Q17 — shepherd-v2/spec-rev2 — tradeoff
+
+**Question:** FIPD table is defined only in agentflow KNOWN_PATTERNS.md:9-17 while the spec says rules live in Governance — where does the single authoritative copy go?
+**Chosen:** Confirmed: the single FIPD definition lives in 00_Governance/KNOWN_PATTERNS.md (KP-4974); 20_agentflow DOCTRINE.md links to it.
+**Decided-by:** human
+**Justification:** Shared rules live in Governance next to its ~10 existing uses; the dependency runs agentflow -> Governance, consistent with Q335 keeping the Governance pipeline self-contained.
+**Outcome:** applied
+**Ref:** 8a7bd4f (at write time)
+**Supersedes:** Q2 — resolved
