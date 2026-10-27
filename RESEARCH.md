@@ -13,3 +13,17 @@
 **Ref:** gap:8 rev:f375c01f03b34008adcd49bb934dbb00
 source: gap 8
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R2 — job-search-aiagent: Open-source TypeScript multi-agent engine that harvests ATS boards, scores jobs, and tailors CVs without hallucinating — reject
+
+**Artifact:** job-search-aiagent: Open-source TypeScript multi-agent engine that harvests ATS boards, scores jobs, and tailors CVs without hallucinating — https://www.reddit.com/r/coolgithubprojects/comments/1wf3g2l/jobsearchaiagent_opensource_typescript_multiagent/
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Reject: source body is empty (only 'Reddit'), so no capability can be verified. Job-search ATS harvesting/CV tailoring has no evident need in 20_agentflow or any listed profile, and TS stack mismatches the Python/FastAPI core.
+**Evidence:** stored snapshot SHA-256 eb0050f72303bcdbbdc071e2a3bf810c903be8d05cdf09f7c3106f2b6f9878bf; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] No confirmed gap. Registry match label is 'augment' but matches are incidental term hits (search, open, engine, agent) on cli-19, collect_p0_references, decisions_probe_queue, main-3 and nkl-review, none of which concern job search. 20_agentflow orchestration needs are not evidenced by a domain-specific job-hunting pipeline. Existing agent/CLI capabilities (main-3 ingest engine, nkl-review record checks) already cover generic multi-agent ingest and review patterns; adopting a TypeScript engine adds a foreign runtime and maintenance cost with no verified benefit. Adopt gate also parked for insufficient evidence.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:26 rev:6576b4bdfffa40329721f0fa39eb8e43
+source: gap 26
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
