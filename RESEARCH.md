@@ -27,3 +27,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:26 rev:6576b4bdfffa40329721f0fa39eb8e43
 source: gap 26
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R3 — Show HN: Viaduct – C4 models that coding agents can read and update — reject
+
+**Artifact:** Show HN: Viaduct – C4 models that coding agents can read and update — https://news.ycombinator.com/item?id=49790729
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Viaduct is a closed-source C4 modeling tool with an MCP server. The browser version requires an account and hosted EU storage; local-first use needs the paid, unsigned desktop app. graphify and mp-codebase-design already cover agent-readable architecture context.
+**Evidence:** stored snapshot SHA-256 66d7707969220c2e46ec4dac747f349f13ac32e8a7dbf50cb16a462a36aa56f2; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Agents in 20_agentflow could use a shared, versioned architecture model (C4 context/container/component levels, OpenAPI contracts per container) that they read and update over MCP. graphify already covers persistent codebase/architecture graph queries for agents, and mp-domain-modeling and mp-codebase-design cover model vocabulary and design. The only uncovered piece is a C4-structured editor with change sets. Viaduct does not fit: it is closed-source. The free tier is hosted SaaS that requires sign-up and stores models on its servers. The local-first path is a €10/month desktop app with unsigned builds and licence checks. No self-host or source licence is shown, and there is no fit with the Python/FastAPI/SQLModel/SQLite stack. The JSON and OpenAPI export is unverified. Licensing cost, vendor lock-in and supply-chain risk outweigh this narrow gap; extending graphify with C4-level views is the cheaper route.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:47 rev:bc9ef30cb090453a92ea04da83d2ad54
+source: gap 47
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
