@@ -55,3 +55,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:53 rev:8800e068d43b4ac3b8f5f8d56f86bb62
 source: gap 53
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R5 — Launch HN: Laminar (YC S24) – We trained a model to catch silent agent failures — reject
+
+**Artifact:** Launch HN: Laminar (YC S24) – We trained a model to catch silent agent failures — https://news.ycombinator.com/item?id=50154029
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Silent-agent-failure detection is a relevant need, but Laminar adds an always-on platform with unproven Python/SQLite fit and maturity. HN comments raise unanswered doubts on noise and blind spots; existing transcript tooling covers the near-term path.
+**Evidence:** stored snapshot SHA-256 60883c8511cb047a63f7d8ff264a63b88ce6c6d33673cfd7c79fc5d2b17e31f0; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Registry augment match is keyword-only. error_kpi scans transcript JSONL for self-corrected error rates and retry channels, and codex_token_usage aggregates session rollouts, but neither judges traces for silent failures such as a confident done on a failing change. The gap is real yet narrow, and the adopt gate parks it: a new always-on service brings maintenance cost, and stack-fit evidence is missing. The supplied evidence is only HN comments, with no shown integration or calibration data.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:63 rev:64e912d4322d4b6c85cd7fd2ff88e150
+source: gap 63
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
