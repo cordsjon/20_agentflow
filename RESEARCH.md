@@ -41,3 +41,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:47 rev:bc9ef30cb090453a92ea04da83d2ad54
 source: gap 47
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R4 — agents-context-router — keep AGENTS.md small and load only task-relevant docs — reject
+
+**Artifact:** agents-context-router — keep AGENTS.md small and load only task-relevant docs — https://www.reddit.com/r/coolgithubprojects/comments/1wpa931/agentscontextrouter_keep_agentsmd_small_and_load/
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Reject for now: the source body is only the word 'Reddit', so only the title describes the tool. Need, stack fit and maintenance cost are unverifiable, and memory_index_slugify already covers part of the context-size concern.
+**Evidence:** stored snapshot SHA-256 eb0050f72303bcdbbdc071e2a3bf810c903be8d05cdf09f7c3106f2b6f9878bf; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Possible gap: task-scoped loading of docs from a small AGENTS.md. The nearest registry entry, memory_index_slugify, only reduces context size by rewriting MEMORY.md index sections into slug lists; it does not route docs by task. The gap is suggested by the title alone and unconfirmed, so adoption cost cannot be justified against existing capabilities.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:53 rev:8800e068d43b4ac3b8f5f8d56f86bb62
+source: gap 53
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
