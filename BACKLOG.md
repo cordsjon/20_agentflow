@@ -61,6 +61,9 @@
 - [ ] AC-03: A beehive sync run on this machine leaves the directory absent, and other beehive machines are checked
 
 **Priority:** P3 · **Effort:** S · **State:** Refining · **Tags:** `[drift]` `[commands]`
+> _human, 2026-11-01 16:17 CET_
+> Related, measured 2026-11-01: 20_agentflow .claude/commands/global/remotion (37 files) is byte-identical to the Governance source and to ~/.claude/commands/remotion, and no reader was found. Q24 and Q25 kept it unchanged, so removing it needs its own operator call.
+
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
 > **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
