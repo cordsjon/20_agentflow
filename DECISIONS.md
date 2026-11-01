@@ -321,3 +321,15 @@
 **Justification:** commit_trailer_gate.py names MANDATED_TRAILER as the default for commits with no session behind them, and beehive-claude-sync.sh and backup-memory.sh already do this; an override would disable the gate for the one writer that runs unattended. Replay on a throwaway index in 20_CONSIGLIERE and 55_Nebenkosten: pre-commit rc 0, commit-msg rejected with the old message and accepted with the new one. Cost: commits resume, so a clean repo merges its feature branch into main and pushes. 55_Nebenkosten has no concord hold on its 2 staged files, so its 10-commit branch legal/research-deadlines-formal merges at the next nightly unless the merge conflicts (main is 1 ahead). 20_CONSIGLIERE merges feat/caploop-d1-gap-engine once the claim on BACKLOG.md is released. Both are revertable, and merging is the documented purpose of the DAG step. Timing also suggests this gate is what stopped the sweep: installed 09-18 13:43, last sweep log 09-18 02:13; dagu history for that night is gone, so this is inference. The sweep stays off: the two permanent push failures still fail sync-repos.
 **Outcome:** assumed
 **Ref:** Governance fix(janitor) commit; commit_trailer_gate.py
+
+
+## Q31 — US-AF-09 — gate-resolution
+
+**Question:** Should the debt sweep run again? It has not run since 2026-09-18 because debt-sweep-nightly aborts it when janitor-nightly-sync fails, and the fix for the config sync deliberately left that unchanged.
+**Options considered:** leave off / clear the repo failures so it returns / run it regardless of repo failures
+**Chosen:** Restart the debt sweep: exclude 60_wot-garage and whatcable from the nightly sync and park the 15_belegfluss rows, starting after the 02:00 run of 2026-11-02 has proven AC-03 and the janitor fix.
+**Decided-by:** human
+**Justification:** Operator picked option A via /unblock on 2026-11-01, on the evidence in Q29: about $6 to $7 the first night, about $27 ceiling, unmeasured quality of the rows marked fixed.
+**Outcome:** applied
+**Ref:** 1433813 (at write time)
+**Supersedes:** Q28 — resolved
