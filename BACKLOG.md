@@ -47,6 +47,20 @@
 ## Refining
 
 
+### US-AF-09: Find out why the Mini beehive sync stopped on 2026-10-01 [0d]
+
+> Origin: US-AF-08 check 2026-11-01
+
+**As a** operator,
+**I want** the scheduled Claude config sync running again on the Mac Mini,
+**so that** config and memory changes reach every machine and the MacBook commits are not left behind.
+
+**Acceptance Criteria:**
+- [ ] AC-01: The cause is named from the dagu run history of janitor-nightly-sync and debt-sweep-nightly, given the last log at 2026-10-01 19:21, no kill switch, and claude-config 22 commits behind origin
+- [ ] AC-02: The 22 incoming commits are read before the first run, so a last-writer-wins pull cannot replace newer local commands such as lightsout.md, goal.md or mission.md unnoticed
+- [ ] AC-03: One scheduled run completes, shown by a new log with pulled and pushed lines and claude-config level with origin
+
+**Priority:** P2 · **Effort:** S · **State:** Refining · **Tags:** `[beehive]` `[sync]`
 ### US-AF-08: Finish retiring the agentflow: commands in every copy [0d]
 
 > Origin: US-AF-07 audit 2026-11-01
@@ -63,6 +77,9 @@
 **Priority:** P3 · **Effort:** S · **State:** Refining · **Tags:** `[drift]` `[commands]`
 > _human, 2026-11-01 16:17 CET_
 > Related, measured 2026-11-01: 20_agentflow .claude/commands/global/remotion (37 files) is byte-identical to the Governance source and to ~/.claude/commands/remotion, and no reader was found. Q24 and Q25 kept it unchanged, so removing it needs its own operator call.
+
+> _human, 2026-11-01 16:18 CET_
+> Blocked 2026-11-01, no files deleted. AC-01 holds: no caller of agentflow: commands in Governance scripts, bin, dags, global commands, the sh commands or skills. Beehive snapshot copies each machine's local commands into the claude-config repo without deleting, so any MacBook that still has the folder pushes it back, and both MacBooks are offline. Delete on the MacBooks first, or in the same window, and resume once US-AF-09 is fixed.
 
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
