@@ -19,3 +19,9 @@ data/tool_catalog.json
 
 # hand-curated (NOT regenerated) — must stay tracked
 !data/tool-directories/ssg/
+
+# Event log and lock sidecars from the backlog and research CLIs: local state, never committed
+eventlog.db
+eventlog.db-*
+BACKLOG.md.lock
+RESEARCH.md.lock
