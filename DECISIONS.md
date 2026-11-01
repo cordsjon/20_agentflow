@@ -299,3 +299,14 @@
 **Justification:** Turning it on starts unattended agent spend of up to the DAG setting of MAX_COST 40 per night, after six weeks off. The last log, 2026-09-18, ended with 46 errors. Only the operator can accept that spend.
 **Outcome:** escalated
 **Ref:** debt-sweep-nightly.yaml
+
+
+## Q29 — US-AF-09 — gate-resolution
+
+**Question:** Do the two facts Q28 rests on hold: the last log ended with 46 errors, and a restart costs up to MAX_COST 40 a night? Q28 stays open; this entry only corrects its evidence.
+**Options considered:** keep the Q28 wording / record the measured figures next to it
+**Chosen:** Neither holds as worded. Q28 stays escalated, with the measured figures recorded here.
+**Decided-by:** agent
+**Justification:** Errors: the progress line counts http_error and delivery_unknown across the whole ledger, latest per batch key (hermes_debt_dispatch.py progress_report), so it read 46 on every night from 09-10 to 09-18. Those 46 date from 07-28 to 09-08: 30 are the cwd 400 that adapter commit 6ae1f34 fixed on 09-08, 13 are refused or dropped connections on 07-28, 3 are API 500s on 07-29 and 07-30. From 09-09 to the last dispatch on 09-14: 49 ok, 1 partial, $177.65. The nights of 09-15 to 09-18 dispatched nothing for $0. Lifetime: $302.41, 211 rows fixed, 175 skipped, 14 failed; whether the fixes were real is unmeasured. Cost: MAX_COST is split across two legs and checked after each batch, so the main leg stops at $20 plus one batch, $27.21 at the measured largest batch of $7.21. The second leg has never dispatched: findings auto exits 5 on P-0013, which spans 11 projects, and no findings-plan.json exists. Nights above $40 (top $51.34) predate the split of 09-14. Tonight, by dry run on a scratch plan: 19 dispatch rows in 7 batches, of which 2 batches and 5 rows would go, because 00_Governance and 30_SVG-PAINT are dirty; about $6 to $7 at the batch mean of $2.94 to $3.69 (inference). New hazard: 3 of those 5 rows target 15_belegfluss, frozen by the operator on 2026-09-28, so a restart would commit into a frozen repo. Unexplained: the findings step is in the script at 09-16 and 09-18 yet absent from the logs of 09-15 to 09-18.
+**Outcome:** applied
+**Ref:** Q28; debt_sweep_nightly.sh; dispatch-ledger.jsonl
