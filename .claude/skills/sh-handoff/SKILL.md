@@ -204,6 +204,12 @@ also shows the block was never run (Process step 2).
    `git commit -F <msgfile> -- <explicit path>` (bare `git commit` is blocked by
    the governance guard; `-F -` with a heredoc does NOT work in the
    explicit-paths form — write the message to a file).
+7. **Put the resume prompt on the clipboard** (no trailing newline, so pasting
+   does not submit it):
+   ```bash
+   command -v pbcopy >/dev/null && printf 'run %s' "<absolute path>" | pbcopy
+   ```
+8. **End your final message with the closing sentence** — see Key rules.
 
 ## Optional inputs — read only if present
 
@@ -225,3 +231,10 @@ skill went unused.
 - Prefer carrying a gotcha forward one session too many over dropping it early.
 - If the session guard forced the stop mid-task, say so and name the clean
   boundary — a deliberate stop reads very differently from an abandoned one.
+- **The LAST line of your final message is this sentence**, alone on its line,
+  with the absolute path as the link target. The operator resumes by pasting
+  `run <file>` from it. `NOT DONE:` and the recap go above it. The Stop hook
+  `~/.claude/hooks/handover-closing-line-check.sh` blocks anything else.
+  ```markdown
+  To continue, run [HANDOVER-<project>-<stamp>.md](<absolute path of that file>).
+  ```
