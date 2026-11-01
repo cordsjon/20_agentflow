@@ -266,3 +266,36 @@
 **Outcome:** applied
 **Ref:** 69a7f07 (at write time)
 **Supersedes:** Q24 — resolved
+
+
+## Q26 — US-AF-09 — deviation
+
+**Question:** Should the config sync keep depending on sync-repos, an accepted cost in the DAG comment since 2026-08-07?
+**Options considered:** keep / run in parallel / run config sync first
+**Chosen:** Run claude-config-sync first, with sync-repos and report after it.
+**Decided-by:** agent
+**Justification:** The accepted cost assumed the next tick would run the sync, but permanent repo failures meant it never did. Drilled on dagu 2.24 with scratch DAGs: a sync-repos failure still ends Failed and pages, and a config failure still lets sync-repos run. Reversible by moving the step back.
+**Outcome:** assumed
+**Ref:** janitor-nightly-sync.yaml
+
+
+## Q27 — US-AF-09 — irreversible-action
+
+**Question:** How should the 22 peer commits be taken on the Mini, given a plain run replaces newer files?
+**Options considered:** plain run / fast-forward then Mini wins / fast-forward then per-file choice
+**Chosen:** Fast-forward, keep incoming only for the 11 files where it repairs a foreign home path, Mini copy wins elsewhere, and drop the 13 Paperclip files again. 5 active-tier Paperclip memories were tombstoned in the local archive.
+**Decided-by:** agent
+**Justification:** Governance sources match the Mini copy for all 7 commands, and 7 of those files are older Mini versions by blob history. Paperclip was decommissioned in cbc8c97 and 7783f5a. Rehearsed in a fake home with a control. Pushed without force; undo with a revert of 99d5c75.
+**Outcome:** assumed
+**Ref:** 99d5c75 (claude-config)
+
+
+## Q28 — US-AF-09 — gate-resolution
+
+**Question:** Should the debt sweep run again? It has not run since 2026-09-18 because debt-sweep-nightly aborts it when janitor-nightly-sync fails, and the fix for the config sync deliberately left that unchanged.
+**Options considered:** leave off / clear the repo failures so it returns / run it regardless of repo failures
+**Chosen:** —
+**Decided-by:** agent
+**Justification:** Turning it on starts unattended agent spend of up to the DAG setting of MAX_COST 40 per night, after six weeks off. The last log, 2026-09-18, ended with 46 errors. Only the operator can accept that spend.
+**Outcome:** escalated
+**Ref:** debt-sweep-nightly.yaml
