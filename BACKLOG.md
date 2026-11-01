@@ -47,6 +47,20 @@
 ## Refining
 
 
+### US-AF-07: Reconcile the bundled lightsout.md with the installed copy [0d]
+
+> Origin: /mop 2026-11-01
+
+**As a** operator installing the agentflow bundle,
+**I want** .claude/commands/global/lightsout.md to match ~/.claude/commands/lightsout.md, plus a check that reports future drift,
+**so that** a bundle install does not bring back a June version of /lightsout.
+
+**Acceptance Criteria:**
+- [ ] AC-01: Each of the 111 lines found only in the bundled copy on 2026-11-01 is reviewed as retired or restored
+- [ ] AC-02: The bundled and installed copies are byte-identical after the sync
+- [ ] AC-03: A check reports drift between the two copies, and it is shown failing on a mutated copy
+
+**Priority:** P2 · **Effort:** S · **State:** Refining · **Tags:** `[drift]` `[lightsout]`
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
 > **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
