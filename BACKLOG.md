@@ -64,6 +64,9 @@
 > _human, 2026-11-01 15:12 CET_
 > Measured 2026-11-01: this is a class, not one file. 10 of the 54 top-level bundled commands differ from ~/.claude/commands: analyze-debt, goal, hermes-status, kickoff, lightsout, mission, postdeploy-retro, reflect, webcapture, workflow. beehive-claude-sync.sh materializes commands from its own config dir and symlinks only commands/sh to this bundle, so nothing found so far loads the top-level copies at runtime. First decide whether the top-level mirror should exist at all: retiring it may beat syncing it.
 
+> _human, 2026-11-01 15:18 CET_
+> Correction 2026-11-01: the source of truth for top-level commands is 00_Governance/.claude/commands/global, deployed to ~/.claude/commands by sync-global-commands.sh (lightsout Step 5a-commands), and that pair has no drift. So this 20_agentflow mirror is a third copy, not a source, and the ACs comparing it with ~/.claude/commands name the wrong side. Check who reads this mirror; retiring it is now the likely answer.
+
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
 > **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
