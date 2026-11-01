@@ -243,3 +243,14 @@
 **Outcome:** applied
 **Ref:** f4972fa (at write time)
 **Supersedes:** Q14 — resolved
+
+
+## Q24 — US-AF-07 — deviation
+
+**Question:** Should the 20_agentflow top-level command mirror be synced or retired?
+**Options considered:** sync it with the source / retire it
+**Chosen:** Retire the 19 top-level files after porting the 7 lines the source never had. Keep global/sh and global/remotion.
+**Decided-by:** agent
+**Justification:** No reader found in 20_agentflow, Governance tooling, hooks, scripts, LaunchAgents or dagu config. crontab was not searched because the permission layer denied it. Claude Code may also load project commands in a 20_agentflow session; that is unverified. Git restores the files.
+**Outcome:** assumed
+**Ref:** a3ab0bb, 00_Governance 8aa1c0bbf

@@ -47,26 +47,20 @@
 ## Refining
 
 
-### US-AF-07: Reconcile the bundled lightsout.md with the installed copy [0d]
+### US-AF-08: Finish retiring the agentflow: commands in every copy [0d]
 
-> Origin: /mop 2026-11-01
+> Origin: US-AF-07 audit 2026-11-01
 
-**As a** operator installing the agentflow bundle,
-**I want** .claude/commands/global/lightsout.md to match ~/.claude/commands/lightsout.md, plus a check that reports future drift,
-**so that** a bundle install does not bring back a June version of /lightsout.
+**As a** operator,
+**I want** the agentflow: commands removed from the Governance source, the runtime and the beehive sync repo,
+**so that** the 2026-09-26 ruling holds and nobody runs the old prose DOR check by accident.
 
 **Acceptance Criteria:**
-- [ ] AC-01: Each of the 111 lines found only in the bundled copy on 2026-11-01 is reviewed as retired or restored
-- [ ] AC-02: The bundled and installed copies are byte-identical after the sync
-- [ ] AC-03: A check reports drift between the two copies, and it is shown failing on a mutated copy
+- [ ] AC-01: Every caller named in the ruling is confirmed migrated, with goal.md, mission.md and backlog_dor_pipeline.py already clean on 2026-11-01
+- [ ] AC-02: The 11 files are deleted from 00_Governance .claude/commands/global/agentflow and ~/.hermes/claude-sync/claude-config/commands/agentflow as well as ~/.claude/commands/agentflow
+- [ ] AC-03: A beehive sync run on this machine leaves the directory absent, and other beehive machines are checked
 
-**Priority:** P2 · **Effort:** S · **State:** Refining · **Tags:** `[drift]` `[lightsout]`
-> _human, 2026-11-01 15:12 CET_
-> Measured 2026-11-01: this is a class, not one file. 10 of the 54 top-level bundled commands differ from ~/.claude/commands: analyze-debt, goal, hermes-status, kickoff, lightsout, mission, postdeploy-retro, reflect, webcapture, workflow. beehive-claude-sync.sh materializes commands from its own config dir and symlinks only commands/sh to this bundle, so nothing found so far loads the top-level copies at runtime. First decide whether the top-level mirror should exist at all: retiring it may beat syncing it.
-
-> _human, 2026-11-01 15:18 CET_
-> Correction 2026-11-01: the source of truth for top-level commands is 00_Governance/.claude/commands/global, deployed to ~/.claude/commands by sync-global-commands.sh (lightsout Step 5a-commands), and that pair has no drift. So this 20_agentflow mirror is a third copy, not a source, and the ACs comparing it with ~/.claude/commands name the wrong side. Check who reads this mirror; retiring it is now the likely answer.
-
+**Priority:** P3 · **Effort:** S · **State:** Refining · **Tags:** `[drift]` `[commands]`
 ### US-AF-03: Panel protocol — external-contract conformance stage + auto-fix re-gate
 
 > **SPLIT 2026-07-26 after two failed codex gates (3.1 → 3.0, stop-at-two TRIPPED).**
@@ -314,11 +308,45 @@ US-AF-01 and US-AF-02 are independent (no shared dependency) — both are memory
 
 ## Done
 
+
+### US-AF-07: Reconcile the bundled lightsout.md with the installed copy [0d]
+
+> Origin: /mop 2026-11-01
+
+**As a** operator installing the agentflow bundle,
+**I want** .claude/commands/global/lightsout.md to match ~/.claude/commands/lightsout.md, plus a check that reports future drift,
+**so that** a bundle install does not bring back a June version of /lightsout.
+
+**Acceptance Criteria:**
+- [x] AC-01: Each non-blank line only the top-level mirror held is classified against the source's git history as removed from source or stranded, and every stranded line is ported to 00_Governance
+- [x] AC-02: Readers of the top-level mirror are searched for before removal across 20_agentflow, Governance tooling, ~/.claude hooks and scripts, LaunchAgents and dagu config, with none found
+- [x] AC-03: The 19 top-level mirror files are removed, global/sh and global/remotion stay unchanged, and sync-global-commands.sh --check passes
+
+> _AC block superseded 2026-11-01 15:43 CET by human — reason: Re-spec after the 2026-11-01 finding: the old ACs compared this mirror with ~/.claude/commands, but the source is 00_Governance and the mirror had no reader, so retiring it replaces syncing it and removes the need for a drift check_
+> Previous ACs:
+> - [ ] AC-01: Each of the 111 lines found only in the bundled copy on 2026-11-01 is reviewed as retired or restored
+> - [ ] AC-02: The bundled and installed copies are byte-identical after the sync
+> - [ ] AC-03: A check reports drift between the two copies, and it is shown failing on a mutated copy
+
+
+**Priority:** P2 · **Effort:** S · **State:** Done · **Tags:** `[drift]` `[lightsout]`
+> _human, 2026-11-01 15:12 CET_
+> Measured 2026-11-01: this is a class, not one file. 10 of the 54 top-level bundled commands differ from ~/.claude/commands: analyze-debt, goal, hermes-status, kickoff, lightsout, mission, postdeploy-retro, reflect, webcapture, workflow. beehive-claude-sync.sh materializes commands from its own config dir and symlinks only commands/sh to this bundle, so nothing found so far loads the top-level copies at runtime. First decide whether the top-level mirror should exist at all: retiring it may beat syncing it.
+
+> _human, 2026-11-01 15:18 CET_
+> Correction 2026-11-01: the source of truth for top-level commands is 00_Governance/.claude/commands/global, deployed to ~/.claude/commands by sync-global-commands.sh (lightsout Step 5a-commands), and that pair has no drift. So this 20_agentflow mirror is a third copy, not a source, and the ACs comparing it with ~/.claude/commands name the wrong side. Check who reads this mirror; retiring it is now the likely answer.
+
+> _human, 2026-11-01 15:43 CET_
+> Outcome 2026-11-01: 248 non-blank mirror-only lines across 10 files, 241 once in the source and removed from it, 7 never there. The 7 were the goal.md and mission.md sh: fix from 2026-09-26 and lightsout Step 0U from 2026-07-31; both ported in 00_Governance 8aa1c0bbf. Retired in a3ab0bb. The earlier '10 of 54' figure does not match the tree: 19 files were tracked at top level, 17 of them .md. crontab was not searched: the permission layer denied that search.
+
 - **Shepherd v2 — audit and doctrine collapse** (done 2026-09-26) `[governance]` `[skills]` · **L** _(project: agentflow)_ — Audit found doctrine files frozen since March–April while tooling stayed live, gates that are prose only, a DOD queue tail naming five commands that no longer exist (the retired `sc` namespace, `/commit-smart`), 75 bundled skills of which 2 were promoted, two namespaces for the same gate, and four frozen `agentflow/` clones in other repos. v2 = one doctrine pointer to Governance, DOR/DOD as scripts with positive controls, a skill pack with an explicit promotion list, measured (not guessed) panel consolidation.
   - Spec: [docs/specs/2026-09-26-shepherd-v2-audit-design.md](docs/specs/2026-09-26-shepherd-v2-audit-design.md) — 7 user stories (US-SH2-01..07); order 01 → 03 → 02 → 04, 07 anytime, 06 delete step still needs operator approval
   - spec-panel: 7.75 (2026-09-26, body:5176cdbc81e4) — rev 2 after duo pre-panel round 1 (DeepSeek+Codex, 17 findings triaged) and Codex post-panel round 2 (6 applied); US-SH2-05 measured (13 bundled panels at 0 invocations / 90 d); US-SH2-06 report done (nothing unique in the 40_convergence clone)
   - Decide-1/2/3 answered by the operator 2026-09-26 (spec §"Operator decisions", DECISIONS.md Q5/Q7/Q8): keep `sh:`, delete the 9 unused `agentflow:*` outright with dor/dod aliases until callers migrate; delete `CLAUDE-LOOP.md` (not archive); Shepherd stays a separate repo
   - Shipped (branch `feat/shepherd-v2-audit`): DOCTRINE.md; scripts/dor_gate.py (+17 tests) wired into Governance pipeline stage C; tests/test_dod_chain.py (+7); scripts/skills_manifest.py (+13) with pre-commit gate; agentflow: namespace retired; pptx/numbers → Kingston. Not done: clone deletion (operator; 50_KETO clone holds one unique ideation item first), panel retirements (per-panel story, subagent coverage now measured), history rewrite for the 17 MB blob (still-ask).
+
+> _human, 2026-11-01 15:43 CET_
+> Closed — Mirror retired in a3ab0bb after porting stranded lines in 00_Governance 8aa1c0bbf
 
 ### US-AF-05: Panel protocol propagation — wholesale application + propagation test
 
