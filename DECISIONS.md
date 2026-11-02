@@ -333,3 +333,14 @@
 **Outcome:** applied
 **Ref:** 1433813 (at write time)
 **Supersedes:** Q28 — resolved
+
+
+## Q32 — Q31 resume 2026-11-02 — gate-resolution
+
+**Question:** The 02:00 run on 2026-11-02 still failed to commit 20_CONSIGLIERE (56 files): its verified-tag gate blocked BACKLOG.md:1216, whose [verified 2026-11-01 from source: ...] tag named no command. FAILED to commit counts toward the janitor's exit, so the Q31 excludes alone would not restart the sweep. Fix the tag in another project's staged file, or leave it and report?
+**Options considered:** re-run the claims and rewrite the tag as command -> output / downgrade the whole tag to [inference] / ALLOW_UNCHECKABLE_VERIFIED override / leave it for the CONSIGLIERE session
+**Chosen:** re-run the claims and rewrite the tag as command -> output; the one claim with no command (register_cli.py:181 unguarded) became [inference]
+**Decided-by:** agent
+**Justification:** The handover checklist says a reasoned commit failure is fixed first. Re-running keeps three claims at verified strength with evidence; the override would wave new bad tags through. Verified: CONSIGLIERE pre-commit replayed on a throwaway index with all 56 files -> rc=0. Excludes then added per Q31: matcher pipeline -> excluded 60_wot-garage, excluded whatcable, kept 20_CONSIGLIERE. US-AF-09 closed, AC-03 ticked (claude-config bc4789b == origin). Next 02:00 tick runs the sweep.
+**Outcome:** assumed
+**Ref:** 20_CONSIGLIERE/BACKLOG.md:1216; ~/.config/janitor/nightly-exclude.txt

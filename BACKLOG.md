@@ -47,25 +47,6 @@
 ## Refining
 
 
-### US-AF-09: Find out why the Mini beehive sync stopped on 2026-10-01 [0d]
-
-> Origin: US-AF-08 check 2026-11-01
-
-**As a** operator,
-**I want** the scheduled Claude config sync running again on the Mac Mini,
-**so that** config and memory changes reach every machine and the MacBook commits are not left behind.
-
-**Acceptance Criteria:**
-- [x] AC-01: The cause is named from the dagu run history of janitor-nightly-sync and debt-sweep-nightly, given the last log at 2026-10-01 19:21, no kill switch, and claude-config 22 commits behind origin
-- [x] AC-02: The 22 incoming commits are read before the first run, so a last-writer-wins pull cannot replace newer local commands such as lightsout.md, goal.md or mission.md unnoticed
-- [ ] AC-03: One scheduled run completes, shown by a new log with pulled and pushed lines and claude-config level with origin
-
-**Priority:** P2 · **Effort:** S · **State:** Refining · **Tags:** `[beehive]` `[sync]`
-
-> _agent, 2026-11-01 17:05 CET_
-> Cause: sync-repos exits 1 on any repo failure and claude-config-sync depended on it, so the sync was aborted on all 8 retained runs (dagu keeps 7 days). The last scheduled sync was 2026-09-18 15:05, not 2026-10-01; the Oct 1 commits were manual. What failed first on Sep 19 is unmeasured: the oldest kept report is Oct 3, and whatcable and 60_wot-garage arrived later.
-> A rehearsal of the first run found: 8 newer files replaced by peer copies, 13 decommissioned Paperclip files restored, 9 unified memory stores forked, an early exit when the script overwrote itself, and a 251k-fork archive loop over the 540 s limit. All fixed: reconcile 99d5c75, script guards, config sync now first in the DAG. A manual run finished in 22 s with both repos level with origin. A dagu-started run of the real DAG at 2026-11-01 17:24 ran claude-config-sync [succeeded, 26 s] before sync-repos [failed], and the failure handler fired. AC-03 waits only for the next scheduled tick.
-> Still open: a peer can still re-assert a stale file or a deleted one, because snapshot runs before pull and materialize never deletes. Same root as US-AF-08. Both MacBooks need one sync to pick up the reconcile. The debt sweep has been off since 2026-09-18; see the escalated decision.
 ### US-AF-08: Finish retiring the agentflow: commands in every copy [0d]
 
 > Origin: US-AF-07 audit 2026-11-01
@@ -333,6 +314,29 @@ US-AF-01 and US-AF-02 are independent (no shared dependency) — both are memory
 
 ## Done
 
+
+
+### US-AF-09: Find out why the Mini beehive sync stopped on 2026-10-01 [0d]
+
+> Origin: US-AF-08 check 2026-11-01
+
+**As a** operator,
+**I want** the scheduled Claude config sync running again on the Mac Mini,
+**so that** config and memory changes reach every machine and the MacBook commits are not left behind.
+
+**Acceptance Criteria:**
+- [x] AC-01: The cause is named from the dagu run history of janitor-nightly-sync and debt-sweep-nightly, given the last log at 2026-10-01 19:21, no kill switch, and claude-config 22 commits behind origin
+- [x] AC-02: The 22 incoming commits are read before the first run, so a last-writer-wins pull cannot replace newer local commands such as lightsout.md, goal.md or mission.md unnoticed
+- [x] AC-03: One scheduled run completes, shown by a new log with pulled and pushed lines and claude-config level with origin
+
+**Priority:** P2 · **Effort:** S · **State:** Done · **Tags:** `[beehive]` `[sync]`
+
+> _agent, 2026-11-01 17:05 CET_
+> Cause: sync-repos exits 1 on any repo failure and claude-config-sync depended on it, so the sync was aborted on all 8 retained runs (dagu keeps 7 days). The last scheduled sync was 2026-09-18 15:05, not 2026-10-01; the Oct 1 commits were manual. What failed first on Sep 19 is unmeasured: the oldest kept report is Oct 3, and whatcable and 60_wot-garage arrived later.
+> A rehearsal of the first run found: 8 newer files replaced by peer copies, 13 decommissioned Paperclip files restored, 9 unified memory stores forked, an early exit when the script overwrote itself, and a 251k-fork archive loop over the 540 s limit. All fixed: reconcile 99d5c75, script guards, config sync now first in the DAG. A manual run finished in 22 s with both repos level with origin. A dagu-started run of the real DAG at 2026-11-01 17:24 ran claude-config-sync [succeeded, 26 s] before sync-repos [failed], and the failure handler fired. AC-03 waits only for the next scheduled tick.
+> Still open: a peer can still re-assert a stale file or a deleted one, because snapshot runs before pull and materialize never deletes. Same root as US-AF-08. Both MacBooks need one sync to pick up the reconcile. The debt sweep has been off since 2026-09-18; see the escalated decision.
+> _human, 2026-11-02 09:48 CET_
+> Closed — AC-03: 2026-11-02 02:00 scheduled beehive run pulled and pushed both repos; claude-config level with origin
 
 ### US-AF-07: Reconcile the bundled lightsout.md with the installed copy [0d]
 
