@@ -69,3 +69,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:63 rev:64e912d4322d4b6c85cd7fd2ff88e150
 source: gap 63
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R6 — Tool: Atuin Threads — reject
+
+**Artifact:** Tool: Atuin Threads — https://blog.atuin.sh/threads-agent-sessions/?ref=console.dev
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Reject: Atuin Threads offers synced, searchable agent sessions, but it is an external Rust CLI with its own sync engine. The registry match is only a term overlap, stack fit is unproven, and sh-handoff and resume-handover already cover basic session continuity.
+**Evidence:** stored snapshot SHA-256 e3698ffff9322dc93aa7171ebaddaae4c3d2eba24492172262d79c2517b577e8; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Real but narrow gap: no listed capability provides cross-machine, full-text search or cross-harness resume of agent sessions. The nearest registry slug, codex_token_usage, only aggregates token cost from local Codex rollout JSONL by thread, role and model; the 'threads' match is lexical, so there is nothing direct to augment. sh-handoff and resume-handover already cover session continuity through HANDOVER files, though not search over raw sessions. Adopting would add a Rust CLI, a curl-to-shell install, a separate encrypted sync service (hosted or self-run) and an MCP server, and would capture full session contents. The source gives no evidence of fit with 20_agentflow, and its benefits are vendor claims. These costs outweigh the gap for now.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:81 rev:1186ed17e7d342fa928d465ff992bb17
+source: gap 81
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
