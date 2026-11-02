@@ -139,7 +139,7 @@
     "sh-handoff": {
       "since": "2026-09-27",
       "status": "global",
-      "synced_sha256": "31e816a8573477e55bda2b0f84a525591b5fa3138658a48d376d59c427faea2d"
+      "synced_sha256": "27fdf3df8adf1f4c90674a5d69b2cc8e1ab2dab16b1de3e39389946d04cbb1d1"
     },
     "sh-help": {
       "since": "2026-09-26",

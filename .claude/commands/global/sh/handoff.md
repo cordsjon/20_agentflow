@@ -228,6 +228,9 @@ skill went unused.
   **in this session, after the last commit**. A SHA copied from a `git log`
   output earlier in the conversation is stale the moment anything is committed
   after it — that is an assumed SHA wearing a real one's clothes.
+- When pointing the reader at a commit's findings, cite the read verb
+  `findings.py show-report --commit <sha>`, never `findings.py report` — that
+  is the write verb, and it only refuses because one report per commit exists.
 - Prefer carrying a gotcha forward one session too many over dropping it early.
 - If the session guard forced the stop mid-task, say so and name the clean
   boundary — a deliberate stop reads very differently from an abandoned one.
