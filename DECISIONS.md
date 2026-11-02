@@ -344,3 +344,51 @@
 **Justification:** The handover checklist says a reasoned commit failure is fixed first. Re-running keeps three claims at verified strength with evidence; the override would wave new bad tags through. Verified: CONSIGLIERE pre-commit replayed on a throwaway index with all 56 files -> rc=0. Excludes then added per Q31: matcher pipeline -> excluded 60_wot-garage, excluded whatcable, kept 20_CONSIGLIERE. US-AF-09 closed, AC-03 ticked (claude-config bc4789b == origin). Next 02:00 tick runs the sweep.
 **Outcome:** assumed
 **Ref:** 20_CONSIGLIERE/BACKLOG.md:1216; ~/.config/janitor/nightly-exclude.txt
+
+
+## Q33 — US-AF-09 — deviation
+
+**Question:** Should the config sync keep depending on sync-repos, an accepted cost in the DAG comment since 2026-08-07?
+**Options considered:** keep / run in parallel / run config sync first
+**Chosen:** Run claude-config-sync first, with sync-repos and report after it.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-02 in /unblock: accept every assumed default as recommended (one ruling covering all 288 assumed review-queue entries). The original entry's reasoning stands.
+**Outcome:** applied
+**Ref:** b992fd1 (at write time)
+**Supersedes:** Q26 — resolved
+
+
+## Q34 — US-AF-09 — irreversible-action
+
+**Question:** How should the 22 peer commits be taken on the Mini, given a plain run replaces newer files?
+**Options considered:** plain run / fast-forward then Mini wins / fast-forward then per-file choice
+**Chosen:** Fast-forward, keep incoming only for the 11 files where it repairs a foreign home path, Mini copy wins elsewhere, and drop the 13 Paperclip files again. 5 active-tier Paperclip memories were tombstoned in the local archive.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-02 in /unblock: accept every assumed default as recommended (one ruling covering all 288 assumed review-queue entries). The original entry's reasoning stands.
+**Outcome:** applied
+**Ref:** b992fd1 (at write time)
+**Supersedes:** Q27 — resolved
+
+
+## Q35 — US-AF-09 — tradeoff
+
+**Question:** How should janitor commits get past the commit-trailer gate that has rejected them in gated repos since 2026-09-18, given that succeeding also unlocks the janitor merge into main?
+**Options considered:** fixed scripted trailer / audited ALLOW_MISSING_TRAILER override / exclude gated repos from the janitor
+**Chosen:** Fixed scripted trailer from the gate, and the rejection reason kept in the nightly report. The janitor merge behaviour is unchanged.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-02 in /unblock: accept every assumed default as recommended (one ruling covering all 288 assumed review-queue entries). The original entry's reasoning stands.
+**Outcome:** applied
+**Ref:** b992fd1 (at write time)
+**Supersedes:** Q30 — resolved
+
+
+## Q36 — Q31 resume 2026-11-02 — gate-resolution
+
+**Question:** The 02:00 run on 2026-11-02 still failed to commit 20_CONSIGLIERE (56 files): its verified-tag gate blocked BACKLOG.md:1216, whose [verified 2026-11-01 from source: ...] tag named no command. FAILED to commit counts toward the janitor's exit, so the Q31 excludes alone would not restart the sweep. Fix the tag in another project's staged file, or leave it and report?
+**Options considered:** re-run the claims and rewrite the tag as command -> output / downgrade the whole tag to [inference] / ALLOW_UNCHECKABLE_VERIFIED override / leave it for the CONSIGLIERE session
+**Chosen:** re-run the claims and rewrite the tag as command -> output; the one claim with no command (register_cli.py:181 unguarded) became [inference]
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-02 in /unblock: accept every assumed default as recommended (one ruling covering all 288 assumed review-queue entries). The original entry's reasoning stands.
+**Outcome:** applied
+**Ref:** b992fd1 (at write time)
+**Supersedes:** Q32 — resolved
