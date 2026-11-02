@@ -83,3 +83,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:81 rev:1186ed17e7d342fa928d465ff992bb17
 source: gap 81
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R7 — #17Show HN: Rufous – Agent attuned to small models — reject
+
+**Artifact:** #17Show HN: Rufous – Agent attuned to small models — https://news.ycombinator.com/item?id=50332594
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Rufous is an alpha Rust harness for 2B–12B local models that checks turn-end reports against a tool-call record. No need for small-model execution is shown for 20_agentflow, and the costs of a second harness outweigh this unproven gap. Its metrics are early and self-reported.
+**Evidence:** stored snapshot SHA-256 b7c32277c672ffd5213d8dba4977bc0c840e8669e53d8c6d4f5832209b02f93d; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] The registry match is keyword-only: 'models' and 'show' hit api_router_alias_drift_gate, app_audit_checkpoint, brain_commands, cli-10 and cli-18, none of which is an agent harness or turn-end verifier. The candidate gap is a check that compares an agent's final report with an append-only tool-call record and places one Hold when a named file is missing. The supplied evidence does not establish this as a 20_agentflow gap: it states no active need for 2B–12B local models, and the adopt gate found no confirmed stack fit or overlap. Adoption would add an alpha Rust harness outside the listed Python/FastAPI/SQLite/JS/Flutter/Swift/Astro stack, and its results come from small samples on two 4B models. Those costs outweigh a speculative gap.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:86 rev:0dee7041c668460a9f97d272fb0a76f7
+source: gap 86
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
