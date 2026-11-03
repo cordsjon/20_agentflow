@@ -1,6 +1,6 @@
 ---
 name: sh-ux-design
-description: "Build clickable wireframe prototypes in code to validate flow and structure before hi-fi design"
+description: "Build clickable wireframe prototypes in code to validate flow and structure before hi-fi design. Use when a user flow from Figma, Miro, or a PRD needs a click-through prototype, or when screen order and step count must be validated before /frontend-design."
 ---
 
 # /sh:ux-design — Wireframe Prototyping in Code

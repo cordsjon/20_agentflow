@@ -1,6 +1,6 @@
 ---
 name: sh-visualization-panel
-description: "Multi-expert data visualization review with scoring gate — charts, dashboards, infographics"
+description: "Multi-expert data visualization review with scoring gate — charts, dashboards, infographics. Use when reviewing a chart, dashboard, or infographic for accuracy, design, accessibility, or narrative before it is published."
 ---
 
 # /sh:visualization-panel — Data Visualization Review Panel

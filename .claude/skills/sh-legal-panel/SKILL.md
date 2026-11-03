@@ -1,6 +1,6 @@
 ---
 name: sh-legal-panel
-description: "Multi-expert legal and compliance review with scoring gate — contracts, GDPR, licensing, IP"
+description: "Multi-expert legal and compliance review with scoring gate — contracts, GDPR, licensing, IP. Use when reviewing a contract, privacy notice, licence choice, or IP question for compliance risk before signing or publishing."
 ---
 
 # /sh:legal-panel — Legal & Compliance Review Panel

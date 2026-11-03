@@ -91,7 +91,7 @@
     "sh-content-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "5604428b95aaa7facfa62509e06bdee6bfe42b881f0628f3663fa2f7ab9aeffd"
+      "synced_sha256": "6b404f6b2f914741ad2425e3421d9b6b140dc90e69b3532fd9b51c03855ca856"
     },
     "sh-debug": {
       "since": "2026-09-26",
@@ -100,7 +100,7 @@
     "sh-devops-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "d6e621fb489a42b28daf43b2d725db100930b4bd1458025a57a142d62fceffac"
+      "synced_sha256": "7acba899ef9c95eb1b51b3a5a07971a0b0c89d7923a384ae32c2c556249a7311"
     },
     "sh-document": {
       "since": "2026-11-03",
@@ -145,7 +145,7 @@
     "sh-legal-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "f65ae02e879869b69846b3523a7a823332d955af7fa8fa313a7b2956250d7eff"
+      "synced_sha256": "5ffd906d928dfffcbbe56a1de558a6b569df2aaeb966aebf15262e414c1aed1c"
     },
     "sh-loop": {
       "since": "2026-09-26",
@@ -154,7 +154,7 @@
     "sh-marketing-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "e1eda24c43b903a287de0ba083a317aeb2f47731a542b433dcbb98ca6ef59810"
+      "synced_sha256": "9fee8c0f22d37ca0f7a5264d3f368f69ce97c06b727a8391cd2c732f66cc0691"
     },
     "sh-mobile-panel": {
       "since": "2026-11-03",
@@ -235,7 +235,7 @@
     "sh-ux-design": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "0f60b81772d38adb40578a95873d68fd6ba3af5dca4bb767ca5a97ead36ad654"
+      "synced_sha256": "8e041e3ca36814af6adfe3107d8c420914a1285b13578b9be2f47dd827a4b7e0"
     },
     "sh-verify": {
       "since": "2026-09-26",
@@ -244,7 +244,7 @@
     "sh-visualization-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "ef28821f00b822de9fbe363d4a4e557af6f5688c7511d365e242d9c42eedf2a6"
+      "synced_sha256": "3792d7093124554d8b53fa589176dcd06c0deade444270604d10e04f2f574cb4"
     },
     "sh-workflow": {
       "since": "2026-09-26",

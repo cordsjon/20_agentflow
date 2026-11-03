@@ -1,6 +1,6 @@
 ---
 name: sh-marketing-panel
-description: "Multi-expert marketing strategy review with scoring gate — copy, positioning, go-to-market"
+description: "Multi-expert marketing strategy review with scoring gate — copy, positioning, go-to-market. Use when reviewing positioning, a launch plan, growth strategy, or marketing copy before a campaign goes out."
 ---
 
 # /sh:marketing-panel — Marketing Strategy Review Panel

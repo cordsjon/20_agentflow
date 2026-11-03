@@ -1,6 +1,6 @@
 ---
 name: sh-content-panel
-description: "Multi-expert content quality review with scoring gate — articles, docs, written content"
+description: "Multi-expert content quality review with scoring gate — articles, docs, written content. Use when reviewing an article, doc set, or marketing copy for structure, clarity, SEO, or audience fit before publishing."
 ---
 
 # /sh:content-panel — Content Quality Review Panel

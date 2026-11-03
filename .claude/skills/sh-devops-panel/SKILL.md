@@ -1,6 +1,6 @@
 ---
 name: sh-devops-panel
-description: "Multi-expert DevOps and infrastructure review with scoring gate — CI/CD, infra, monitoring, cost"
+description: "Multi-expert DevOps and infrastructure review with scoring gate — CI/CD, infra, monitoring, cost. Use when reviewing pipeline definitions, infrastructure config, monitoring setup, or deployment artifacts before they ship."
 ---
 
 # /sh:devops-panel — DevOps & Infrastructure Review Panel
