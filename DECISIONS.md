@@ -392,3 +392,14 @@
 **Outcome:** applied
 **Ref:** b992fd1 (at write time)
 **Supersedes:** Q32 — resolved
+
+
+## Q37 — Q31 sweep restart, 2026-11-03 — gate-resolution
+
+**Question:** The 2026-11-03 02:00 and 15:00 janitor runs failed to commit 00_Governance: the verified-tag gate blocked 5 tags in two unheld files (HANDOVER-merged-2026-10-18-2152.md:59-62, bare [verified]; the svg-tracealpha-02 plan:30, a well-formed tag whose regex holds a ']' that ends the gate's match before the arrow). The sweep was aborted both times, $0 spent. Fix the tags, override, or leave them?
+**Options considered:** move the evidence into the tags and mark tags with no command as [recall] / ALLOW_UNCHECKABLE_VERIFIED override / change the gate regex / leave for the authors
+**Chosen:** move the adjacent command -> output into the two handover tags, mark the two with no command as [recall], put the plan's command in backticks; committed a37ba018d
+**Decided-by:** agent
+**Justification:** Same route as Q32. Verified: the full 00_Governance pre-commit replayed on the janitor's exact commit set (held files reset) -> rc=0; the plan's claim re-run -> 0. The gate regex was left alone: a fail-closed gate shared by every repo needs its own test, and backticks work around it. Still at risk: the held KETO 2026-10-14 and rootmap 2026-10-18-2151 handovers carry 5 more bare tags and will block once their claims are released.
+**Outcome:** assumed
+**Ref:** 00_Governance a37ba018d
