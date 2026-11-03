@@ -1,6 +1,6 @@
 ---
 name: sh-osm-panel
-description: "Multi-expert OSM/geodata architecture review — tag semantics, harvest pipelines, admin boundaries, corridors and routing — for European mapping projects"
+description: "Use when reviewing a spec, plan, or architecture for an OSM-based mapping project — tag vocabularies, harvest pipelines, admin boundaries, corridors, routing, Overpass usage — or when a mapping decision leans on a recalled (unmeasured) OSM tag meaning or admin_level"
 ---
 
 # /sh:osm-panel — OSM Europe Architecture Review Panel

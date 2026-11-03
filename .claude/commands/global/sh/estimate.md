@@ -59,19 +59,32 @@ Identify risk factors that increase effort:
 
 Apply the highest applicable multiplier (don't stack).
 
+### 4b. Decision Tier (E1–E4) — count decisions reopened, not hours
+
+Hours are guessed; **decisions reopened** can be counted before the work starts, by reading the spec, DECISIONS.md, and the seams the change touches. Overruns in this fleet live almost entirely in E3, where a "small" change re-syncs artifacts across several settled decisions. Declare the tier next to the size:
+
+| Tier | Meaning | Test |
+|------|---------|------|
+| **E1 TOUCH** | Nothing reopened | Code, copy, style, a fix inside an existing decision. No new artifact. |
+| **E2 EXTENSION** | One decision added, none reopened | A self-contained capability: one DECISIONS.md entry, nothing else moves. |
+| **E3 INTERLOCK** | 1–6 existing decisions reopened | Artifacts re-synced across the set (spec + schema + contract + tests). This is where diligence is real. |
+| **E4 RECONSTRUCTION** | >6 reopened, or the decision set itself is rewritten | Not a task — a redesign. Route through `for-dec` / a spec panel before sizing sub-tasks. |
+
+How to count: list every existing decision (DECISIONS.md `Q<n>`, a settled schema, a public contract, a naming convention) the change would *change the answer to*. Adding is E2; changing is E3. A task whose tier disagrees with its T-shirt size (an S at E3) is the one to flag — that is the overrun in waiting. (RESEARCH.md R23, after leo Law 43.)
+
 ### 5. Present Estimate
 
 ```
 ## Estimate: [Feature/Task Name]
 
 ### Sub-tasks
-| # | Task | Size | Risk | Adjusted |
-|---|------|------|------|----------|
-| 1 | [task] | M | Unfamiliar (1.5x) | M-L |
-| 2 | [task] | S | None | S |
-| 3 | Tests | M | No existing (1.3x) | M |
+| # | Task | Size | Tier | Risk | Adjusted |
+|---|------|------|------|------|----------|
+| 1 | [task] | M | E3 (reopens Q12, Q31) | Unfamiliar (1.5x) | M-L |
+| 2 | [task] | S | E1 | None | S |
+| 3 | Tests | M | E1 | No existing (1.3x) | M |
 
-### Overall: [M-L]
+### Overall: [M-L] · Tier: [E3 — 2 decisions reopened: Q12, Q31]
 ### Confidence: [High/Medium/Low]
 ### Key Assumptions: [list]
 ### Unknowns: [list — each unknown reduces confidence]

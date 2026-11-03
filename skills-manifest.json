@@ -49,24 +49,20 @@
       "status": "repo-local"
     },
     "sh-4-reviewer-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "442bc784a099611c1c2e7b2165a2f9b37c24e0e254705de51cf9ee95536cd0ea"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-ai-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "d4c6c5bd481c88a7e2612f417923ca4ba1c81150f97e494985f79333a6974e33"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-analyze": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "de0fb604574ba5f22bb745e52cc4018eab5a627caee712a3ef064168700570d2"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-architecture-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "0ed9b59cbfaf5f48b48057577833550bf6806eb45194fb86ebed92555087b4b4"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-autopilot": {
       "since": "2026-09-26",
@@ -77,23 +73,20 @@
       "status": "repo-local"
     },
     "sh-business-analysis": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "9e537f205d9ad9ad4658122ea57dbb32e9961e1951d75445597d327fe59c327c"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-business-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "6a72e6eb9800a2a31126aae38e99fb8075705b25f84c262da69c3e543d0800ac"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-cancel": {
       "since": "2026-09-26",
       "status": "repo-local"
     },
     "sh-consigliere-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "24d83fbfe79ce50ebd4855fa997d86ba5bb633db6c06382195f1040751440faf"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-content-panel": {
       "since": "2026-09-26",
@@ -110,9 +103,8 @@
       "synced_sha256": "d6e621fb489a42b28daf43b2d725db100930b4bd1458025a57a142d62fceffac"
     },
     "sh-document": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "22a0cb06736224fa692e7b33394fb745d14d724fe2b7420a950e7efa7f80139e"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-dod": {
       "since": "2026-09-26",
@@ -123,33 +115,28 @@
       "status": "repo-local"
     },
     "sh-estimate": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "68d8c03c81ac9c22a6d374d4a8502e4d8fe631c454c73fde7d8acb8345200e94"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-execute": {
       "since": "2026-09-26",
       "status": "repo-local"
     },
     "sh-explain": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "a1c65194682461570c8f1c29f4c1df5ccd764c79d300ad2c6996e4e071983ec2"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-handoff": {
-      "since": "2026-09-27",
-      "status": "global",
-      "synced_sha256": "27fdf3df8adf1f4c90674a5d69b2cc8e1ab2dab16b1de3e39389946d04cbb1d1"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-help": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "12bcffb4a529959a57f2fb9a331ec63f34bff5fd7d70bfd2bc65c18327b325ec"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-index-repo": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "b88d31fc626f0905f7f632c0d067136b72ba476cc94ef01c4f8f8c2d1d7b88a3"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-kickoff": {
       "since": "2026-09-26",
@@ -170,9 +157,8 @@
       "synced_sha256": "e1eda24c43b903a287de0ba083a317aeb2f47731a542b433dcbb98ca6ef59810"
     },
     "sh-mobile-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "9d64cd924f3e6dd73cfdadd53ec1521c9979ef62cf5d3bbc5374244fd493c0bf"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-newskill": {
       "since": "2026-09-26",
@@ -183,9 +169,8 @@
       "status": "repo-local"
     },
     "sh-personal-development-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "de844ab45df58d418580496ed47cfbeb5053342cfc6ea5af3e5120a30eada44e"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-plan": {
       "since": "2026-09-26",
@@ -200,9 +185,8 @@
       "status": "repo-local"
     },
     "sh-research-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "b73def23f341253e0be8f1a81912f97a6091b2aba0edc6d449e89942320a2041"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-retro": {
       "since": "2026-09-26",
@@ -213,43 +197,36 @@
       "status": "repo-local"
     },
     "sh-security-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "023c224c545a33c8238ccb69e67cdc804b3e9c7dff61cb151fcbe46352946f36"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-select-tool": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "4ec112290d1c49afa39fd4e15ed0461dd5860885cc4c5398c67cffe0392c17c3"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-spec-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "bad36d287f79a48e9e06cf8b9e6fe815a02e1dc8306cdcf718bbd70a04b1911e"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-spec-review": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "764bbc068235ffbe6fe833b3f5532f5471d6a34eca1a81bcef0f9de133a3a8e4"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-tdd": {
       "since": "2026-09-26",
       "status": "repo-local"
     },
     "sh-test": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "4fd6f0aab62c3fbf472fdca4c5cefb956744119e6df90556df978b2289ec3ea0"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-test-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "0650abe2ea2b372918366c42d27d30cf690927d058a85ff85653d3e03b1fd279"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-triage": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "86c8cc9536ea37b92fdc94f90bea5a5857c236be55bb4ea87f5bdff8432f3c5f"
+      "since": "2026-11-03",
+      "status": "retired"
     },
     "sh-troubleshoot": {
       "since": "2026-09-26",
