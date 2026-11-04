@@ -403,3 +403,14 @@
 **Justification:** Same route as Q32. Verified: the full 00_Governance pre-commit replayed on the janitor's exact commit set (held files reset) -> rc=0; the plan's claim re-run -> 0. The gate regex was left alone: a fail-closed gate shared by every repo needs its own test, and backticks work around it. Still at risk: the held KETO 2026-10-14 and rootmap 2026-10-18-2151 handovers carry 5 more bare tags and will block once their claims are released.
 **Outcome:** assumed
 **Ref:** 00_Governance a37ba018d
+
+
+## Q38 — Q31 sweep restart, 2026-11-04 — tradeoff
+
+**Question:** The debt sweep did not run on 11-02, 11-03 or 11-04: each night a different repo's pre-commit gate rejected the janitor's commit, and any FAILED to commit makes the janitor exit 1, which aborts the sweep. Split the janitor's exit codes so commit-gate rejections no longer stop the sweep, keep the gate and fix each night's blockers, or leave the sweep off?
+**Options considered:** split exit codes (commit rejections non-gating; the sweep skips dirty repos itself) / keep gate, fix nightly / leave sweep off
+**Chosen:** keep gate, fix nightly
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-04. That night's blockers fixed: (1) ~/.claude/skills 83549db: skill-audit's library fallback returned the indicator of every folded description: >, because the janitor's /opt/homebrew/bin/python3 lacks PyYAML; three false DUPLICATE_DESCRIPTION blocks. Verified: janitor-PATH replay of the skills set -> PASS rc=0. (2) 00_Governance: registered snake_case memory pairs for the hook mirrors git-land-guard and session-slot-release. Verified: janitor-PATH replay of the 49-file set -> rc=0.
+**Outcome:** applied
+**Ref:** skills 83549db; Q31; Q32; Q37
