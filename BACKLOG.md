@@ -231,42 +231,6 @@ reviewer (codex) would apply — instead of only internal-consistency checks.
 **Size:** L · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]`
 _(Re-sized M→L at DOR: 13 files + a new regression harness exceeds M's 4-8 queue items.)_
 
-### US-AF-04: 7 panel skills load no grounding protocol at all
-
-> Surfaced by the US-AF-03 DOR gate (2026-07-26), pre-existing and independent of it.
-> Of 17 `sh-*-panel` skills, only 10 reference `PANEL_PROTOCOL.md`. These 7 reference
-> neither it nor `PANEL_CORE.md`: `sh-4-reviewer-panel`, `sh-claude-code-panel`,
-> `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`, `sh-marketing-panel`,
-> `sh-visualization-panel`. Grepping them for `grounding|refute|shared core|load protocol`
-> returns nothing — the only hit is `sh-claude-code-panel:30`, a verbatim COPY of the
-> Verbosity block rather than a load of the shared file (the drift the PANEL_CORE sync
-> note exists to prevent, already realized).
->
-> Consequence: these panels can report ungrounded, un-refuted findings today, and
-> `sh-legal-panel` in particular carries real-world risk. Deliberately excluded from
-> US-AF-03's AC-5 to avoid ballooning an already-L story.
-
-**As a** consumer of any `sh:*-panel` verdict,
-**I want** every panel skill to load the shared grounding + refute protocol,
-**so that** "a panel reviewed it" means the same thing regardless of which panel ran.
-
-**Acceptance Criteria:**
-- [ ] AC-1: All 7 listed skills load `PANEL_PROTOCOL.md` and `PANEL_CORE.md`, matching the
-  Load-Protocol step used by the existing 10.
-- [ ] AC-2: `sh-claude-code-panel`'s copied Verbosity block is replaced by a load of
-  `PANEL_CORE.md` — no verbatim duplicates of shared blocks remain.
-- [x] AC-3: A check asserts every `sh-*-panel/SKILL.md` references the shared protocol;
-  it fails red before the fix. **DONE via US-AF-05** — `tests/test_panel_propagation.py`
-  provides it; the 6 remaining unwired skills are `xfail` entries in `KNOWN_UNWIRED`, and
-  `test_known_unwired_list_is_accurate` forces the list to shrink as each is fixed.
-
-_Scope reduced 7 → 6 by US-AF-05: `sh-claude-code-panel` was fixed (its verbatim Verbosity
-copy now references PANEL_CORE), satisfying AC-2 for that skill. Remaining:
-`sh-4-reviewer-panel`, `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`,
-`sh-marketing-panel`, `sh-visualization-panel`. Each fix flips an xfail to XPASS._
-
-**Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]` `[debt]`
-
 ### US-AF-06: Resolve the stale agentflow skill fork (18 divergent panel copies)
 
 > Surfaced while shipping US-AF-05 (2026-07-26). `20_agentflow/.claude/skills/` holds 18
@@ -315,6 +279,47 @@ US-AF-01 and US-AF-02 are independent (no shared dependency) — both are memory
 ## Done
 
 
+
+
+### US-AF-04: 7 panel skills load no grounding protocol at all
+**State:** Done
+
+> Surfaced by the US-AF-03 DOR gate (2026-07-26), pre-existing and independent of it.
+> Of 17 `sh-*-panel` skills, only 10 reference `PANEL_PROTOCOL.md`. These 7 reference
+> neither it nor `PANEL_CORE.md`: `sh-4-reviewer-panel`, `sh-claude-code-panel`,
+> `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`, `sh-marketing-panel`,
+> `sh-visualization-panel`. Grepping them for `grounding|refute|shared core|load protocol`
+> returns nothing — the only hit is `sh-claude-code-panel:30`, a verbatim COPY of the
+> Verbosity block rather than a load of the shared file (the drift the PANEL_CORE sync
+> note exists to prevent, already realized).
+>
+> Consequence: these panels can report ungrounded, un-refuted findings today, and
+> `sh-legal-panel` in particular carries real-world risk. Deliberately excluded from
+> US-AF-03's AC-5 to avoid ballooning an already-L story.
+
+**As a** consumer of any `sh:*-panel` verdict,
+**I want** every panel skill to load the shared grounding + refute protocol,
+**so that** "a panel reviewed it" means the same thing regardless of which panel ran.
+
+**Acceptance Criteria:**
+- [x] AC-1: All 7 listed skills load `PANEL_PROTOCOL.md` and `PANEL_CORE.md`, matching the
+  Load-Protocol step used by the existing 10.
+- [x] AC-2: `sh-claude-code-panel`'s copied Verbosity block is replaced by a load of
+  `PANEL_CORE.md` — no verbatim duplicates of shared blocks remain.
+- [x] AC-3: A check asserts every `sh-*-panel/SKILL.md` references the shared protocol;
+  it fails red before the fix. **DONE via US-AF-05** — `tests/test_panel_propagation.py`
+  provides it; the 6 remaining unwired skills are `xfail` entries in `KNOWN_UNWIRED`, and
+  `test_known_unwired_list_is_accurate` forces the list to shrink as each is fixed.
+
+_Scope reduced 7 → 6 by US-AF-05: `sh-claude-code-panel` was fixed (its verbatim Verbosity
+copy now references PANEL_CORE), satisfying AC-2 for that skill. Remaining:
+`sh-4-reviewer-panel`, `sh-content-panel`, `sh-devops-panel`, `sh-legal-panel`,
+`sh-marketing-panel`, `sh-visualization-panel`. Each fix flips an xfail to XPASS._
+
+**Size:** S · **Tags:** `[agentflow]` `[panels]` `[protocol]` `[quality]` `[debt]`
+
+> _human, 2026-11-04 21:33 CET_
+> Closed — 2026-11-04 da960a2: last 5 panel skills load PANEL_PROTOCOL + PANEL_CORE; KNOWN_UNWIRED empty
 
 ### US-AF-09: Find out why the Mini beehive sync stopped on 2026-10-01 [0d]
 
