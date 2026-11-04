@@ -13,14 +13,13 @@ description: "Multi-expert architecture review — boundaries, integration patte
 
 ## Verbosity
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+See the **Verbosity** section of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md`
+— read it; this panel uses it unchanged. Do not copy it here; a verbatim copy drifts
+from the source, which is what PANEL_CORE's sync note exists to prevent.
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding and Refute Stage sections. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
 1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/architecture-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow).
 2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert.
 3. **Auto-Select Experts**: Scan the content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap.

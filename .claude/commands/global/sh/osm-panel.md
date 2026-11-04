@@ -13,10 +13,9 @@ description: "Use when reviewing a spec, plan, or architecture for an OSM-based 
 
 ## Verbosity
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+See the **Verbosity** section of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md`
+— read it; this panel uses it unchanged. Do not copy it here; a verbatim copy drifts
+from the source, which is what PANEL_CORE's sync note exists to prevent.
 
 ## Behavioral Flow
 

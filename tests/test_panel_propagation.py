@@ -30,6 +30,11 @@ import pytest
 # PANEL_CORE.md extraction (11 of 18 still inline Verbosity/Expert Loading).
 # Tracked as US-AF-06 -- see test_agentflow_fork_is_not_silently_live below.
 SKILLS_DIR = Path.home() / ".claude" / "skills"
+# Most panels now ship as `sh:` commands (`/sh:spec-panel`), not skills. Both homes
+# are the live population; globbing only SKILLS_DIR found 6 of 18. The commands are
+# tracked in this repo (`~/.claude/commands/sh` symlinks to the main checkout's copy),
+# so read them relative to this file: a worktree's land.check then tests what it lands.
+COMMANDS_DIR = Path(__file__).resolve().parents[1] / ".claude" / "commands" / "global" / "sh"
 AGENTFLOW_SKILLS = (
     Path.home() / "projects" / "20_agentflow" / ".claude" / "skills"
 )
@@ -55,12 +60,18 @@ KNOWN_UNWIRED = {
 
 
 def panel_skills() -> list[Path]:
-    """Every sh-*panel* skill directory containing a SKILL.md."""
-    return sorted(
+    """Every sh-*panel* skill's SKILL.md plus every sh:*-panel command file."""
+    skills = [
         p / "SKILL.md"
         for p in SKILLS_DIR.glob("sh-*panel*")
         if (p / "SKILL.md").is_file()
-    )
+    ]
+    return sorted(skills + list(COMMANDS_DIR.glob("*-panel.md")), key=panel_name)
+
+
+def panel_name(f: Path) -> str:
+    """`sh-spec-panel` for both skills/sh-spec-panel/SKILL.md and commands/sh/spec-panel.md."""
+    return f.parent.name if f.name == "SKILL.md" else f"sh-{f.stem}"
 
 
 def wired_skills() -> list[Path]:
@@ -84,7 +95,7 @@ def test_panel_population_is_discovered():
     assert len(skills) >= 15, f"expected >=15 panel skills, found {len(skills)}"
 
 
-@pytest.mark.parametrize("skill", wired_skills(), ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("skill", wired_skills(), ids=panel_name)
 def test_wired_skills_apply_protocol_wholesale(skill: Path):
     """No skill may enumerate an allowlist of protocol sections.
 
@@ -99,14 +110,14 @@ def test_wired_skills_apply_protocol_wholesale(skill: Path):
         re.IGNORECASE | re.DOTALL,
     )
     assert allowlist is None, (
-        f"{skill.parent.name} enumerates protocol sections instead of applying the "
+        f"{panel_name(skill)} enumerates protocol sections instead of applying the "
         f"protocol wholesale; a new stage would be inert here. Found: "
         f"{allowlist.group(0)[:80]!r}"
     )
 
 
 @pytest.mark.parametrize(
-    "skill", panel_skills(), ids=lambda p: p.parent.name
+    "skill", panel_skills(), ids=panel_name
 )
 def test_every_panel_loads_shared_protocol(skill: Path):
     """Every panel skill must load the shared protocol.
@@ -115,7 +126,7 @@ def test_every_panel_loads_shared_protocol(skill: Path):
     xfail rather than silently pass, so fixing one flips to XPASS and prompts
     removal from the list.
     """
-    name = skill.parent.name
+    name = panel_name(skill)
     text = skill.read_text()
     wired = "PANEL_PROTOCOL" in text or "PANEL_CORE" in text
     if name in KNOWN_UNWIRED:
@@ -130,7 +141,7 @@ def test_known_unwired_list_is_accurate():
     absorbed into a stale allowance list.
     """
     actual_unwired = {
-        f.parent.name
+        panel_name(f)
         for f in panel_skills()
         if "PANEL_PROTOCOL" not in f.read_text()
         and "PANEL_CORE" not in f.read_text()
@@ -194,7 +205,7 @@ def test_no_verbatim_copies_of_shared_blocks():
         "pick a new verbatim sentence from its Verbosity block"
     )
     offenders = [
-        f.parent.name for f in panel_skills() if canary in f.read_text()
+        panel_name(f) for f in panel_skills() if canary in f.read_text()
     ]
     assert not offenders, (
         f"these skills carry a VERBATIM copy of PANEL_CORE's Verbosity block "

@@ -18,14 +18,13 @@ You evaluate scoring systems, ingestion pipelines, platform integrations, taxono
 
 ## Verbosity
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+See the **Verbosity** section of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md`
+— read it; this panel uses it unchanged. Do not copy it here; a verbatim copy drifts
+from the source, which is what PANEL_CORE's sync note exists to prevent.
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written; on the non-code Grounding branch, every finding quotes the source section it rests on. Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Load Panel Config**: Read `experts/panels/consigliere-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config
 2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
 3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap

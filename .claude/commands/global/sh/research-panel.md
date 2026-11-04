@@ -18,14 +18,13 @@ You evaluate information sources with the rigor of an intelligence analyst and t
 
 ## Verbosity
 
-- **Silent (default)**: No expert deliberations. Output only: score table, FIPD-classified findings list, and auto-fix diff. Saves ~60-80% output tokens.
-- **Verbose (`--verbose`)**: Full expert deliberations, cross-expert dialogue, reasoning traces, and detailed per-expert analysis before scores and findings.
-
-Silent mode still performs full internal analysis — quality is preserved, only the output is compressed.
+See the **Verbosity** section of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md`
+— read it; this panel uses it unchanged. Do not copy it here; a verbatim copy drifts
+from the source, which is what PANEL_CORE's sync note exists to prevent.
 
 ## Behavioral Flow
 
-0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply its Grounding (non-code branch — every finding quotes the source section it rests on) and Refute Stage sections. Findings that misquote or cannot cite the source MUST NOT be reported.
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written; on the non-code Grounding branch, every finding quotes the source section it rests on. Findings that misquote or cannot cite the source MUST NOT be reported.
 1. **Ingest**: Parse input — detect source lists, API specs, scraping plans, collection strategies, or research designs
 2. **Classify**: Identify research domain (competitive intel, technical research, market research, academic, regulatory, OSINT) and scope
 3. **Assemble Panel**: Select experts based on `--focus` area or use defaults. `--experts` override replaces defaults entirely. Max 6 experts per review.
