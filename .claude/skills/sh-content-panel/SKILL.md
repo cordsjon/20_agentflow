@@ -8,11 +8,18 @@ description: "Multi-expert content quality review with scoring gate — articles
 ## Usage
 
 ```
-/sh:content-panel [document_path_or_content] [--mode discussion|critique|socratic] [--focus structure|clarity|seo|audience] [--experts "name1,name2"]
+/sh:content-panel [document_path_or_content] [--mode discussion|critique|socratic] [--focus structure|clarity|seo|audience] [--experts "name1,name2"] [--iterations N]
 ```
+
+## Verbosity
+
+See the **Verbosity** section of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md`
+— read it; this panel uses it unchanged. Do not copy it here; a verbatim copy drifts
+from the source, which is what PANEL_CORE's sync note exists to prevent.
 
 ## Behavioral Flow
 
+0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
 1. **Load Panel Config**: Read `experts/panels/content-panel.yaml` for panel definition, focus areas, and auto-select rules
 2. **Load Experts**: Read expert files from `experts/individuals/` for each selected expert
 3. **Auto-Select Experts**: Scan content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 6` cap
@@ -20,7 +27,7 @@ description: "Multi-expert content quality review with scoring gate — articles
 5. **Assemble Panel**: Select experts based on `--focus` area or use `default-experts`. `--experts` override replaces defaults entirely
 6. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
 7. **Score**: Rate across 4 dimensions (0-10 each), compute overall score
-8. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = needs rework
+8. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold → run the **Below-Gate Loop** in `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md` (report round 1, fix all findings, re-score, repeat)
 
 ## Scoring Gate
 
@@ -72,4 +79,4 @@ Content review document containing:
 - Critical quality issues with specific locations and fixes
 - Priority-ranked recommendations for improvement
 
-**SYNTHESIS ONLY** — this panel produces analysis and recommendations. It does not rewrite content without explicit instruction.
+**AUTO-FIX, NOT SYNTHESIS-ONLY** — per `00_Governance/CLAUDE.md §8`, this panel fixes every finding and re-scores. See the **Auto-Fix Policy** and **Below-Gate Loop** sections of `/Users/jcords-macmini/.claude/skills/_panel-shared/PANEL_CORE.md` — read them; this panel uses them unchanged.

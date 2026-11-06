@@ -91,7 +91,7 @@
     "sh-content-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "6b404f6b2f914741ad2425e3421d9b6b140dc90e69b3532fd9b51c03855ca856"
+      "synced_sha256": "6936c2b2ed3b8f3fda902bd61f67e104ff9b8b7d6e577fbeaf95025d9a78259e"
     },
     "sh-debug": {
       "since": "2026-09-26",
@@ -100,7 +100,7 @@
     "sh-devops-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "7acba899ef9c95eb1b51b3a5a07971a0b0c89d7923a384ae32c2c556249a7311"
+      "synced_sha256": "89dffe9fd7a9db89700695b64de69bad74da784071d0cec422f242f8726db690"
     },
     "sh-document": {
       "since": "2026-11-03",
@@ -145,7 +145,7 @@
     "sh-legal-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "5ffd906d928dfffcbbe56a1de558a6b569df2aaeb966aebf15262e414c1aed1c"
+      "synced_sha256": "b62eb772d5f0168a44276fe3e3f3ba4b53ae41d2ac48fa562ef5497f0cc59a71"
     },
     "sh-loop": {
       "since": "2026-09-26",
@@ -154,7 +154,7 @@
     "sh-marketing-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "9fee8c0f22d37ca0f7a5264d3f368f69ce97c06b727a8391cd2c732f66cc0691"
+      "synced_sha256": "d474051b3cc2e6b2d678cfe8366b49fb97d95187ce0cc74f381172f30342cfef"
     },
     "sh-mobile-panel": {
       "since": "2026-11-03",
@@ -244,7 +244,7 @@
     "sh-visualization-panel": {
       "since": "2026-09-26",
       "status": "global",
-      "synced_sha256": "3792d7093124554d8b53fa589176dcd06c0deade444270604d10e04f2f574cb4"
+      "synced_sha256": "7056cc67f7fa3ca375d911f70e933acdb6ec17051fff11483c02bf075c89bbac"
     },
     "sh-workflow": {
       "since": "2026-09-26",
