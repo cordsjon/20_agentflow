@@ -47,6 +47,23 @@
 ## Refining
 
 
+### US-AF-10: Add experts/panels yaml for the content, devops, legal, marketing and visualization panels [0d]
+
+> Origin: Added via backlog_add.py (2026-11-06)
+
+**As a** operator running a content, devops, legal, marketing or visualization panel,
+**I want** experts/panels/{content,devops,legal,marketing,visualization}-panel.yaml to exist, built from _TEMPLATE.yaml and experts/individuals/,
+**so that** each panel's step 1-2 loads its declared experts instead of falling back to generic reviewer roles.
+
+**Acceptance Criteria:**
+- [ ] AC-01: The five yaml files exist under experts/panels/, follow _TEMPLATE.yaml, and name only experts present in experts/individuals/ (or add the missing individuals)
+- [ ] AC-02: Each panel's focus areas match its SKILL.md step 1 and the runtime ~/.claude/skills copy, recorded via skills_manifest.py (0 drift)
+- [ ] AC-03: An --execute --with-skill run of each panel #2 eval (~/.claude/skills/_eval-runner) shows the panel loading its yaml experts, quoted from the report
+
+**Priority:** P2 · **Effort:** M · **State:** Refining
+> _human, 2026-11-06 17:21 CET_
+> Origin: ~/.claude/skills TODO line 13 and DECISIONS Q54, 2026-11-06. Measured: git log --all shows 0 commits for each of the five paths, while the other 11 panels (ai, architecture, ..., test) have their yaml. The five SKILL.md files cite experts/panels/<name>-panel.yaml in step 1.
+
 ### US-AF-08: Finish retiring the agentflow: commands in every copy [0d]
 
 > Origin: US-AF-07 audit 2026-11-01
