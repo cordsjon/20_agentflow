@@ -233,9 +233,9 @@
       "status": "repo-local"
     },
     "sh-ux-design": {
-      "since": "2026-09-26",
+      "since": "2026-11-06",
       "status": "global",
-      "synced_sha256": "8e041e3ca36814af6adfe3107d8c420914a1285b13578b9be2f47dd827a4b7e0"
+      "synced_sha256": "100921ac2a6446a38f4625358705b0f1d892c446095845e4e050d66ad81ec16f"
     },
     "sh-verify": {
       "since": "2026-09-26",

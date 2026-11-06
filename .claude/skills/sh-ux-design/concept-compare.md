@@ -51,7 +51,7 @@ After comparison, document the decision:
 **Chosen:** Concept <X> — <name>
 **Reason:** <1-2 sentences — why this concept wins>
 **Trade-off accepted:** <what the losing concept did better>
-**Action:** Merge wireframe/<feature>-concept-<x>, delete other branches
+**Action:** Delete the losing routes (worktree concepts: merge wireframe/<feature>-concept-<x>, delete other branches)
 ```
 
 Save to `docs/wireframe-<feature>-decision.md`.

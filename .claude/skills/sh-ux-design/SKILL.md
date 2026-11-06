@@ -81,7 +81,7 @@ Generate clickable prototype in the **target project's stack** (not generic HTML
 
 **MCP tools available:**
 - Figma MCP `get_variable_defs` — pull design tokens if mid-fi fidelity
-- Context7 MCP `query-docs` — component library docs for the target stack
+- Context7 MCP `mcp__claude_ai_Context7__query-docs` — component library docs for the target stack
 
 ### Verify
 After generation, run Playwright smoke test:
@@ -109,9 +109,9 @@ User walks through the wireframe. Common feedback patterns:
 
 When user wants an alternative approach: "What if this was chat-based instead?"
 
-1. `/sh:worktree` — new branch `wireframe/<feature>-concept-b`
+1. Add the concept as its own route on the existing `wireframe/<feature>` branch (`/wireframe-a`, `/wireframe-b`) — the default: one app, one dev server, both concepts side by side
 2. Same wireframe constraints, different interaction pattern
-3. Both concepts get their own route (`/wireframe-a`, `/wireframe-b`) OR separate worktrees
+3. Escape hatch: a separate worktree (`/sh:worktree`, branch `wireframe/<feature>-concept-b`) only when the concept needs dependencies or app structure that cannot coexist with the first
 4. Playwright screenshots of both for comparison
 
 **Max concepts:** 3. More than 3 = scope problem, not a wireframing problem.
@@ -133,7 +133,7 @@ When multiple concepts exist, generate comparison. Read `concept-compare.md` for
 ```
 Panel debates which concept better serves strategy. Christensen (JTBD fit), Godin (adoption friction), Taleb (what breaks), Meadows (system leverage).
 
-**Decision:** User picks winner. Merge winning branch. Delete losing branches. Clean up worktrees via `superpowers:finishing-a-development-branch`.
+**Decision:** User picks winner. Delete the losing routes. If a concept used the worktree escape hatch: merge the winning branch, delete losing branches, and clean up worktrees via `superpowers:finishing-a-development-branch`.
 
 ## Phase 8: Graduation Gate
 
@@ -141,7 +141,7 @@ Before handing off to `/frontend-design`, ALL must pass. Read `handoff.md` for d
 
 ```
 □ All steps clickable, no dead ends (Playwright evidence)
-□ Single concept chosen, variant branches cleaned up
+□ Single concept chosen, losing routes (and any variant branches) removed
 □ Step count final (structural freeze — no adding/removing screens after this)
 □ Interaction model locked (click-through vs functional vs chat-based)
 □ Component mapping drafted (wireframe placeholder → target component)
@@ -163,10 +163,10 @@ Before handing off to `/frontend-design`, ALL must pass. Read `handoff.md` for d
 | `/sh:brainstorm` | Upstream — produces PRD and user flow |
 | `/sh:spec-panel` | Upstream — validates spec quality before wireframing |
 | `/sh:plan` | Called in Phase 3 — wireframe plan uses same doc format |
-| `/sh:worktree` | Called in Phase 4+6 — isolation per concept |
+| `/sh:worktree` | Called in Phase 4; in Phase 6 only as the escape hatch for a concept that cannot share the app |
 | `/sh:review` | Called in Phase 5 — self-review wireframe against flow |
 | `/sh:verify` | Called in Phase 8 — evidence-based graduation check |
-| `superpowers:finishing-a-development-branch` | Called after concept decision — cleanup losing branches |
+| `superpowers:finishing-a-development-branch` | Called after concept decision — cleanup losing branches (worktree concepts only) |
 | `/frontend-design` | Downstream — builds hi-fi on wireframe foundation |
 
 ## Key Principles

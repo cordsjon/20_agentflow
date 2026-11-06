@@ -14,7 +14,7 @@ ALL items must pass before invoking `/frontend-design`:
 □ Flow complete — all steps clickable, no dead ends
   Evidence: Playwright test report (screenshot per step, all green)
 
-□ Single concept — variant branches cleaned up
+□ Single concept — losing routes (and any variant branches) removed
   Evidence: `git branch` shows only wireframe/<feature>, no concept-b/c
 
 □ Step count frozen — no structural changes after graduation
