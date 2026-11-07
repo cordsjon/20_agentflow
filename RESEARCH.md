@@ -97,3 +97,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:86 rev:0dee7041c668460a9f97d272fb0a76f7
 source: gap 86
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R8 — Show HN: AgentJIT – Compile dynamic LLM agent workflows into 0.1ms Python — reject
+
+**Artifact:** Show HN: AgentJIT – Compile dynamic LLM agent workflows into 0.1ms Python — https://news.ycombinator.com/item?id=49683344
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] AgentJIT traces LLM agent trajectories and compiles them into cached Python with guards and deopt fallback. Adjacent to agentflow, but no named blocker is solved, the hype-heavy README (FASM DLLs, crypto donation) raises trust and maintenance cost, and the fit is unconfirmed.
+**Evidence:** stored snapshot SHA-256 da5a338e520c4be0957e8d856349db4d8617fbfb1c263d54fc86b9cda465d997; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Possible gap: trajectory caching / deterministic replay of repeated agent workflows in 20_agentflow, meaning compiling observed tool-call sequences into deterministic Python with guards that fall back to the LLM path. The registry has no trajectory-compile capability; the nearest matches (audit_wiring, cli-6, detect_freshness) are lexical hits only. However, the operator already prefers hand-written deterministic code over LLM calls, so the stated benefit can be achieved by promoting stable flows to explicit code. No current agentflow blocker around latency or token cost on repeated trajectories is evidenced. Adopting a Windows-DLL-heavy native dependency with unverified claims adds supply-chain and maintenance cost that outweighs a speculative gap.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:27 rev:49830643f6d9418093c8087e263afd01
+source: gap 27
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
