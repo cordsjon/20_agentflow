@@ -88,7 +88,8 @@ def test_panel_population_is_discovered():
     """Guard the denominator. A glob returning 0 would make every other test
     here vacuously green -- the 'live test asserting nothing' failure mode."""
     skills = panel_skills()
-    assert len(skills) >= 15, f"expected >=15 panel skills, found {len(skills)}"
+    # 18 before the panel-policy roster shrink; 12 after (5 role skills retired, ai-panel retired). Measured 2026-11-08.
+    assert len(skills) >= 12, f"expected >=12 panel skills (post-shrink roster, 2026-11-08), found {len(skills)}"
 
 
 @pytest.mark.parametrize("skill", wired_skills(), ids=panel_name)

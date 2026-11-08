@@ -89,18 +89,16 @@
       "status": "retired"
     },
     "sh-content-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "6936c2b2ed3b8f3fda902bd61f67e104ff9b8b7d6e577fbeaf95025d9a78259e"
+      "since": "2026-11-08",
+      "status": "retired"
     },
     "sh-debug": {
       "since": "2026-09-26",
       "status": "repo-local"
     },
     "sh-devops-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "89dffe9fd7a9db89700695b64de69bad74da784071d0cec422f242f8726db690"
+      "since": "2026-11-08",
+      "status": "retired"
     },
     "sh-document": {
       "since": "2026-11-03",
@@ -143,18 +141,16 @@
       "status": "repo-local"
     },
     "sh-legal-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "b62eb772d5f0168a44276fe3e3f3ba4b53ae41d2ac48fa562ef5497f0cc59a71"
+      "since": "2026-11-08",
+      "status": "retired"
     },
     "sh-loop": {
       "since": "2026-09-26",
       "status": "repo-local"
     },
     "sh-marketing-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "d474051b3cc2e6b2d678cfe8366b49fb97d95187ce0cc74f381172f30342cfef"
+      "since": "2026-11-08",
+      "status": "retired"
     },
     "sh-mobile-panel": {
       "since": "2026-11-03",
@@ -242,9 +238,8 @@
       "status": "repo-local"
     },
     "sh-visualization-panel": {
-      "since": "2026-09-26",
-      "status": "global",
-      "synced_sha256": "7056cc67f7fa3ca375d911f70e933acdb6ec17051fff11483c02bf075c89bbac"
+      "since": "2026-11-08",
+      "status": "retired"
     },
     "sh-workflow": {
       "since": "2026-09-26",
