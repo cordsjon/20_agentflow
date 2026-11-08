@@ -1,0 +1,13 @@
+# Lens pack — attaches to one /sh:spec-panel run on `--lenses security`. Replaces the
+# standalone security-panel (deleted 2026-11-08, panel policy Plan 2). The resolver
+# (scripts/panel_policy.py, layer 2) adds it from the census; `applies_when` is
+# documentation only.
+name: security
+description: "Security lens — threat model, secrets discipline, trust boundaries, detection"
+applies_when: "census (svc>=2 and cred>=5) or hosts>=10 or cred>=15; or `.panel-policy.toml` [policy] security = true"
+experts: [filippo-valsorda, simon-willison, kelsey-hightower]
+checklist:
+  - "secret-leak scan: shape-detect literal secrets in the artifact (`key=`, `token=`, `password=`, `Authorization:`, `AKIA*`, `ghp_*`, `sk-*`, inlined .env). Any hit is CRITICAL before deliberation."
+  - "trust-boundary inventory: every external ingress (HTTP body, upload, scraped page, LLM output, plugin input) names its validation step before business logic; a missing step is MAJOR."
+  - "secrets discipline: storage, transport, rotation and scope are stated; the blast radius of one leaked credential is bounded."
+  - "failure and detection: a compromise can be observed and contained — detection path and response named, not postulated."

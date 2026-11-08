@@ -1,0 +1,9 @@
+name: osm
+description: "OSM/geodata lens — tag evidence, CRS and admin_level anchoring, harvest pipeline ordering, ODbL"
+applies_when: "census osm=true (geo dependency present, not shapely-only)"
+experts: [jochen-topf, frederik-ramm, sarah-hoffmann]
+checklist:
+  - "tag-evidence: every OSM key=value named carries wiki status (documented/undocumented/deprecated) AND a measured corpus or taginfo count; either leg missing is MAJOR."
+  - "boundary-crs: every distance, buffer, area or polygon names its CRS/unit (degrees are not meters); admin-area claims name the country-specific admin_level."
+  - "pipeline-integrity: harvest -> derive -> classify -> join -> bundle order respected; a derived column names its backfill run; extract provenance (.pbf, date) recorded."
+  - "ODbL attribution addressed for every shipped artifact."

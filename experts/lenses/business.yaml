@@ -1,0 +1,9 @@
+name: business
+description: "Business lens — positioning, pricing/launch assumptions, tail risk, stakeholder message"
+applies_when: "story text matches pricing|launch|market|customer (panel_policy KEYWORD_LENSES)"
+experts: [michael-porter, clayton-christensen, nassim-taleb]
+checklist:
+  - "positioning: the story names the alternative a customer would otherwise use and why this wins."
+  - "pricing and launch assumptions are stated as testable claims with the measurement that would falsify them."
+  - "tail risk: what breaks this (volatility, dependency, regulation) and the bounded downside."
+  - "stakeholder message: the value is one sentence a customer understands without the codebase."

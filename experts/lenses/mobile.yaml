@@ -1,0 +1,9 @@
+name: mobile
+description: "Mobile lens — platform fitness, lifecycle/permissions, device testability, store readiness"
+applies_when: "census mobile=true (Flutter/Swift/Kotlin manifest present)"
+experts: [jake-wharton, john-sundell, chris-lattner]
+checklist:
+  - "platform concerns named per target OS: permissions, lifecycle, storage, background limits."
+  - "feasibility: every capability is buildable with the stated SDK/API on the stated minimum OS versions."
+  - "testability: each component verifiable on device, emulator/simulator, or CI — the spec says which."
+  - "distribution: signing, store guidelines and review readiness addressed when the story ships a build."
