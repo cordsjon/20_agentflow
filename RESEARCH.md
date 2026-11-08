@@ -111,3 +111,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:27 rev:49830643f6d9418093c8087e263afd01
 source: gap 27
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R9 — Show HN: Give Claude Code / Cursor a real eng team (tiers, roles, escalation) — reject
+
+**Artifact:** Show HN: Give Claude Code / Cursor a real eng team (tiers, roles, escalation) — https://news.ycombinator.com/item?id=49677601
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Node-based tiered role/skill pack (21 roles, 26 skills, HANDOFF protocol, T0 ceiling hook). Its workflow skills largely duplicate existing mp-* skills and 20_Skills/main-7 tooling. The only novel part, tier ceilings plus handoff packet, is a pattern rather than a dependency.
+**Evidence:** stored snapshot SHA-256 d05ea67596e3f5f884d894c5fbb5b896e681d0083eca0cb0b256226573713ca7; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Possible gap: role-tier ceilings for agent delegation in 20_agentflow, i.e. a structured HANDOFF/BRIEF escalation packet and a mechanical hook that refuses low-tier edits on auth/schema/migration/dependency paths. Existing coverage: main-7 already builds and installs Claude Code skills, hooks, agents and slash commands. mp-to-spec, mp-to-tickets, mp-tdd, mp-code-review, mp-diagnosing-bugs, mp-triage and mp-implement cover spec, plan, build, review and debug. 05_beehive and 20_Skills cover role/skill orchestration. Costs: a Node >=18 artifact in a Python/FastAPI stack, a 47-unit roster mostly redundant with local skills, and the adopt gate parked it for lack of stack-fit and usage evidence. The residual gap (tier ceiling and handoff schema) is narrow. It can be re-derived natively if needed, so it does not justify adopting this package.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:28 rev:f33c712c57e24d9eba3a19b7d9f93f26
+source: gap 28
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
