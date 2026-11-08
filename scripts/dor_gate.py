@@ -2,11 +2,12 @@
 """dor_gate.py — executable Definition of Ready (20_agentflow US-SH2-02).
 
     python3 scripts/dor_gate.py <BACKLOG.md> <story-id | title-substring>
-                                [--track normal|bug-lite|hotfix] [--json] [--skip-score]
+                                [--track none|normal|heavy|bug-lite|hotfix] [--json] [--skip-score]
 
 Exit 0 pass · 1 fail (one reason per line) · 2 not-found / ambiguous.
 Human mode ends with `DOR-VERDICT: PASS` or `DOR-VERDICT: FAIL: <first reason>`.
-`--json` prints {story, track, pass, reasons[], counts{us,ac}} as the first line.
+`--json` prints {story, track, pass, reasons[], counts{us,ac}, panels[], lenses[], policy_basis}
+as the first line.
 
 Entry = a title line plus its body. Title forms: a heading `^#{2,4} ` or a
 top-level list item `^- **…**` (its title is the bold text only). A heading entry ends at the next heading of equal
@@ -15,7 +16,10 @@ Entries nest: a `### US-…` story inside `## Ready` is an entry of its own.
 The selector matches TITLE LINES ONLY: an id (US-XXX-NN) as a whole word, or —
 when the argument is not an id — a case-sensitive substring of the title text.
 
-Score line (normal track): `spec-panel: <score> (<YYYY-MM-DD>, body:<12-hex>)`.
+Score lines (normal/heavy tracks): one per panel named by panel_policy.resolve():
+`<name>-panel: <score> (<YYYY-MM-DD>, body:<12-hex>)`. Track `none` (trivial change, see
+scripts/panel_policy.py) keeps the structural checks and needs no score line. A missing or
+stale scripts/panel_policy_data/projects.json fails every story `policy-unavailable`.
 The digest is SHA-256 of the linked spec's text above its first `## Duo review`
 or `## Codex review` heading, recomputed from the working tree; mismatch = stale-score.
 The spec is the first `](….md)` link inside the entry, resolved from the BACKLOG's dir.
@@ -42,6 +46,12 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import panel_policy  # vendored sibling; see panel_policy.py docstring
+except ImportError:  # pragma: no cover — a broken landing; the gate fails closed on it
+    panel_policy = None
+
 # Ids have one or more segments: US-W-01, US-SH2-01, US-GOV-DEBT-41, US-SVG-W2TESTS-01.
 ID_PAT = r"US-[A-Z0-9]+(?:-[A-Z0-9]+)*-[0-9]+"
 ID_RE = re.compile(rf"\b{ID_PAT}\b")
@@ -50,7 +60,10 @@ HEADING_RE = re.compile(r"^(#{2,4}) (.*)$")
 LIST_TITLE_RE = re.compile(r"^- (?:~~)?\*\*(.+?)\*\*")
 TOP_ITEM_RE = re.compile(r"^(?:- |\d+\. )")
 TAG_RE = re.compile(r"`\[([^\]]+)\]`")
-SCORE_RE = re.compile(r"spec-panel: (\d+(?:\.\d+)?) \((\d{4}-\d{2}-\d{2}), body:([0-9a-f]{12})\)")
+PANEL_SCORE_RE = re.compile(
+    r"(?P<panel>[a-z][a-z0-9]*(?:-[a-z0-9]+)*-panel): (?P<score>\d+(?:\.\d+)?) "
+    r"\((?P<date>\d{4}-\d{2}-\d{2}), body:(?P<digest>[0-9a-f]{12})\)")
+SCORE_RE = PANEL_SCORE_RE  # kept name: backlog_dor_pipeline / dor_score_write use .search() only
 LINK_RE = re.compile(r"\]\(([^)\s]+\.md)\)")
 US_ID_LINE_RE = re.compile(rf"^\s*(?:#{{2,4}} |\*\*|- \*\*)?{ID_PAT}\b")
 AS_A_RE = re.compile(r"\bAs an?\**\s.*\bI want\b", re.IGNORECASE)
@@ -83,6 +96,9 @@ class Result:
     track: str
     reasons: list[str] = field(default_factory=list)
     counts: dict = field(default_factory=lambda: {"us": 0, "ac": 0})
+    panels: list[str] = field(default_factory=list)
+    lenses: list[str] = field(default_factory=list)
+    policy_basis: str = ""
 
     @property
     def passed(self) -> bool:
@@ -128,7 +144,7 @@ def _select(entries: list[Entry], selector: str) -> tuple[Entry | None, str | No
     return hits[0], None
 
 
-def _track(entry: Entry, override: str | None) -> str:
+def _track(entry: Entry, override: str | None, policy_track: str | None) -> str:
     if override:
         return override
     tags = {t.lower() for t in TAG_RE.findall(entry.lines[0])}
@@ -136,7 +152,7 @@ def _track(entry: Entry, override: str | None) -> str:
         return "hotfix"
     if "bug" in tags:
         return "bug-lite"
-    return "normal"
+    return policy_track or "normal"
 
 
 def body_digest(spec_text: str) -> str:
@@ -188,7 +204,7 @@ def _count_us_ac(text: str) -> dict:
     return {"us": len(us_idx), "ac": len(ac_idx), "_us_idx": us_idx, "_ac_idx": ac_idx}
 
 
-def _check_normal(entry: Entry, backlog: Path, res: Result, skip_score: bool) -> None:
+def _check_normal(entry: Entry, backlog: Path, res: Result, skip_score: bool, panels: list[str]) -> None:
     spec = spec_path(entry, backlog)
     if spec is not None and not spec.exists():
         res.reasons.append(f"spec-missing:{LINK_RE.search(entry.body).group(1)}")
@@ -212,18 +228,21 @@ def _check_normal(entry: Entry, backlog: Path, res: Result, skip_score: bool) ->
             if not any(s < a < bounds[k + 1] for a in ac_idx):
                 res.reasons.append(f"us-without-ac:{k + 1}")
 
-    if skip_score:
+    if skip_score or not panels:
         return
-    m = SCORE_RE.search(entry.body)
-    if not m:
-        res.reasons.append("no-score")
-        return
-    score = float(m.group(1))
-    if score < THRESHOLD:
-        res.reasons.append(f"score-below-{THRESHOLD}:{score}")
     digest = body_digest(spec.read_text(encoding="utf-8")) if spec else entry_digest(entry.lines)
-    if digest != m.group(3):
-        res.reasons.append("stale-score")
+    found = {m.group("panel"): m for m in PANEL_SCORE_RE.finditer(entry.body)}
+    for panel in panels:
+        m = found.get(panel)
+        tag = "" if panel == "spec-panel" else f":{panel}"   # spec-panel reasons keep their old spelling
+        if not m:
+            res.reasons.append("no-score" if panel == "spec-panel" else f"missing-panel:{panel}")
+            continue
+        score = float(m.group("score"))
+        if score < THRESHOLD:
+            res.reasons.append(f"score-below-{THRESHOLD}{tag}:{score}")
+        if digest != m.group("digest"):
+            res.reasons.append(f"stale-score{tag}")
 
 
 def _check_lite(entry: Entry, res: Result, hotfix: bool) -> None:
@@ -240,10 +259,23 @@ def check(backlog: Path, selector: str, *, track: str | None, skip_score: bool) 
     if entry is None:
         return 2, Result(story=selector, track=track or "unknown", reasons=[err])
     story = next((m.group(0) for m in ID_RE.finditer(entry.title)), selector)
-    t = _track(entry, track)
-    res = Result(story=story, track=t)
-    if t == "normal":
-        _check_normal(entry, backlog, res, skip_score)
+    if panel_policy is None:
+        return 1, Result(story=story, track=track or "unknown", reasons=["policy-unavailable"])
+    try:
+        projects = panel_policy.load_projects()           # eager: a stale/missing table fails every story
+        si = panel_policy.story_input(backlog, selector)
+        text, tags = (si[1], si[2]) if si else (entry.body, set())
+        pol = panel_policy.resolve(text, panel_policy.project_key(backlog), title_tags=tags,
+                                   projects=projects, repo_root=backlog.parent)
+    except panel_policy.PolicyUnavailable:
+        return 1, Result(story=story, track=track or "unknown", reasons=["policy-unavailable"])
+    t = _track(entry, track, pol.track)
+    res = Result(story=story, track=t, panels=pol.panels if t in ("normal", "heavy") else [],
+                 lenses=pol.lenses if t in ("normal", "heavy") else [], policy_basis=pol.basis)
+    if t == "none":
+        _check_normal(entry, backlog, res, True, [])
+    elif t in ("normal", "heavy"):
+        _check_normal(entry, backlog, res, skip_score, res.panels or ["spec-panel"])
     elif t == "bug-lite":
         _check_lite(entry, res, hotfix=False)
     elif t == "hotfix":
@@ -257,7 +289,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("backlog", type=Path)
     ap.add_argument("selector", help="US-XXX-NN, or a title substring")
-    ap.add_argument("--track", choices=("normal", "bug-lite", "hotfix"))
+    ap.add_argument("--track", choices=("none", "normal", "heavy", "bug-lite", "hotfix"))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--skip-score", action="store_true",
                     help="structural checks only (for pipelines that run the panel afterwards)")
@@ -268,7 +300,8 @@ def main(argv: list[str] | None = None) -> int:
     code, res = check(a.backlog, a.selector, track=a.track, skip_score=a.skip_score)
     if a.json:
         print(json.dumps({"story": res.story, "track": res.track, "pass": res.passed,
-                          "reasons": res.reasons, "counts": res.counts}))
+                          "reasons": res.reasons, "counts": res.counts, "panels": res.panels,
+                          "lenses": res.lenses, "policy_basis": res.policy_basis}))
         return code
     for r in res.reasons:
         print(f"FAIL {r}")

@@ -183,3 +183,55 @@ def test_multi_segment_id_and_body_bullets_mentioning_it(work):
     v = verdict(r)
     assert r.returncode == 0, r.stdout
     assert v["story"] == "US-GOV-DEBT-41" and v["counts"] == {"us": 1, "ac": 1}
+
+
+TRIVIAL_STORY = ("# BACKLOG\n\n## Ready\n\n### US-N-01: Add a --quiet flag `[trivial]`\n"
+                 "**As a** user, **I want** a flag, **so that** less noise.\n- [ ] AC-01: flag exists\n\n**State:** Ready\n")
+HEAVY_STORY = ("# BACKLOG\n\n## Ready\n\n### US-H-01: Introduce a new table for runs\n"
+               "**As a** user, **I want** runs persisted, **so that** history.\n- [ ] AC-01: table exists\n"
+               "spec-panel: 8.0 (2026-11-08, body:000000000000)\n\n**State:** Ready\n")
+
+
+def test_track_none_skips_score_keeps_structure(tmp_path):
+    b = tmp_path / "BACKLOG.md"
+    b.write_text(TRIVIAL_STORY)
+    r = run(b, "US-N-01")
+    assert r.returncode == 0, r.stdout
+    v = verdict(r)
+    assert v["track"] == "none" and v["panels"] == [] and v["reasons"] == []
+    b.write_text(TRIVIAL_STORY.replace("- [ ] AC-01: flag exists\n", ""))
+    assert verdict(run(b, "US-N-01"))["reasons"] == ["no-acceptance-criteria"]
+
+
+def test_heavy_story_needs_architecture_score(tmp_path):
+    sys.path.insert(0, str(GATE.parent))
+    import dor_gate
+    b = tmp_path / "BACKLOG.md"
+    b.write_text(HEAVY_STORY)
+    entry, _ = dor_gate.find_entry(b, "US-H-01")
+    b.write_text(HEAVY_STORY.replace("000000000000", dor_gate.score_digest(entry, b)))
+    r = run(b, "US-H-01")
+    assert r.returncode == 1
+    v = verdict(r)
+    assert v["track"] == "heavy" and v["panels"] == ["spec-panel", "architecture-panel"]
+    assert v["reasons"] == ["missing-panel:architecture-panel"]
+    d = dor_gate.score_digest(entry, b)
+    b.write_text(b.read_text().replace("**State:** Ready", f"architecture-panel: 7.5 (2026-11-08, body:{d})\n\n**State:** Ready"))
+    assert run(b, "US-H-01").returncode == 0, run(b, "US-H-01").stdout
+
+
+def test_policy_unavailable_fails_closed(tmp_path, monkeypatch):
+    import os
+    b = tmp_path / "BACKLOG.md"
+    b.write_text(TRIVIAL_STORY)
+    monkeypatch.setenv("PANEL_POLICY_PROJECTS", str(tmp_path / "missing.json"))
+    r = subprocess.run([sys.executable, str(GATE), str(b), "US-N-01", "--json"],
+                       capture_output=True, text=True, env=dict(os.environ))
+    assert r.returncode == 1
+    assert verdict(r)["reasons"] == ["policy-unavailable"]
+
+
+def test_track_override_none(work):
+    r = run(work / "backlog_normal_fail.md", "Widget — the epic", "--track", "none")
+    assert verdict(r)["track"] == "none"
+    assert verdict(r)["reasons"] == ["no-user-story"]  # structure still checked
