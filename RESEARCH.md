@@ -125,3 +125,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:28 rev:f33c712c57e24d9eba3a19b7d9f93f26
 source: gap 28
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R10 — Show HN: Local subagent orchestration for Codex/Claude — reject
+
+**Artifact:** Show HN: Local subagent orchestration for Codex/Claude — https://news.ycombinator.com/item?id=49764869
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Oh My Subagents offers durable local subagent orchestration with persistent waves and recovery, but it overlaps 20_agentflow and 40_mcp-gateway, needs Python 3.12+ against the operator's 3.11, and adds an always-on controller with its own SQLite store.
+**Evidence:** stored snapshot SHA-256 34b8417a736b196a3d2d7089baf48775ef7b2e32a3124d51608d993c3f02b1f1; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Relevant need: durable fan-out/fan-in of Codex/Claude subagents with persisted waits, checkpoints and interruption recovery. This is already covered by 20_agentflow, 10_agentflow-demo and 40_mcp-gateway, and codex_token_usage already reports per-thread orchestration cost. Adopting OMS would add a second orchestration runtime with a separate controller service, SQLite state and Console. That requires Python >=3.12 versus the operator's 3.11, plus ongoing service upkeep at single-operator scale. The evidence is a README only, with no proof it beats agentflow on recovery or accountability. The cost of a duplicate runtime outweighs the marginal gap. Its ideas (wave-commit with parent wait, lead-only accepted Result, deny-by-default capabilities) could be mined as design references for agentflow without adopting the tool.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:40 rev:b19c6125710f479bb63b58e916d23f30
+source: gap 40
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
