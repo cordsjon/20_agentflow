@@ -489,3 +489,63 @@
 **Justification:** projects.json is vendored, so a GOV-only refresh fails the identity test; no sibling DAG opens PRs (backlog-cleanup lands via managed_commit). generated= changes every run, so git diff would commit a date-only change monthly.
 **Outcome:** applied
 **Ref:** a667201 (HEAD when logged, not the work commit)
+
+
+## Q46 — panel-policy/plan2 — deviation
+
+**Question:** Where does the lens-pack "loader" live?
+**Chosen:** Prose: PANEL_PROTOCOL.md §Invocation + spec-panel.md steps 0.5/2.5, pinned by tests/test_lens_packs.py over the YAML
+**Decided-by:** agent
+**Justification:** The panel executor is an LLM reading YAML; there is no Python executor to extend. The test pins shape, expert ids, lens set == LENS_ORDER and alias wiring.
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q47 — panel-policy/plan2 — tradeoff
+
+**Question:** ai-panel retirement: keep a retired copy of the command file?
+**Chosen:** git rm only; .claude/skills-retired/sh-ai-panel already preserves the roster
+**Decided-by:** agent
+**Justification:** No commands-retired convention exists; inventing one for a single file is more structure than the artefact is worth.
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q48 — panel-policy/plan2 — tradeoff
+
+**Question:** Per-panel stage E results: new stage names or a panel field?
+**Chosen:** StageResult.panel field; stage stays "panel"
+**Decided-by:** agent
+**Justification:** Ledger consumers filter on stage; a new name per panel would hide architecture runs from every digest written so far.
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q49 — panel-policy/plan2 — deviation
+
+**Question:** HEAVY_RE: which markers were dropped?
+**Chosen:** bare token/auth (now need a creating verb), bare across, bare ios/swift (now platform names); second pass: verb->noun window stops at , ; without/or/row(s), and platform names never match inside a hyphenated story id
+**Decided-by:** agent
+**Justification:** Measured on 00_Governance Ready (GOV d099bf0f8): heavy 29 -> 10 (plan regex) -> 5 of 53 after the one allowed extra iteration; the 5 left are real (2x Flutter, Android/Termux, new table, row deletion). token = LLM tokens, across = branches, swift = adverb in this corpus.
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q50 — panel-policy/plan2 — tradeoff
+
+**Question:** Foundations for 20_agentflow are undeclared (bin/foundations open). Proceed with Plan 2?
+**Chosen:** Proceeded: Plan 2 completes an operator-ruled design (2026-11-08 rulings 1-5), not optimization work.
+**Decided-by:** agent
+**Justification:** TENET-11 undeclared branch: judged from the design doc; FOUNDATIONS.md for 20_agentflow remains to be written.
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q51 — panel-policy/plan2 — deviation
+
+**Question:** Stage E implementation details the plan text and its own tests disagreed on
+**Chosen:** run_stage_e_panels passes lenses to spec-panel only; an empty per-panel .panel takes the requested panel; resolve_policy fails closed on OSError
+**Decided-by:** agent
+**Justification:** The plan test asserts stub kwargs (not just argv) carry no lenses for architecture-panel; a bare StageResult stub would otherwise write a second spec-panel line; an unreadable BACKLOG crashed run_story with FileNotFoundError instead of policy_unavailable (GOV commit for Task 7).
+**Outcome:** applied
+**Ref:** 9da43b0 (HEAD when logged, not the work commit)
