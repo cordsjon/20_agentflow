@@ -30,6 +30,7 @@ from the source, which is what PANEL_CORE's sync note exists to prevent.
 7. **Conduct Review**: Run analysis in the selected mode using each expert's distinct methodology
 8. **Score**: Rate specification across the 6 dimensions defined in the panel YAML (0-10 each), compute overall score
 9. **Gate Check**: Overall score must be >= 7.0 to pass. Below threshold = specification needs rework
+10. **Record the score (BACKLOG stories only)**: when the reviewed spec is a story in a BACKLOG.md, record the final round's overall score after the last edit to the story: `~/projects/00_Governance/.venv/bin/python ~/projects/00_Governance/scripts/dor_score_write.py <BACKLOG.md> <story-id> <score>`. `/sh:dor` reads only this line; without it the gate fails `no-score`. Any later edit to the story makes the line stale, so record it last. Never write the line by hand.
 
 ## Expert Loading
 
