@@ -8,7 +8,7 @@ description: "Multi-expert specification review with scoring gate and quality as
 ## Usage
 
 ```
-/sh:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus requirements|architecture|testing|compliance] [--experts "name1,name2"] [--iterations N] [--verbose]
+/sh:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--focus requirements|architecture|testing|compliance] [--experts "name1,name2"] [--iterations N] [--verbose] [--ticket US-ID] [--lenses name,name]
 ```
 
 ## Verbosity
@@ -20,9 +20,11 @@ from the source, which is what PANEL_CORE's sync note exists to prevent.
 ## Behavioral Flow
 
 0. **Load Protocol**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/PANEL_PROTOCOL.md` and apply it IN FULL — every section it defines, including any added after this line was written. This is load-bearing — findings that are not grounded per the protocol, or that do not survive the refute stage, MUST NOT be reported.
+0.5. **Policy header (BACKLOG stories)**: when the artifact is a BACKLOG story (`--ticket`, or an `@…/BACKLOG.md` reference with a story id), run `python3 ~/projects/00_Governance/scripts/panel_policy.py resolve <BACKLOG.md> <US-ID> --json` and print, as the first line of output, `policy: <track>; lenses: <lenses or none>; also required: <panels other than spec-panel, or none>` — the human sees what else the DOR gate will demand. `--lenses` on the command line overrides the resolver's `lenses`; without it, the resolver's list is used in step 2.5. Resolver unavailable → print `policy: unavailable` and continue without lenses (the gate itself fails closed; the review is still useful).
 1. **Load Panel Config**: Read `/Users/jcords-macmini/projects/20_agentflow/experts/panels/spec-panel.yaml` for panel definition, focus areas, auto-select rules, and scoring config (absolute path — relative paths fail when CWD is outside agentflow)
 2. **Load Experts**: Read expert files from `/Users/jcords-macmini/projects/20_agentflow/experts/individuals/` for each selected expert — these files contain the expert's domain, methodology, and critique focus
-3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to `max-experts: 7` cap
+2.5. **Load lens packs**: per `PANEL_PROTOCOL.md` §Invocation — one `/Users/jcords-macmini/projects/20_agentflow/experts/lenses/<name>.yaml` per lens from step 0.5 / `--lenses`; append its experts (cap below) and add its `checklist` to step 4's pre-scoring checks.
+3. **Auto-Select Experts**: Scan the specification content against panel YAML `auto-select` keywords — add matching experts up to the `max-experts` cap — 7, or 9 when two or more lens packs attach
 4. **Pre-Scoring Checks (deterministic — do NOT delegate to LLM personas):**
     - **Table reconciliation:** If the spec contains 2+ tables with numeric values (counts, totals, "≥ N" thresholds), extract every numeric claim and verify cross-section arithmetic *before* personas opine. Enumerate the items the count refers to in the other sections; assert the math reconciles. Flag any mismatch as a CRITICAL finding up front. Rationale: LLMs reliably hallucinate arithmetic consistency over freeform tables — personas reading personas will not catch it. This step is mechanical, executed by the panel runner, not by an expert voice.
 5. **Analyze**: Parse specification content, identify components, gaps, and quality issues
