@@ -16,7 +16,8 @@
 
 - Both repos are **managed**: edit only in session worktrees (`~/projects/00_Governance/bin/session-worktree ensure ~/projects/<repo>`), claim files with concord `start_work` before the first edit, commit by explicit pathspec (`git commit -- <paths>`), land with `~/projects/00_Governance/bin/git-land ~/projects/<repo>` run in the background.
 - Primary development happens in the **00_Governance** worktree (its suite is the one the nightly runs). Task 8 syncs the copies into 20_agentflow and lands both. Until Task 8 lands, the two repos disagree — land them in the same sitting.
-- Canonical test commands: `cd <00_Governance worktree> && python3 -m pytest tests/test_panel_policy.py tests/test_dor_gate_vendor_identity.py -q` while working; the full suites (`python3 -m pytest -q` in each repo) before each landing.
+- Interpreter: `PY=~/projects/00_Governance/.venv/bin/python`. The bare `python3` on this machine (pyenv 3.11.15) has **no pytest** — every `$PY -m pytest` below means this venv. Scripts under test are stdlib-only, so the venv matters only for pytest itself.
+- Canonical test commands: `cd <00_Governance worktree> && $PY -m pytest tests/test_panel_policy.py tests/test_dor_gate_vendor_identity.py -q` while working; the full suites (`$PY -m pytest -q` in each repo) before each landing.
 - Paths below are relative to the repo root of whichever worktree the task names. `GOV` = 00_Governance worktree, `AF` = 20_agentflow worktree.
 
 ## File structure
@@ -88,7 +89,7 @@ def test_vendored_file_is_byte_identical(rel):
 
 - [ ] **Step 2: Run it in GOV, expect two failures**
 
-Run: `cd GOV && python3 -m pytest tests/test_dor_gate_vendor_identity.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_dor_gate_vendor_identity.py -q`
 Expected: `dor_gate.py` PASS (copies already identical), `panel_policy.py` FAIL "missing — vendor it", `projects.json` FAIL "missing — vendor it".
 
 - [ ] **Step 3: Commit (GOV and AF, each by pathspec)**
@@ -153,7 +154,7 @@ def test_census_emits_raw_fields_and_hash(tmp_path):
 
 - [ ] **Step 2: Run it, expect failure**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_census.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_census.py -q`
 Expected: FAIL (script not found / returncode != 0).
 
 - [ ] **Step 3: Write `scripts/panel_census.py`**
@@ -255,7 +256,7 @@ Drop the scratch script's `suggest()` and the table printer. `rows.sort` by proj
 
 - [ ] **Step 4: Run the test, expect pass**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_census.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_census.py -q`
 Expected: `1 passed`.
 
 - [ ] **Step 5: Generate the real `projects.json`**
@@ -342,7 +343,7 @@ def test_tags_force_track_and_heavy_wins():
 
 - [ ] **Step 2: Run, expect ImportError**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q`
 Expected: FAIL `ModuleNotFoundError: No module named 'panel_policy'`.
 
 - [ ] **Step 3: Write the module with layer 1 only**
@@ -455,7 +456,7 @@ def resolve(story_text: str, project: str | None, *, title_tags: set[str] | froz
 
 - [ ] **Step 4: Run, expect the four layer-1 tests to pass**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q`
 Expected: `4 passed`.
 
 - [ ] **Step 5: Commit**
@@ -523,7 +524,7 @@ def test_committed_projects_json_hash_is_current():
 
 - [ ] **Step 2: Run, expect failures**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q`
 Expected: 7 new tests FAIL (`AttributeError: project_key` / `PolicyUnavailable` / wrong panels).
 
 - [ ] **Step 3: Implement layer 2**
@@ -633,7 +634,7 @@ And replace the body of `resolve()` from `panels = {"spec-panel"}` on:
 
 - [ ] **Step 4: Run, expect all pass**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q`
 Expected: `11 passed`. If `test_committed_projects_json_hash_is_current` fails, `projects.json` was edited after generation — re-run Task 2 Step 5, never patch the hash.
 
 - [ ] **Step 5: Commit**
@@ -678,7 +679,7 @@ Add `import os` at the top of the test file.
 
 - [ ] **Step 2: Run, expect 2 failures**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q -k "keyword or cli"`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q -k "keyword or cli"`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement**
@@ -778,7 +779,7 @@ if __name__ == "__main__":
 
 - [ ] **Step 4: Run the whole resolver file, expect pass**
 
-Run: `cd GOV && python3 -m pytest tests/test_panel_policy.py -q`
+Run: `cd GOV && $PY -m pytest tests/test_panel_policy.py -q`
 Expected: `13 passed`.
 
 - [ ] **Step 5: Smoke on a real backlog (read-only)**
@@ -869,7 +870,7 @@ Note on the `policy-unavailable` test: a `` `[trivial]` `` tag short-circuits be
 
 - [ ] **Step 2: Run, expect 4 failures**
 
-Run: `cd AF && python3 -m pytest tests/test_dor_gate.py -q -k "none or heavy or unavailable"`
+Run: `cd AF && $PY -m pytest tests/test_dor_gate.py -q -k "none or heavy or unavailable"`
 Expected: FAIL (`KeyError: 'panels'`, wrong reasons, exit codes).
 
 - [ ] **Step 3: Implement in `dor_gate.py`**
@@ -987,14 +988,14 @@ An override of `--track normal` on a story the policy calls `heavy` still requir
 
 - [ ] **Step 4: Run the whole gate file, expect all pass**
 
-Run: `cd AF && python3 -m pytest tests/test_dor_gate.py -q`
+Run: `cd AF && $PY -m pytest tests/test_dor_gate.py -q`
 Expected: `22 passed` (18 existing + 4 new). `test_track_override` (existing) still returns 1 with `no-user-story` — unchanged.
 
 - [ ] **Step 5: Run the existing pipeline tests against the new gate from GOV**
 
 ```bash
 cp AF/scripts/dor_gate.py GOV/scripts/dor_gate.py
-cd GOV && python3 -m pytest tests/test_dor_score_write.py tests/test_backlog_dor_pipeline_stage_c_script.py tests/test_ideation_triage.py -q
+cd GOV && $PY -m pytest tests/test_dor_score_write.py tests/test_backlog_dor_pipeline_stage_c_script.py tests/test_ideation_triage.py -q
 ```
 Expected: all pass. `write_score_line` strips every `*-panel:` line before digesting and re-inserts only spec-panel — with only spec-panel lines in the wild today that is behaviour-preserving; Plan 2 makes it per-panel. If `test_ideation_triage` fails on `policy-unavailable`, its fixture BACKLOG is under `tmp_path` (uncensused, fine) but the env is missing `projects.json` — that can only happen if GOV's `scripts/panel_policy_data/` was not committed in Task 2; check `git status`.
 
@@ -1083,12 +1084,12 @@ cp AF/scripts/dor_gate.py GOV/scripts/dor_gate.py
 
 - [ ] **Step 2: Identity tests in both**
 
-Run: `cd AF && python3 -m pytest tests/test_dor_gate_vendor_identity.py -q` and the same in GOV.
+Run: `cd AF && $PY -m pytest tests/test_dor_gate_vendor_identity.py -q` and the same in GOV.
 Expected: the identity test compares against the **main checkouts** (`~/projects/<other>`), which still hold the old files until landing, so expect `panel_policy.py` and `projects.json` to FAIL here with "sibling checkout missing" → `skip`, and `dor_gate.py` to FAIL "differs" until both land. That is the test doing its job. Proceed to Step 3; re-run after Step 5.
 
 - [ ] **Step 3: Full suites**
 
-Run: `cd AF && python3 -m pytest -q` then `cd GOV && python3 -m pytest -q`
+Run: `cd AF && $PY -m pytest -q` then `cd GOV && $PY -m pytest -q`
 Expected: green except the identity test's known pre-landing failure. Quote the summary lines.
 
 - [ ] **Step 4: Commit the sync in AF**
@@ -1109,8 +1110,8 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>" -- scripts/panel_policy.
 - [ ] **Step 6: Post-landing verification from the main checkouts**
 
 ```bash
-cd ~/projects/20_agentflow && python3 -m pytest tests/test_dor_gate_vendor_identity.py -q
-cd ~/projects/00_Governance && python3 -m pytest tests/test_dor_gate_vendor_identity.py tests/test_panel_policy.py -q
+cd ~/projects/20_agentflow && $PY -m pytest tests/test_dor_gate_vendor_identity.py -q
+cd ~/projects/00_Governance && $PY -m pytest tests/test_dor_gate_vendor_identity.py tests/test_panel_policy.py -q
 python3 ~/projects/00_Governance/scripts/dor_gate.py ~/projects/00_Governance/BACKLOG.md <any Ready US id> --json
 ```
 Expected: identity `3 passed` in each; the JSON line carries `panels` and `policy_basis: census:…`.
