@@ -115,3 +115,32 @@ def test_cli_resolve_prints_json(tmp_path, monkeypatch):
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout.splitlines()[0])
     assert out["track"] == "none" and out["story"] == "US-D-01"
+
+
+def test_auth_words_need_a_creating_verb():
+    """'token budget' and 'auth header logged' are not new auth; 'add an OAuth login' is."""
+    assert pp.resolve(story(want="to cut the token budget of the planner"), None, projects=PROJECTS).track == "normal"
+    assert pp.resolve(story(want="the auth header to be logged"), None, projects=PROJECTS).track == "normal"
+    assert pp.resolve(story(want="to add an OAuth login for the dashboard"), None, projects=PROJECTS).track == "heavy"
+
+
+def test_across_is_not_a_heavy_marker_but_combine_is():
+    assert pp.resolve(story(want="the sweep to run across feature branches"), None, projects=PROJECTS).track == "normal"
+    assert pp.resolve(story(want="to combine the export and import commands"), None, projects=PROJECTS).track == "heavy"
+
+
+def test_mobile_marker_is_a_platform_not_a_word():
+    assert pp.resolve(story(want="a swift fix to the ios/ docs path"), None, projects=PROJECTS).track == "normal"
+    assert pp.resolve(story(want="an iPhone build of the app"), None, projects=PROJECTS).track == "heavy"
+
+
+def test_measured_false_positives_stay_normal():
+    """The five shapes that still read heavy after the first tuning pass (00_Governance Ready, 2026-11-08)."""
+    for want in ("replays through the new verifier without touching the live queue",
+                 "the check to fire when the story added or changed a service",
+                 "both pages added as two rows to the Core Services table",
+                 "a new row defaults to attempts=0, migration 021 stays",
+                 "to unblock US-CLIREG-ANDROID-FLUTTER-01 AC-02"):
+        assert pp.resolve(story(want=want), None, projects=PROJECTS).track == "normal", want
+    assert pp.resolve(story(want="migrations/004 creates an append-only allocation_history table"),
+                      None, projects=PROJECTS).track == "heavy"

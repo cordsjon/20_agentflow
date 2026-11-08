@@ -33,12 +33,21 @@ TRIVIAL_RE = re.compile(
     r"\b(?:add(?:s|ed|ing)? (?:a |an |the |one )?(?:flag|option|switch)|renam(?:e|es|ing)|default value"
     r"|help text|typo|log line|wording)\b", re.IGNORECASE)
 HEAVY_RE = re.compile(
-    r"\b(?:new|add(?:s|ed|ing)?|create(?:s|d)?|introduce(?:s|d)?)\b[^.\n]{0,40}\b(?:table|schema|migration|service"
-    r"|daemon|integration|queue|scheduled job|cron)\b"
-    r"|\b(?:auth|oauth|credential|secret|token)s?\b"
-    r"|\bcombines?\b|\bacross\b[^.\n]{0,30}\b(?:capabilit|feature)"
-    r"|\b(?:flutter|swift|kotlin|android|ios)\b"
-    r"|\bdelet(?:e|es|ing)\b[^.\n]{0,30}\bdata\b", re.IGNORECASE)
+    # new persistence / service / integration / queue / auth — needs a creating verb nearby.
+    # The verb->noun window stops at , ; and at without/or/row(s): "new verifier without touching
+    # the queue", "added or changed a service", "added as two rows to the ... table" (measured
+    # false positives on 00_Governance Ready, 2026-11-08).
+    r"\b(?:new|add(?:s|ed|ing)?|create(?:s|d)?|introduce(?:s|d)?|migrat(?:e|es|ing))\b"
+    r"(?:(?!\b(?:without|or|rows?)\b)[^.,;\n]){0,40}"
+    r"\b(?:table|schema|migration|service|daemon|integration|queue|scheduled job|cron(?:job)?"
+    r"|auth(?:entication|orization)?|oauth|credentials?|secrets?|api[- ]keys?|login)\b"
+    # combining two existing capabilities (bare "across" dropped: "across feature branches")
+    r"|\b(?:combines?|merges?|unif(?:y|ies))\b[^.\n]{0,40}\b(?:capabilit(?:y|ies)|features?|commands?|skills?|pipelines?)\b"
+    # mobile target — platform names, not the words "swift"/"ios" (adverb, path segment),
+    # and not inside a hyphenated story id (US-CLIREG-ANDROID-FLUTTER-01)
+    r"|(?<![\w-])(?:flutter|swiftui|kotlin|android|ios app|iphone|ipad)\b"
+    # data deletion
+    r"|\bdelet(?:e|es|ing)\b[^.\n]{0,30}\b(?:data|rows|records|files)\b", re.IGNORECASE)
 TRIVIAL_MAX_AC = 2
 
 # --- layer 3: keywords -> lenses (add-only) --------------------------------------
