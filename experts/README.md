@@ -1,6 +1,6 @@
 # Expert Registry
 
-Extensible expert system for panel-based analysis skills (spec-panel, business-panel, and custom panels).
+Extensible expert system for panel-based analysis skills (spec-panel, architecture-panel, test-panel, plus lens packs in lenses/).
 
 ## Directory Structure
 
@@ -10,7 +10,13 @@ experts/
 ├── registry.yaml          # Master index — auto-generated, do not edit manually
 ├── panels/                # Panel definitions — which experts sit on which panel
 │   ├── spec-panel.yaml
-│   └── business-panel.yaml
+│   ├── architecture-panel.yaml
+│   ├── test-panel.yaml
+│   ├── consigliere-panel.yaml
+│   └── personal-development-panel.yaml
+├── lenses/                # Lens packs — 2-3 experts + checklist appended to a spec-panel run
+│   ├── security.yaml      #   (security, mobile, osm, business; loaded on --lenses)
+│   └── ...
 ├── packs/                 # Thematic bundles — groups of related experts
 │   ├── core-engineering.md
 │   └── core-business.md
