@@ -436,3 +436,56 @@
 **Justification:** Operator ruling 2026-11-08, answering the builder-check question on re-gating; design doc §Intent ruling 5 and §Layer 2 refresh.
 **Outcome:** applied
 **Ref:** 1d8c8eb (HEAD when logged, not the work commit)
+
+
+## Q41 — panel-policy/plan1 — tradeoff
+
+**Question:** Keyword table for layer 3: YAML file (design) or Python constant?
+**Chosen:** Python constant in panel_policy.py — stdlib-only module, one row today.
+**Decided-by:** agent
+**Justification:** dor_gate/panel_policy are stdlib-only vendored files; PyYAML would break that. Revisit at the third keyword row.
+**Outcome:** applied
+**Ref:** a667201 (HEAD when logged, not the work commit)
+
+
+## Q42 — panel-policy/plan1 — deviation
+
+**Question:** Data dir name next to panel_policy.py?
+**Chosen:** scripts/panel_policy_data/ (design said panel_policy/)
+**Decided-by:** agent
+**Justification:** A sibling dir named like the module shadows it as a namespace package under some import orders.
+**Outcome:** applied
+**Ref:** a667201 (HEAD when logged, not the work commit)
+
+
+## Q43 — panel-policy/plan1 Task 2 — deviation
+
+**Question:** Keep the scratch census service regex verbatim (plan) or fix it?
+**Options considered:** verbatim / fix
+**Chosen:** Fixed: word boundaries only on word-edged alternatives.
+**Decided-by:** agent
+**Justification:** Probe: \b(FastAPI\(|...)\b never matches FastAPI()/express(), and \b@app never matches a decorator. Old vs fixed census over the same 41 repos: svc moves in 8 rows, derived default moves in 1 (25_Hardware gains architecture-panel, svc 1->2); no other field differs.
+**Outcome:** applied
+**Ref:** a667201 (HEAD when logged, not the work commit)
+
+
+## Q44 — panel-policy/plan1 Task 6 — deviation
+
+**Question:** Route missing-panel:* to the panel stage now, or leave dor_needs_score_only to Plan 2 (plan)?
+**Options considered:** Plan 2 / now
+**Chosen:** Now, in 00_Governance backlog_dor_pipeline._is_score_reason, with a test.
+**Decided-by:** agent
+**Justification:** Without it every normal story in a census-architecture project goes to the stage D LLM rewrite nightly (00_Governance: 52/52 Ready stories gain missing-panel:architecture-panel, 18 of them pass today). Stage E still scores spec-panel only, so pipeline promotion is unchanged until Plan 2; direct gate users block on the missing score.
+**Outcome:** applied
+**Ref:** a667201 (HEAD when logged, not the work commit)
+
+
+## Q45 — panel-policy/plan1 Task 7 — deviation
+
+**Question:** Census refresh DAG: GOV-only commit + PR (plan) or both repos via managed_commit?
+**Options considered:** GOV + PR / both repos, direct land
+**Chosen:** Both repos via managed_commit.py, change judged by rows_sha256; no PR.
+**Decided-by:** agent
+**Justification:** projects.json is vendored, so a GOV-only refresh fails the identity test; no sibling DAG opens PRs (backlog-cleanup lands via managed_commit). generated= changes every run, so git diff would commit a date-only change monthly.
+**Outcome:** applied
+**Ref:** a667201 (HEAD when logged, not the work commit)
