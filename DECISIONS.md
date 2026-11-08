@@ -403,3 +403,36 @@
 **Justification:** Same route as Q32. Verified: the full 00_Governance pre-commit replayed on the janitor's exact commit set (held files reset) -> rc=0; the plan's claim re-run -> 0. The gate regex was left alone: a fail-closed gate shared by every repo needs its own test, and backticks work around it. Still at risk: the held KETO 2026-10-14 and rootmap 2026-10-18-2151 handovers carry 5 more bare tags and will block once their claims are released.
 **Outcome:** assumed
 **Ref:** 00_Governance a37ba018d
+
+
+## Q38 — interactive/panel-policy — gate-resolution
+
+**Question:** May the panel policy rule skip spec-panel entirely for a trivial change (one CLI flag, tweak of an existing feature), or must spec-panel always run with the rule only adding lenses?
+**Options considered:** skip entirely (new dor_gate track none) / spec-panel always runs, rule adds lenses only
+**Chosen:** Skip entirely. dor_gate.py gains a `none` track; stories on it need no score line.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-08 in the panel-policy brainstorm (question A carried from HANDOVER-20_agentflow-2026-11-08-0949.md). Recorded in docs/superpowers/specs/2026-11-08-panel-policy-design.md §Intent ruling 3.
+**Outcome:** applied
+**Ref:** 1d8c8eb (HEAD when logged, not the work commit)
+
+
+## Q39 — interactive/panel-policy — gate-resolution
+
+**Question:** Is a project default panel set derived from the census (measured) or from a per-project human label (declared)? Test case: 00_Governance, second-largest and most componentized repo, spec-panel only so far.
+**Options considered:** measured: census table decides, 00_Governance gets architecture / declared: human label, 00_Governance marked tooling-off
+**Chosen:** Measured. The census-generated projects.json decides; per-repo declaration can only add (security for data sensitivity), never remove.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-08 in the panel-policy brainstorm (question B carried from HANDOVER-20_agentflow-2026-11-08-0949.md). Recorded in docs/superpowers/specs/2026-11-08-panel-policy-design.md §Intent ruling 4 and §Layer 2.
+**Outcome:** applied
+**Ref:** 1d8c8eb (HEAD when logged, not the work commit)
+
+
+## Q40 — interactive/panel-policy — tradeoff
+
+**Question:** When a census refresh adds a panel to a project default, do Ready stories scored under the old policy re-run the new panel (churn) or keep passing on a stored policy basis (grandfather)?
+**Options considered:** accept churn, refresh PR lists affected stories / grandfather via stored panel list + census date per story
+**Chosen:** Accept churn for the transition period. No stored basis. Revisit once roster and thresholds settle.
+**Decided-by:** human
+**Justification:** Operator ruling 2026-11-08, answering the builder-check question on re-gating; design doc §Intent ruling 5 and §Layer 2 refresh.
+**Outcome:** applied
+**Ref:** 1d8c8eb (HEAD when logged, not the work commit)
