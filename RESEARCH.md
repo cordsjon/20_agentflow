@@ -139,3 +139,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:40 rev:b19c6125710f479bb63b58e916d23f30
 source: gap 40
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R11 — Show HN: Riftri – copy-on-write Git worktrees for running agents in parallel — reject
+
+**Artifact:** Show HN: Riftri – copy-on-write Git worktrees for running agents in parallel — https://news.ycombinator.com/item?id=49807251
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Riftri offers COW Git worktrees (APFS clones/reflinks) to cut disk use for parallel agents. There is no named worktree checkout-cost pain for 20_agentflow, and APFS fit on the Mac Mini is unverified. Park until disk or checkout time becomes a measured bottleneck.
+**Evidence:** stored snapshot SHA-256 2070dd80e6ed279a06d1b50746c2731f987ad8cd8b631d37342a29a3a264780d; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] No registry capability provides copy-on-write worktree dedup. The matches (app_audit_checkpoint, brain_commands, cli-7, decisions_convert_bullets, handover_stamp_gate) are only keyword hits and do not overlap. deploy.worktrees is related but is not confirmed to cover COW. The gap is real but has no named pain: the adopt gate says park, with no measured disk or checkout-time cost for parallel agent worktrees. Adding it would bring a new always-on filesystem-layer dependency whose APFS clone behavior is untested on the operator's Mac Mini dev server. The claimed savings (774→101 MiB for 10 worktrees) come only from the author. node_modules handling is unknown, and the stack is mostly Python/Swift/Flutter. Plain git worktree already works, so the maintenance and verification cost outweighs a speculative disk saving. Revisit if parallel agentflow runs hit disk or setup-latency limits.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:49 rev:5fe1ee3606b44f6d80828259dc83c577
+source: gap 49
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
