@@ -167,3 +167,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:55 rev:7b2f2e556f1f44e48814f9a2dc3b0fb2
 source: gap 55
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R13 — Show HN: Epoptes – Run Claude Code and Codex for hours with human oversight — reject
+
+**Artifact:** Show HN: Epoptes – Run Claude Code and Codex for hours with human oversight — https://news.ycombinator.com/item?id=50139543
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Epoptes is a v0.3 Node.js CLI and dashboard for long-running Claude Code, Codex and pi loops with fresh-context cycles. It overlaps 20_agentflow orchestration and 00_Governance oversight. It also adds a Node runtime and an always-on server, and its file formats are unstable.
+**Evidence:** stored snapshot SHA-256 898b0f07aa8f71ef1268d31f81e94323f7142b9f14f6d81286f19ebec31651ab; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] The potential gap is a long-run autonomous loop harness: fresh-context cycles, capped state files, per-cycle time/round/budget caps, a live dashboard with mid-run feedback, and end-of-run reports. Existing capabilities in 20_agentflow, 00_Governance, and the CLI registry (main-7 for Claude Code skills/hooks/agents, migrate_sessions for token accounting) already cover orchestration and oversight in part. The rest is mostly in the design patterns, which can be applied without adopting the tool. The costs outweigh the gap. The tool is self-described as early, and its file formats may change. It needs Node 22+, which is outside the Python/FastAPI/SQLite stack, and it adds a long-running local dashboard service. Similar orchestration candidates were rejected in R9 and R10.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:58 rev:acf68d6f12304636b45eb994bf8b6f27
+source: gap 58
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
