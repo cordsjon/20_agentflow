@@ -153,3 +153,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:49 rev:5fe1ee3606b44f6d80828259dc83c577
 source: gap 49
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R12 — Show HN: Wb-flow – Multi-agent CLI where state lives in Markdown, not context — reject
+
+**Artifact:** Show HN: Wb-flow – Multi-agent CLI where state lives in Markdown, not context — https://news.ycombinator.com/item?id=49830875
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] wb-flow is a 33-command prompt-template workflow suite (npm-distributed, Vue-monorepo-authored). It overlaps existing agentflow/flows/skillengineering capabilities and no concrete unmet need is named; adoption cost outweighs a speculative gap.
+**Evidence:** stored snapshot SHA-256 c70b806759de8dc12ed8ff0b2b40fc154ad43d360d199abbbdf1e9ea20bee5cb; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Candidate offers markdown-persisted plan state (task tables with five states), role-tagged suggestions (Planner/Validator/Worker/Mechanical), report consolidation/archival, and session tracking via /wb* prompt commands. Existing registry already covers adjacent ground: capture_insight appends session observations to draft work reports, foundations reads FOUNDATIONS.md state, app_audit_checkpoint persists audit phase state, governance_heatmap maps agent capability coverage, deps_registry maintains per-item markdown registries; plus mp-* skills (mp-to-spec, mp-to-tickets, mp-implement, mp-code-review, mp-tdd) and resume-handover cover plan/implement/review/handover loops. No evidence names an active gap; stack signals (npm install, Vue-specific /wbToWBC, wbc-ui2 examples) misfit the Python/FastAPI setup, and prior research on similar multi-agent orchestration tools was uniformly rejected. At most, the role-tagged 'Requires' column idea could be borrowed ad hoc without adopting the tool.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:55 rev:7b2f2e556f1f44e48814f9a2dc3b0fb2
+source: gap 55
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
