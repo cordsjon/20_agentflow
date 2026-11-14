@@ -549,3 +549,14 @@
 **Justification:** The plan test asserts stub kwargs (not just argv) carry no lenses for architecture-panel; a bare StageResult stub would otherwise write a second spec-panel line; an unreadable BACKLOG crashed run_story with FileNotFoundError instead of policy_unavailable (GOV commit for Task 7).
 **Outcome:** applied
 **Ref:** 9da43b0 (HEAD when logged, not the work commit)
+
+
+## Q52 — interactive/unblock-all-2026-11-14 — gate-resolution
+
+**Question:** Ratify Q37: fix the 5 verified-tag gate blocks that aborted the 2026-11-03 janitor runs, override, or leave them?
+**Chosen:** move the adjacent command -> output into the two handover tags, mark the two with no command as [recall], put the plan's command in backticks; committed a37ba018d
+**Decided-by:** human
+**Justification:** Operator blanket approval 2026-11-14: "/unblock -all and /assumed" — keep the default already taken.
+**Outcome:** applied
+**Ref:** fb749db (HEAD when logged, not the work commit)
+**Supersedes:** Q37 — superseded
