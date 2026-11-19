@@ -181,3 +181,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:58 rev:acf68d6f12304636b45eb994bf8b6f27
 source: gap 58
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R14 — Show HN: Lights-on software factory boilerplate for Claude Code — reject
+
+**Artifact:** Show HN: Lights-on software factory boilerplate for Claude Code — https://news.ycombinator.com/item?id=50160198
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Node/Alpine Claude Code boilerplate: container sandbox, deterministic bash regulator hook, ESLint PostToolUse feedback, plan-to-workflow generator. Concepts overlap 20_agentflow's own orchestration scope; the stack mismatch and the unproven need outweigh the gap.
+**Evidence:** stored snapshot SHA-256 6067ae116d28961625f3962612485eb79b0c7d9a15cf85f88c4702ad64a6c923; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Candidate claims: (1) a deterministic PreToolUse bash-command regulator with approve/deny plus a remediation hint; (2) PostToolUse lint feedback via custom ESLint rules; (3) a deterministic generator that turns a plan into multi-agent workflow scripts with gates, claiming about 80% lower token spend; (4) a Docker sandbox. Items 1 and 3 are the agent-orchestration and hooks capability family that 20_agentflow, 10_agentflow-demo and 60_skillengineering already own, and main-7 (ASES CLI) already builds and installs Claude Code hooks, agents and commands. Item 2 is JS-only and does not fit the Python/FastAPI operator stack. Prior candidates R9 to R13 were rejected for the same reasons: orchestrators, oversight and subagent runners. The evidence is only a README, and the token-savings figure is the author's own unverified claim. At most, the regulator's deny-with-instruction pattern is a design reference. It is not an adoptable component.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:62 rev:d74b08de8a944a6cbbaf542846acf539
+source: gap 62
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
