@@ -195,3 +195,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:62 rev:d74b08de8a944a6cbbaf542846acf539
 source: gap 62
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R15 — Overseer: Go + React hub for Claude Code, Codex and ACP agents running on multiple machines — reject
+
+**Artifact:** Overseer: Go + React hub for Claude Code, Codex and ACP agents running on multiple machines — https://www.reddit.com/r/coolgithubprojects/comments/1xcdc9e/overseer_go_react_hub_for_claude_code_codex_and/
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Draft: Overseer is described only by its title, a Go + React hub for Claude Code, Codex and ACP agents on several machines. The fetched source contains just 'Reddit', so fit and need are unverified. The idea overlaps existing fleet and agent-orchestration capabilities.
+**Evidence:** stored snapshot SHA-256 eb0050f72303bcdbbdc071e2a3bf810c903be8d05cdf09f7c3106f2b6f9878bf; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Claimed gap: a central multi-machine hub to monitor and control Claude Code, Codex and ACP agent sessions. This is already covered by fleet-ops (remote fleet state, restart, logs) and 20_agentflow / 40_mcp-gateway (agent orchestration and plumbing), so it is an augment at most. The stack (Go + React) sits outside the operator's Python/FastAPI, vanilla JS, Flutter, Swift and Astro stack. Similar orchestration and oversight tools were rejected before (R10 local subagent orchestration, R13 Epoptes oversight). There is no readable artifact to show any feature beyond these. Adopting would mean running and maintaining a foreign-stack service on top of capabilities that already exist, with unverified benefit.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:67 rev:5ef8018c159447c9a1ff70df3936331c
+source: gap 67
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
