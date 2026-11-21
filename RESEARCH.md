@@ -209,3 +209,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:67 rev:5ef8018c159447c9a1ff70df3936331c
 source: gap 67
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R16 — I built a file tree for Claude Code that shows every file Claude reads and edits, live (free, MIT) — reject
+
+**Artifact:** I built a file tree for Claude Code that shows every file Claude reads and edits, live (free, MIT) — https://www.reddit.com/r/coolgithubprojects/comments/1xl08wo/i_built_a_file_tree_for_claude_code_that_shows/
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Reddit post claims a live file tree showing Claude Code reads/edits (MIT). Source body is empty: no repo, stack, mechanism or license evidence. Overlaps cockpit/graphify observability; prior similar agent-oversight tools rejected. Insufficient evidence to adopt.
+**Evidence:** stored snapshot SHA-256 eb0050f72303bcdbbdc071e2a3bf810c903be8d05cdf09f7c3106f2b6f9878bf; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Possible gap: live per-session telemetry of agent file reads/edits for 20_agentflow, beyond existing cli tools (hermes_debt_dispatch, memory_store_unify, sync_global_commands) which dispatch or sync but do not visualize file access. Adjacent coverage likely in cockpit (agent observability/control surface) and graphify (file relationship graph). Claude Code hooks (PreToolUse/PostToolUse on Read/Edit/Write) could emit the same signal to an existing ledger without a new dependency. Fetched artifact contained only 'Reddit' — no repo, stack, license or mechanism — so stack fit, maintenance cost and actual delta over cockpit cannot be established; cost of an unverified always-on UI outweighs an unconfirmed gap.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:85 rev:d4b9bbe8da7c4da69bff0c391e5f1c05
+source: gap 85
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
