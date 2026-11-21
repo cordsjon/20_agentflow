@@ -33,8 +33,21 @@ fans out 5+ subagents — wrong shape and side-effects for a gate).
    Ignore: pre-existing issues, nitpicks, lint/type/format, untouched lines,
    general coverage/docs concerns not mandated by CLAUDE.md, likely false
    positives. Count surviving blocking findings → `N`.
-4. Briefly narrate each blocking finding (file:line + one sentence) BEFORE the
-   verdict line, so the gate's captured detail is actionable.
+4. Print each finding as **one JSON object on its own line**, BEFORE the verdict
+   line, so a caller can parse and recheck it:
+
+   ```
+   {"path": "scripts/db.py", "line": 42, "severity": "blocking", "summary": "SQL built from user input with an f-string."}
+   ```
+
+   - `path` is repo-relative, without the diff's `a/` or `b/` prefix.
+   - `line` is the new-file line number of the `+` line the defect is on.
+   - `severity` is `blocking` (counts toward `N`) or `advisory` (never counts).
+   - `summary` is one sentence.
+
+   Prose lines are allowed before the findings, but any line that starts with
+   `{` must be a valid finding object: a malformed one fails the prefilter's
+   recheck closed.
 
 ## Output Contract (machine-readable verdict)
 
@@ -47,11 +60,64 @@ REVIEW-VERDICT: FAIL: <machine_reason>
 ```
 
 - `PASS` only when `N == 0`.
-- On failure, `<machine_reason>` is a single snake_case token — prefer the
-  blocking count, e.g. `3_blocking`.
+- On failure, `<machine_reason>` is `<N>_blocking`, e.g. `3_blocking`, where
+  `N` equals the number of `"severity": "blocking"` finding lines you printed.
+  The prefilter's recheck fails closed (`recheck_count_mismatch`) when the count
+  and the printed findings disagree.
 - Emit the line literally, once, as the **last non-empty line** of your output.
   The gate parses only that final line — do NOT place any text after it, and do
   NOT repeat the literal string `REVIEW-VERDICT:` anywhere earlier. Omitting the
   line → gate fails closed `code_review_no_verdict`.
 - Your exit code is ignored for the verdict; a non-zero exit is read as
   `code_review_tooling_failed`, never a veto.
+
+## Prefilter pipeline
+
+`~/projects/00_Governance/scripts/review_prefilter.py` wraps this gate in plain
+code (US-REVGATE-PREFILTER-01, decision Q1882). It does two things the model
+should not decide:
+
+- **`bundle <diff>`** splits the diff into one bundle per top-level directory
+  and drops lockfiles, generated files and binaries. It prints
+  `{"bundles": [{"dir", "files", "diff"}]}`.
+- **`recheck (--diff <diff> | --bundles <bundles.json>) <gate-output>...`**
+  keeps a finding only when its `path:line` is a `+` line of the diff, then
+  prints the kept findings and one recomputed `REVIEW-VERDICT` line. Each
+  dropped finding is listed on stderr with its reason: `context`, `removed`,
+  `untouched` or `unknown-path`. It fails closed on an unparsable diff
+  (`recheck_bad_diff`, exit 2), a missing gate output
+  (`recheck_bundle_count_mismatch`), a gate output without a verdict
+  (`code_review_no_verdict`), a malformed finding line
+  (`recheck_malformed_finding`) and a gate FAIL its findings do not back
+  (`recheck_count_mismatch`).
+
+Run it on a diff file. It needs `jq`, and `timeout` from GNU coreutils
+(`brew install coreutils` on macOS):
+
+```bash
+GOV=~/projects/00_Governance/scripts/review_prefilter.py
+DIFF=change.diff                      # e.g. git diff main...HEAD > change.diff
+OUT=$(mktemp -d)
+python3 "$GOV" bundle "$DIFF" > "$OUT/bundles.json"
+n=$(jq '.bundles | length' "$OUT/bundles.json")
+outs=()
+for ((i = 0; i < n; i++)); do
+  jq -r ".bundles[$i].diff" "$OUT/bundles.json" \
+    | timeout 600 claude -p "/agentflow:code-review-gate" --output-format json --tools "" \
+    > "$OUT/run$i.json"
+  jq -r '.result // ""' "$OUT/run$i.json" > "$OUT/run$i.out"   # timed out: empty, fails closed
+  outs+=("$OUT/run$i.out")
+done
+python3 "$GOV" recheck --bundles "$OUT/bundles.json" "${outs[@]}"
+```
+
+`--tools ""` gives each gate run no tools, so text planted in the diff cannot
+act on the filesystem. For a single unbundled run, pipe the whole diff into
+one gate run and use `recheck --diff "$DIFF" run.out`.
+
+**Trade-off.** A bundle only sees its own directory. A finding that needs two
+directories at once is lost, for example a stale-docs contradiction between a
+flag renamed in `scripts/` and prose in `docs/`.
+
+**Residual risk.** Recheck only removes findings. A prompt injection in the
+diff that makes the gate stay silent is not caught here.
