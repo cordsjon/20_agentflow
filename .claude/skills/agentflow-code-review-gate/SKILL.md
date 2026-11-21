@@ -1,6 +1,6 @@
 ---
 name: agentflow-code-review-gate
-description: Quality-gate Stage-2 code review. Reviews a diff across four lenses (correctness bugs, CLAUDE.md adherence, missed simplifications, stale docs) in one pass and emits a machine-readable REVIEW-VERDICT line. Not for interactive use — invoked by quality_gate.run_stage2_review via claude -p. Does NOT invoke the /code-review plugin.
+description: Quality-gate Stage-2 code review. Reviews a diff across four lenses (correctness bugs, CLAUDE.md adherence, missed simplifications, stale docs) in one pass and emits a machine-readable REVIEW-VERDICT line. Not for interactive use — run headless, `claude -p "/agentflow:code-review-gate"` with the diff on stdin (its original caller, quality_gate.py, was removed 2026-09-09). Does NOT invoke the /code-review plugin.
 ---
 
 # Code-Review Gate (Stage 2)
@@ -38,7 +38,7 @@ fans out 5+ subagents — wrong shape and side-effects for a gate).
 
 ## Output Contract (machine-readable verdict)
 
-`quality_gate.run_stage2_review` reads the **verdict from stdout, not the exit
+The caller reads the **verdict from stdout, not the exit
 code**. Emit, as the **final line** and **exactly once**, one of:
 
 ```

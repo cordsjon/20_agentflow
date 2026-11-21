@@ -71,7 +71,7 @@ There are no pre-push gates.
 4. deploy        — project-specific; smoke per the project's own rule
 ```
 
-`/sh:dod` prints the machine-readable `DOD-VERDICT:` line that `quality_gate.run_stage1_dod` consumes; its contract lives in `~/.claude/commands/sh/dod.md`.
+`/sh:dod` prints the machine-readable `DOD-VERDICT:` line that a headless caller parses (its original consumer, `quality_gate.run_stage1_dod`, was removed 2026-09-09); its contract lives in `~/.claude/commands/sh/dod.md`.
 
 ## FIPD
 

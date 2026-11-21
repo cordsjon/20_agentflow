@@ -99,7 +99,7 @@ Fix ALL findings automatically — high, medium, and low severity. Do not ask wh
 
 ## Output Contract (machine-readable verdict)
 
-The quality gate (`quality_gate.run_stage3_panel`) consumes this panel via
+Any headless caller (the original `quality_gate.py` harness was removed 2026-09-09) runs this panel via
 `claude -p` and reads the **score from stdout, not the exit code**. Therefore
 the **final line** of your output MUST be exactly one of:
 

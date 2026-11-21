@@ -58,7 +58,7 @@ If any step fails, autopilot pauses and reports the blocker.
 
 ## Output Contract (machine-readable verdict)
 
-The quality gate (`quality_gate.run_stage1_dod`) consumes this skill via
+Any headless caller (the original `quality_gate.py` harness was removed 2026-09-09) runs this skill via
 `claude -p` and reads the **verdict from stdout, not the exit code**. Therefore
 the **final line** of your output MUST be exactly one of:
 
