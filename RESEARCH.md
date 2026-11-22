@@ -223,3 +223,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:85 rev:d4b9bbe8da7c4da69bff0c391e5f1c05
 source: gap 85
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R17 — Show HN: ECX – My Claude Code and Codex setup, where both agents share memory — reject
+
+**Artifact:** Show HN: ECX – My Claude Code and Codex setup, where both agents share memory — https://news.ycombinator.com/item?id=50392297
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] ECX bundles Claude Code/Codex message sharing, vault search, hooks and phone sync. Only the live cross-agent sync looks new; the rest overlaps existing capabilities or adds heavy ML, cron and GitHub-sync upkeep. No active need named, so reject.
+**Evidence:** stored snapshot SHA-256 289dc7d383cb9816c0d2003c188ab3b11affc41210cdcc0f7af2823dcd691998; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Closest registry entries: sync-memory-to-hermes (exports Claude Code memory and governance docs to Hermes), aggregate_prompt_library (thematic governance markdown), main-7 (skill registry; build/install of Claude Code skills, hooks, agents, slash commands) and claude_code_to_gist (session lookup/publish). None is described as live two-way Claude Code/Codex message sharing, so agent-sync is a narrow real gap. Costs outweigh it: the gate says park, with no active need named; it flags the GitHub sync bridge, nightly cron indexers, 3 MCP servers and 21 hooks as too heavy for single-operator local-first use, and ChromaDB/LightRAG/CLIP as new ML deps outside Python 3.11/FastAPI/SQLModel/SQLite. It also cites strong overlap with 40_mcp-gateway, 20_agentflow, 55_opencode and 20_Skills. Evidence is an author README; agent-sync code was not supplied, and feeding one agent's transcripts into another's prompts adds context and injection risk. Revisit if live sync becomes a named need.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:101 rev:6fac8b6b54a74c70a82b6fc9d189a395
+source: gap 101
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
