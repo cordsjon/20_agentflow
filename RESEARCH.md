@@ -251,3 +251,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:114 rev:7933616f8f124ed3826c4281fbd676c8
 source: gap 114
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R19 — Show HN: Skylands – Run coding agents on any machine, approve from your phone — reject
+
+**Artifact:** Show HN: Skylands – Run coding agents on any machine, approve from your phone — https://news.ycombinator.com/item?id=50484659
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Skylands offers multi-machine agent dispatch with phone approvals, but it is an early-stage Go multi-service stack (NATS, citadel, daemon, 3D UI) that overlaps 20_agentflow and mirrors ten prior rejected orchestration tools.
+**Evidence:** stored snapshot SHA-256 89eb640aa832afd0fd14a90026d775ab316a297978cf11420aea547f15319127; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] Possible gap: remote approve/reject of agent permission requests from a phone, and dispatching agent runs to other machines (thinkcentre-runner, thinkcentre-gateway) with a signed audit log. Existing coverage: 20_agentflow already does agent orchestration, 40_mcp-gateway handles tool permissions and auth paths, fleet-ops covers multi-machine operation, and the consigliere-gaps approve/decide loop provides approval workflows. The heavy embedded NATS + citadel + daemon + 3D browser UI architecture does not fit the Python/FastAPI/SQLite local-first stack at single-operator scale. The tool is immature and its security claims are unverified. Prior research rejected comparable hubs (R13 Epoptes, R15 Overseer, R10). Adopting it would add a parallel control plane, and that cost outweighs the narrow phone-approval delta. That delta is better tracked as a feature idea inside 20_agentflow.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:117 rev:d2f41845fd244d03b9bb04403f6feda3
+source: gap 117
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
