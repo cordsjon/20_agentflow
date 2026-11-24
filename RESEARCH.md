@@ -237,3 +237,17 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:101 rev:6fac8b6b54a74c70a82b6fc9d189a395
 source: gap 101
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R18 — Crewtree – run a tree of Claude Code agents from a local web UI: a Supervisor delegates, you watch, approve and steer — reject
+
+**Artifact:** Crewtree – run a tree of Claude Code agents from a local web UI: a Supervisor delegates, you watch, approve and steer — https://www.reddit.com/r/coolgithubprojects/comments/1xv29l6/crewtree_run_a_tree_of_claude_code_agents_from_a/
+**Question:** does it enhance 20_agentflow?
+**What it does:** [inference] Crewtree is a local web UI for a tree of Claude Code agents with a delegating Supervisor and human approval. The fetched evidence is only the Reddit page title. Similar orchestration and oversight tools have been rejected repeatedly (R9, R10, R13, R15).
+**Evidence:** stored snapshot SHA-256 eb0050f72303bcdbbdc071e2a3bf810c903be8d05cdf09f7c3106f2b6f9878bf; runtime capability [unmeasured].
+**Verdict:** reject
+**Justification:** [inference] No confirmed gap. The title describes a Supervisor that delegates to a tree of Claude Code agents through a local web UI with approve and steer controls. That overlaps with what 20_agentflow already covers: agent orchestration and workflow delegation with human-in-the-loop. Adjacent profiles 10_agentflow-demo, 85_HermesWebui and cockpit cover a web UI and oversight surface. The registry match is only augment-level, on generic terms (agents, claude, code), and the nearest slug, adopt_vendor_skill, has nothing to do with orchestration. Recent prior research rejected nearly identical candidates: tiered agent teams with escalation (R9), local subagent orchestration (R10), long-running oversight (R13) and a multi-machine agent hub (R15). With no readable source content, there is no evidence of stack fit (Python/FastAPI), license, maturity, or any capability that 20_agentflow lacks. The cost of evaluating and integrating it outweighs an unproven gap.
+**Cost if adopted:** n/a
+**Revisit-if:** —
+**Ref:** gap:114 rev:7933616f8f124ed3826c4281fbd676c8
+source: gap 114
+drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
