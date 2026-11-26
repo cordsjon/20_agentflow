@@ -277,3 +277,15 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Cost if adopted:** n/a. It would have meant a $39+/month subscription, a proprietary dependency, and project context sent off-machine.
 **Revisit-if:** —
 **Ref:** (pending)
+
+## R21 — enano (enano-ai/enano) — reject
+
+**Artifact:** enano CLI v0.4.3 — https://github.com/enano-ai/enano (PyPI `enano`)
+**Question:** does enano's detector design improve 20_agentflow `scripts/dor_gate.py`, so that a placeholder acceptance criterion no longer passes DoR?
+**What it does:** A Python CLI that checks notes against "bundles" of rules extracted from self-help books. Each rule group has regex patterns with a role (match / gate_only / absence) and a strength (strong / loose). Together they set one of four statuses: absence > documented > partial > topic_only. A second pass scores each line by cosine similarity against a precomputed vector index, using a small fine-tuned embedder (MiniLM/bge-small class, ONNX q8).
+**Evidence:** Cloned at 78259f2 and read `enano/tools/scan.py`, `semantic.py`, `cli.py`, `store.py`, `web.py`, `auth.py`. [verified: python -m pytest -q (in the clone, throwaway HOME/ENANO_HOME) -> 276 passed in 26.05s] Pulled the `greenberg-fck-love-2017` and `fraud-detection` bundles anonymously into a throwaway store. [verified: enano scan docs/samples/braindump.md (default model greenberg-fck-love-2017) -> "semantic: enano/pg-mnrl-47845708 (20 direct, 2 related, 0 possible lines)"; L1 "# Braindump (phone, no date)" -> 78.4% direct] fraud-detection gave 21 of 22 "direct". The tier floors (0.70/0.66/0.60) are fixed in `semantic.py` `TIERS`, not calibrated per corpus. Measured the gap in our own backlogs: 24 unique BACKLOG.md files (deduplicated by realpath) contain 3,266 AC lines. 26 contain a placeholder marker (TBD/TODO/FIXME/??/placeholder); in the sample read, those were real criteria that mention the word in passing. The 6 very short ones (`AC-03: Scope.`, `AC-02: Inside:`) are headings with real criteria nested under them. [verified: AC_RE from dor_gate.py over realpath-deduped ~/projects/*/BACKLOG.md -> "unique backlogs 24 AC lines 3266 empty 6 marker 26"; grep -A2 on the 6 short lines -> each followed by nested "  - " criteria] Placeholder ACs actually in use: 0. [web: pyproject.toml] license "Proprietary", no LICENSE file.
+**Verdict:** reject
+**Justification:** The absence role would catch placeholder ACs, and our backlogs have none. Adding it to dor_gate would only add false positives, from ACs that mention TODO and from lead-in lines. The license is proprietary, so the code can't be reused anyway. The semantic layer isn't usable as a coverage signal: its tiers rate almost any line "direct". One lesson is worth keeping, and it is general rather than enano's: calibrate similarity floors against unrelated text before trusting a tier label.
+**Cost if adopted:** n/a. Its bundles also carry Python (`tools/scan.py`, preferred over the CLI's own copy) that the CLI runs.
+**Revisit-if:** —
+**Ref:** (pending)
