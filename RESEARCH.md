@@ -265,3 +265,15 @@ drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
 **Ref:** gap:117 rev:d2f41845fd244d03b9bb04403f6feda3
 source: gap 117
 drafted-by: gap loop (claude-opus-5-5, from untrusted evidence)
+
+## R20 — AdaptOrch hosted MCP (adaptorch.com/mcp-docs) — reject
+
+**Artifact:** AdaptOrch MCP — https://adaptorch.com/mcp-docs (PyPI client `adaptorch-mcp` 0.6.1)
+**Question:** does it enhance 20_agentflow (multi-agent task orchestration for Claude Code sessions)?
+**What it does:** A paid hosted control plane. You send it a prompt or a list of subtasks over MCP; it decomposes and routes them, runs them on its own hosted model, synthesizes one answer, and returns run records, artifacts and traces. One tool, `adaptorch_route_topology`, suggests an execution shape for a task DAG locally without calling the service.
+**Evidence:** [verified: curl -sL -w "%{http_code}" https://adaptorch.com/mcp-docs -> 200] page extracted with trafilatura and read in full on 2026-11-26. [web: adaptorch.com/mcp-docs] says runs use the hosted model "WorkBuddy deepseek-v4.1-flash" unless you pass BYOK provider headers; shared hosted command verification is disabled by default, so a SUCCEEDED run does not mean any repo check ran; the engine is proprietary and the docs say not to clone the private core; the PyPI 0.6.1 package is only a remote stdio client with no engine; the plan catalog lists Pro $39 and Team $149. The URL anchor `#from-source` matches no section on the page: there is no build-from-source path. Tool behaviour and output quality: [unmeasured], no account was created.
+**Verdict:** reject
+**Justification:** It covers what we already run locally and adds nothing we lack. Fan-out and synthesis are covered by Claude Code subagents and the Workflow tool, DAG scheduling by dagu, and multi-session coordination by concord (00_Governance R3/R63). The default model is a flash-tier DeepSeek, weaker than the Claude models our sessions already run, and BYOK only swaps the model while the orchestration stays a closed box. Hosted runs cannot execute repository checks, so it can't verify code, which is the part our workflows depend on. Every task's prompt and context would go to a third-party service, which conflicts with local-first and with keeping client and project data private. It is closed source, so we can't adopt or vendor the topology router either.
+**Cost if adopted:** n/a. It would have meant a $39+/month subscription, a proprietary dependency, and project context sent off-machine.
+**Revisit-if:** —
+**Ref:** (pending)
